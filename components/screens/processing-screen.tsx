@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { Settings, Check, Loader2 } from "lucide-react"
@@ -98,6 +98,17 @@ export function ProcessingScreen() {
   const { navigateTo, setAnalysisResult, setRecommendations } = useApp()
   const [currentStep, setCurrentStep] = useState(0)
   const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done'>>(['reading', 'waiting', 'waiting'])
+  const hasStartedRef = useRef(false)
+
+  // Store functions in refs to avoid dependency issues
+  const navigateToRef = useRef(navigateTo)
+  const setAnalysisResultRef = useRef(setAnalysisResult)
+  const setRecommendationsRef = useRef(setRecommendations)
+
+  // Keep refs updated
+  navigateToRef.current = navigateTo
+  setAnalysisResultRef.current = setAnalysisResult
+  setRecommendationsRef.current = setRecommendations
 
   const stepLabels = [
     'Mapping geometric face contours...',
@@ -106,6 +117,10 @@ export function ProcessingScreen() {
   ]
 
   useEffect(() => {
+    // Prevent double-running in strict mode
+    if (hasStartedRef.current) return
+    hasStartedRef.current = true
+
     const timer1 = setTimeout(() => {
       setStepStatuses(['done', 'reading', 'waiting'])
       setCurrentStep(1)
@@ -121,7 +136,7 @@ export function ProcessingScreen() {
       setCurrentStep(3)
 
       // Set mock analysis result
-      setAnalysisResult({
+      setAnalysisResultRef.current({
         faceShape: 'Square',
         densityScore: 72,
         textureProfile: {
@@ -134,11 +149,11 @@ export function ProcessingScreen() {
       })
 
       // Set mock recommendations
-      setRecommendations(mockRecommendations)
+      setRecommendationsRef.current(mockRecommendations)
     }, 5000)
 
     const timer4 = setTimeout(() => {
-      navigateTo('recommendations')
+      navigateToRef.current('recommendations')
     }, 6000)
 
     return () => {
@@ -147,7 +162,7 @@ export function ProcessingScreen() {
       clearTimeout(timer3)
       clearTimeout(timer4)
     }
-  }, [navigateTo, setAnalysisResult, setRecommendations])
+  }, []) // Empty dependency array - only runs once
 
   const getStatusIcon = (status: 'waiting' | 'reading' | 'done') => {
     switch (status) {

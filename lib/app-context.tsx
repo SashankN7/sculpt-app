@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, useRef, type ReactNode } from "react"
 import { type AppState, type Screen, initialAppState, type HairstyleRecommendation } from "@/lib/types"
 
 interface AppContextType {
@@ -23,61 +23,62 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null)
 
-const screenHistory: Screen[] = []
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(initialAppState)
+  const screenHistoryRef = useRef<Screen[]>([])
 
-  const navigateTo = (screen: Screen) => {
-    screenHistory.push(state.currentScreen)
-    setState(prev => ({ ...prev, currentScreen: screen }))
-  }
+  const navigateTo = useCallback((screen: Screen) => {
+    setState(prev => {
+      screenHistoryRef.current.push(prev.currentScreen)
+      return { ...prev, currentScreen: screen }
+    })
+  }, [])
 
-  const goBack = () => {
-    const previousScreen = screenHistory.pop()
+  const goBack = useCallback(() => {
+    const previousScreen = screenHistoryRef.current.pop()
     if (previousScreen) {
       setState(prev => ({ ...prev, currentScreen: previousScreen }))
     }
-  }
+  }, [])
 
-  const setUserSession = (userSession: AppState['userSession']) => {
+  const setUserSession = useCallback((userSession: AppState['userSession']) => {
     setState(prev => ({ ...prev, userSession }))
-  }
+  }, [])
 
-  const setEmail = (email: string) => {
+  const setEmail = useCallback((email: string) => {
     setState(prev => ({ ...prev, email }))
-  }
+  }, [])
 
-  const setUploadedImage = (type: 'front' | 'side' | 'hairline', url: string | null) => {
+  const setUploadedImage = useCallback((type: 'front' | 'side' | 'hairline', url: string | null) => {
     setState(prev => ({
       ...prev,
       uploadedImages: { ...prev.uploadedImages, [type]: url }
     }))
-  }
+  }, [])
 
-  const setMaintenanceLevel = (maintenance: AppState['questionnaireAnswers']['maintenance']) => {
+  const setMaintenanceLevel = useCallback((maintenance: AppState['questionnaireAnswers']['maintenance']) => {
     setState(prev => ({
       ...prev,
       questionnaireAnswers: { ...prev.questionnaireAnswers, maintenance }
     }))
-  }
+  }, [])
 
-  const setStyleGoal = (styleGoal: AppState['questionnaireAnswers']['styleGoal']) => {
+  const setStyleGoal = useCallback((styleGoal: AppState['questionnaireAnswers']['styleGoal']) => {
     setState(prev => ({
       ...prev,
       questionnaireAnswers: { ...prev.questionnaireAnswers, styleGoal }
     }))
-  }
+  }, [])
 
-  const setAnalysisResult = (analysisResult: AppState['analysisResult']) => {
+  const setAnalysisResult = useCallback((analysisResult: AppState['analysisResult']) => {
     setState(prev => ({ ...prev, analysisResult }))
-  }
+  }, [])
 
-  const setRecommendations = (recommendations: HairstyleRecommendation[]) => {
+  const setRecommendations = useCallback((recommendations: HairstyleRecommendation[]) => {
     setState(prev => ({ ...prev, recommendations, currentRecommendationIndex: 0 }))
-  }
+  }, [])
 
-  const nextRecommendation = () => {
+  const nextRecommendation = useCallback(() => {
     setState(prev => ({
       ...prev,
       currentRecommendationIndex: Math.min(
@@ -85,55 +86,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
         prev.recommendations.length - 1
       )
     }))
-  }
+  }, [])
 
-  const saveRecommendation = (recommendation: HairstyleRecommendation) => {
+  const saveRecommendation = useCallback((recommendation: HairstyleRecommendation) => {
     setState(prev => ({
       ...prev,
       savedRecommendations: [...prev.savedRecommendations, recommendation]
     }))
-  }
+  }, [])
 
-  const setFeedbackMatched = (matched: boolean | null) => {
+  const setFeedbackMatched = useCallback((matched: boolean | null) => {
     setState(prev => ({
       ...prev,
       feedbackData: { ...prev.feedbackData, matched }
     }))
-  }
+  }, [])
 
-  const setFeedbackPhoto = (url: string | null) => {
+  const setFeedbackPhoto = useCallback((url: string | null) => {
     setState(prev => ({
       ...prev,
       feedbackData: { ...prev.feedbackData, afterPhoto: url }
     }))
-  }
+  }, [])
 
-  const resetUpload = () => {
+  const resetUpload = useCallback(() => {
     setState(prev => ({
       ...prev,
       uploadedImages: { front: null, side: null, hairline: null },
       questionnaireAnswers: { maintenance: null, styleGoal: null },
     }))
-  }
+  }, [])
+
+  const contextValue = useMemo(() => ({
+    state,
+    navigateTo,
+    setUserSession,
+    setEmail,
+    setUploadedImage,
+    setMaintenanceLevel,
+    setStyleGoal,
+    setAnalysisResult,
+    setRecommendations,
+    nextRecommendation,
+    saveRecommendation,
+    setFeedbackMatched,
+    setFeedbackPhoto,
+    resetUpload,
+    goBack,
+  }), [
+    state,
+    navigateTo,
+    setUserSession,
+    setEmail,
+    setUploadedImage,
+    setMaintenanceLevel,
+    setStyleGoal,
+    setAnalysisResult,
+    setRecommendations,
+    nextRecommendation,
+    saveRecommendation,
+    setFeedbackMatched,
+    setFeedbackPhoto,
+    resetUpload,
+    goBack,
+  ])
 
   return (
-    <AppContext.Provider value={{
-      state,
-      navigateTo,
-      setUserSession,
-      setEmail,
-      setUploadedImage,
-      setMaintenanceLevel,
-      setStyleGoal,
-      setAnalysisResult,
-      setRecommendations,
-      nextRecommendation,
-      saveRecommendation,
-      setFeedbackMatched,
-      setFeedbackPhoto,
-      resetUpload,
-      goBack,
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   )
