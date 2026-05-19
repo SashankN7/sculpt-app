@@ -6,11 +6,6 @@ import { useApp } from "@/lib/app-context"
 import { Settings, Check, Loader2 } from "lucide-react"
 import type { HairstyleRecommendation } from "@/lib/types"
 
-interface ProcessingStep {
-  label: string
-  status: 'waiting' | 'reading' | 'done'
-}
-
 // Mock recommendations data
 const mockRecommendations: HairstyleRecommendation[] = [
   {
@@ -101,41 +96,29 @@ const mockRecommendations: HairstyleRecommendation[] = [
 
 export function ProcessingScreen() {
   const { navigateTo, setAnalysisResult, setRecommendations } = useApp()
-  const [steps, setSteps] = useState<ProcessingStep[]>([
-    { label: 'Mapping geometric face contours...', status: 'reading' },
-    { label: 'Measuring texture & hair density...', status: 'waiting' },
-    { label: 'Filtering matching hair vectors...', status: 'waiting' },
-  ])
+  const [currentStep, setCurrentStep] = useState(0)
+  const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done'>>(['reading', 'waiting', 'waiting'])
+
+  const stepLabels = [
+    'Mapping geometric face contours...',
+    'Measuring texture & hair density...',
+    'Filtering matching hair vectors...',
+  ]
 
   useEffect(() => {
-    // Simulate processing steps
-    const timers: NodeJS.Timeout[] = []
+    const timer1 = setTimeout(() => {
+      setStepStatuses(['done', 'reading', 'waiting'])
+      setCurrentStep(1)
+    }, 1500)
 
-    // Step 1 complete
-    timers.push(setTimeout(() => {
-      setSteps(prev => [
-        { ...prev[0], status: 'done' },
-        { ...prev[1], status: 'reading' },
-        prev[2],
-      ])
-    }, 1500))
+    const timer2 = setTimeout(() => {
+      setStepStatuses(['done', 'done', 'reading'])
+      setCurrentStep(2)
+    }, 3500)
 
-    // Step 2 complete
-    timers.push(setTimeout(() => {
-      setSteps(prev => [
-        prev[0],
-        { ...prev[1], status: 'done' },
-        { ...prev[2], status: 'reading' },
-      ])
-    }, 3500))
-
-    // Step 3 complete and navigate
-    timers.push(setTimeout(() => {
-      setSteps(prev => [
-        prev[0],
-        prev[1],
-        { ...prev[2], status: 'done' },
-      ])
+    const timer3 = setTimeout(() => {
+      setStepStatuses(['done', 'done', 'done'])
+      setCurrentStep(3)
 
       // Set mock analysis result
       setAnalysisResult({
@@ -152,28 +135,28 @@ export function ProcessingScreen() {
 
       // Set mock recommendations
       setRecommendations(mockRecommendations)
-    }, 5000))
+    }, 5000)
 
-    // Navigate to recommendations
-    timers.push(setTimeout(() => {
-      // Simulate a 10% chance of low confidence for demo purposes
-      const isLowConfidence = Math.random() < 0.1
-      navigateTo(isLowConfidence ? 'low-confidence' : 'recommendations')
-    }, 6000))
+    const timer4 = setTimeout(() => {
+      navigateTo('recommendations')
+    }, 6000)
 
     return () => {
-      timers.forEach(clearTimeout)
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      clearTimeout(timer3)
+      clearTimeout(timer4)
     }
   }, [navigateTo, setAnalysisResult, setRecommendations])
 
-  const getStatusIcon = (status: ProcessingStep['status']) => {
+  const getStatusIcon = (status: 'waiting' | 'reading' | 'done') => {
     switch (status) {
       case 'done':
         return <Check className="w-4 h-4 text-success" />
       case 'reading':
         return <Loader2 className="w-4 h-4 text-gold animate-spin" />
       default:
-        return <span className="w-4 h-4 text-muted-foreground">⏳</span>
+        return <span className="w-4 h-4 text-muted-foreground">-</span>
     }
   }
 
@@ -210,7 +193,7 @@ export function ProcessingScreen() {
 
         {/* Steps */}
         <div className="space-y-3 text-left">
-          {steps.map((step, index) => (
+          {stepLabels.map((label, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -10 }}
@@ -219,10 +202,10 @@ export function ProcessingScreen() {
               className="flex items-center gap-3 text-sm"
             >
               <Settings className="w-4 h-4 text-muted-foreground" />
-              <span className={step.status === 'waiting' ? 'text-muted-foreground' : 'text-foreground'}>
-                {step.label}
+              <span className={stepStatuses[index] === 'waiting' ? 'text-muted-foreground' : 'text-foreground'}>
+                {label}
               </span>
-              <span className="ml-auto">{getStatusIcon(step.status)}</span>
+              <span className="ml-auto">{getStatusIcon(stepStatuses[index])}</span>
             </motion.div>
           ))}
         </div>
