@@ -1,11 +1,19 @@
 "use client"
 
+import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { Zap } from "lucide-react"
+import { resetProcessingState } from "@/components/screens/processing-screen"
 
 export function LandingScreen() {
-  const { navigateTo, setUserSession } = useApp()
+  const { navigateTo, setUserSession, resetUpload } = useApp()
+
+  // Reset state when landing screen mounts
+  useEffect(() => {
+    resetProcessingState()
+    resetUpload()
+  }, [resetUpload])
 
   const handleStartAnalysis = () => {
     navigateTo('auth')

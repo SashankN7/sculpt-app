@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { Settings, Check, Loader2 } from "lucide-react"
@@ -94,21 +94,19 @@ const mockRecommendations: HairstyleRecommendation[] = [
   },
 ]
 
+// Use a module-level flag to prevent double execution across strict mode remounts
+let processingStarted = false
+let processingTimers: ReturnType<typeof setTimeout>[] = []
+
+export function resetProcessingState() {
+  processingStarted = false
+  processingTimers.forEach(clearTimeout)
+  processingTimers = []
+}
+
 export function ProcessingScreen() {
   const { navigateTo, setAnalysisResult, setRecommendations } = useApp()
-  const [currentStep, setCurrentStep] = useState(0)
   const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done'>>(['reading', 'waiting', 'waiting'])
-  const hasStartedRef = useRef(false)
-
-  // Store functions in refs to avoid dependency issues
-  const navigateToRef = useRef(navigateTo)
-  const setAnalysisResultRef = useRef(setAnalysisResult)
-  const setRecommendationsRef = useRef(setRecommendations)
-
-  // Keep refs updated
-  navigateToRef.current = navigateTo
-  setAnalysisResultRef.current = setAnalysisResult
-  setRecommendationsRef.current = setRecommendations
 
   const stepLabels = [
     'Mapping geometric face contours...',
@@ -117,26 +115,29 @@ export function ProcessingScreen() {
   ]
 
   useEffect(() => {
-    // Prevent double-running in strict mode
-    if (hasStartedRef.current) return
-    hasStartedRef.current = true
+    // Module-level guard prevents double execution even across remounts
+    if (processingStarted) {
+      return
+    }
+    processingStarted = true
 
-    const timer1 = setTimeout(() => {
+    // Clear any existing timers
+    processingTimers.forEach(clearTimeout)
+    processingTimers = []
+
+    processingTimers.push(setTimeout(() => {
       setStepStatuses(['done', 'reading', 'waiting'])
-      setCurrentStep(1)
-    }, 1500)
+    }, 1500))
 
-    const timer2 = setTimeout(() => {
+    processingTimers.push(setTimeout(() => {
       setStepStatuses(['done', 'done', 'reading'])
-      setCurrentStep(2)
-    }, 3500)
+    }, 3500))
 
-    const timer3 = setTimeout(() => {
+    processingTimers.push(setTimeout(() => {
       setStepStatuses(['done', 'done', 'done'])
-      setCurrentStep(3)
 
       // Set mock analysis result
-      setAnalysisResultRef.current({
+      setAnalysisResult({
         faceShape: 'Square',
         densityScore: 72,
         textureProfile: {
@@ -149,20 +150,16 @@ export function ProcessingScreen() {
       })
 
       // Set mock recommendations
-      setRecommendationsRef.current(mockRecommendations)
-    }, 5000)
+      setRecommendations(mockRecommendations)
+    }, 5000))
 
-    const timer4 = setTimeout(() => {
-      navigateToRef.current('recommendations')
-    }, 6000)
+    processingTimers.push(setTimeout(() => {
+      processingStarted = false // Reset for next time user goes through flow
+      navigateTo('recommendations')
+    }, 6000))
 
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
-      clearTimeout(timer3)
-      clearTimeout(timer4)
-    }
-  }, []) // Empty dependency array - only runs once
+    // No cleanup - we want timers to continue even if component re-renders
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getStatusIcon = (status: 'waiting' | 'reading' | 'done') => {
     switch (status) {

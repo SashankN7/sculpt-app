@@ -1,23 +1,30 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 
 interface PhoneFrameProps {
   children: ReactNode
   batteryLevel?: number
-  time?: string
 }
 
 export function PhoneFrame({ 
   children, 
   batteryLevel = 98,
-  time 
 }: PhoneFrameProps) {
-  const currentTime = time || new Date().toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: false 
-  })
+  const [currentTime, setCurrentTime] = useState("--:--")
+
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentTime(new Date().toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }))
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-background">
