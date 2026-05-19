@@ -35,9 +35,10 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
     <motion.div
       style={{ x, rotate, opacity }}
       drag={isTop ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.9}
+      dragConstraints={{ left: -300, right: 300 }}
       onDragEnd={handleDragEnd}
-      className={`absolute inset-0 ${isTop ? 'cursor-grab active:cursor-grabbing z-10' : 'z-0'}`}
+      className={`absolute inset-0 ${isTop ? 'cursor-grab active:cursor-grabbing z-10' : 'z-0'} touch-pan-y`}
     >
       <div className="h-full bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
         {/* Sculpt Pick Badge */}
