@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
-import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Sparkles } from "lucide-react"
+import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Sparkles, Crown } from "lucide-react"
 import type { HairstyleRecommendation } from "@/lib/types"
 
 const TRAIT_LABELS = {
@@ -174,10 +174,13 @@ function RecommendationCard({
   )
 }
 
+const FREE_RECOMMENDATION_LIMIT = 3
+
 export function RecommendationDetailScreen() {
   const { state, navigateTo, resetAll, syncRecommendationIndex, unsaveRecommendation, unrejectRecommendation, setPreviewRecommendation } = useApp()
   const { userSession } = state
   const { savedRecommendations, rejectedRecommendations, recommendations } = state
+  const isPremium = userSession === 'premium' || userSession === 'trial'
   const [activeTab, setActiveTab] = useState<'saved' | 'rejected'>(
     savedRecommendations.length === 0 ? 'rejected' : 'saved'
   )
@@ -352,6 +355,22 @@ export function RecommendationDetailScreen() {
                     <p className="text-sm text-muted-foreground">No saved picks yet.</p>
                   </div>
                 )}
+
+                {/* Free tier upgrade nudge */}
+                {!isPremium && savedRecommendations.length >= FREE_RECOMMENDATION_LIMIT && (
+                  <button
+                    onClick={() => navigateTo('paywall')}
+                    className="w-full p-3 bg-gold/5 border border-gold/30 rounded-xl flex items-center gap-3 hover:bg-gold/10 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                      <Crown className="w-4 h-4 text-gold" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-semibold text-gold">Unlock more styles</p>
+                      <p className="text-[10px] text-muted-foreground">Premium gets {recommendations.length}+ personalized recommendations</p>
+                    </div>
+                  </button>
+                )}
               </motion.div>
             )}
 
@@ -391,6 +410,22 @@ export function RecommendationDetailScreen() {
                   <div className="text-center py-6">
                     <p className="text-sm text-muted-foreground">No rejected picks.</p>
                   </div>
+                )}
+
+                {/* Free tier upgrade nudge */}
+                {!isPremium && rejectedWithSculpt.length >= FREE_RECOMMENDATION_LIMIT && (
+                  <button
+                    onClick={() => navigateTo('paywall')}
+                    className="w-full p-3 bg-gold/5 border border-gold/30 rounded-xl flex items-center gap-3 hover:bg-gold/10 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                      <Crown className="w-4 h-4 text-gold" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-semibold text-gold">Unlock more styles</p>
+                      <p className="text-[10px] text-muted-foreground">Premium gets {recommendations.length}+ personalized recommendations</p>
+                    </div>
+                  </button>
                 )}
               </motion.div>
             )}

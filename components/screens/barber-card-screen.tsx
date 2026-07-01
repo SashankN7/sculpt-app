@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Scissors, AlertTriangle, Share2, Loader2, Check } from "lucide-react"
+import { ChevronLeft, Scissors, AlertTriangle, Share2, Loader2, Check, Lock, Crown } from "lucide-react"
 import { exportBarberCardToPDF } from "@/lib/pdf-export"
 
 export function BarberCardScreen() {
   const { state, navigateTo, goBack } = useApp()
   const { recommendations, currentRecommendationIndex, userSession, analysisResult } = state
+  const isPremium = userSession === 'premium' || userSession === 'trial'
   const [isExporting, setIsExporting] = useState(false)
   const [exportDone, setExportDone] = useState(false)
   
@@ -123,29 +124,51 @@ export function BarberCardScreen() {
           )}
 
           {/* Export Button */}
-          <motion.button
-            onClick={handleExport}
-            disabled={isExporting}
-            className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 mt-4 disabled:opacity-60"
-            whileTap={!isExporting ? { scale: 0.98 } : {}}
-          >
-            {exportDone ? (
-              <>
-                <Check className="w-5 h-5" />
-                DOWNLOADED!
-              </>
-            ) : isExporting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Generating PDF...
-              </>
-            ) : (
-              <>
-                <Share2 className="w-5 h-5" />
-                EXPORT & SHARE CARD
-              </>
-            )}
-          </motion.button>
+          {isPremium ? (
+            <motion.button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 mt-4 disabled:opacity-60"
+              whileTap={!isExporting ? { scale: 0.98 } : {}}
+            >
+              {exportDone ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  DOWNLOADED!
+                </>
+              ) : isExporting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-5 h-5" />
+                  EXPORT & SHARE CARD
+                </>
+              )}
+            </motion.button>
+          ) : (
+            <button
+              onClick={() => navigateTo('paywall')}
+              className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-secondary border border-gold/40 text-gold font-semibold rounded-xl transition-all hover:bg-gold/5 mt-4"
+            >
+              <Lock className="w-5 h-5" />
+              EXPORT AS PDF
+              <span className="ml-1 px-1.5 py-0.5 bg-gold/10 rounded-full text-[10px] font-bold">
+                PREMIUM
+              </span>
+            </button>
+          )}
+          {!isPremium && (
+            <button
+              onClick={() => navigateTo('paywall')}
+              className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 text-xs text-muted-foreground hover:text-gold transition-colors"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              Upgrade to Premium to export barber cards as PDF
+            </button>
+          )}
         </motion.div>
       </div>
     </div>
