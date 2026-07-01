@@ -8,7 +8,7 @@ import { X, Crown, Check, Loader2, Sparkles, Zap, Calendar, ArrowRight, Eye } fr
 
 export function PaywallScreen() {
   const { state, navigateTo, setUserSession, startTrial, goBack } = useApp()
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [successType, setSuccessType] = useState<'trial' | 'subscribe'>('trial')
@@ -175,14 +175,19 @@ export function PaywallScreen() {
                 onClick={() => setBillingCycle('annual')}
                 className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all relative ${
                   billingCycle === 'annual'
-                    ? 'bg-background border border-border text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-background border-2 border-gold text-foreground shadow-sm ring-1 ring-gold/30'
+                    : 'border border-gold/40 text-foreground hover:bg-gold/5'
                 }`}
               >
                 Annual
-                <span className="ml-1.5 text-[10px] text-success font-semibold">
+                <span className="ml-1.5 text-[10px] text-gold font-bold">
                   Save {annualSavings}%
                 </span>
+                {billingCycle !== 'annual' && (
+                  <span className="absolute -top-2 right-1 text-[9px] bg-gold text-background px-1.5 py-0.5 rounded-full font-bold shadow-sm">
+                    BEST VALUE
+                  </span>
+                )}
               </button>
             </div>
           </div>

@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS user_data (
   grooming_streak INTEGER DEFAULT 0,
   last_grooming_tip_date TEXT,
   preview_credits INTEGER DEFAULT 0,
+  chat_messages_today INTEGER DEFAULT 0,
+  last_chat_date TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

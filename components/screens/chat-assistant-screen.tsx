@@ -21,6 +21,22 @@ const QUICK_REPLIES = [
 
 export function ChatAssistantScreen() {
   const { state, navigateTo } = useApp()
+  const [userId, setUserId] = useState<string | null>(null)
+
+  // Get user ID for server-side chat tracking
+  useEffect(() => {
+    async function getUserId() {
+      try {
+        const { createClient } = await import("@/lib/supabase")
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user?.id) setUserId(user.id)
+      } catch {
+        // Guest user
+      }
+    }
+    getUserId()
+  }, [])
   const { recommendations, currentRecommendationIndex, analysisResult } = state
   const recommendation = recommendations[currentRecommendationIndex]
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -61,19 +77,28 @@ export function ChatAssistantScreen() {
           recommendation,
           analysisResult,
           chatHistory: messages.map(m => ({ role: m.role, content: m.text })),
+          userSession: state.userSession,
+          userId,
         }),
       })
 
-      if (!res.ok) {
-        throw new Error('Chat request failed')
-      }
+      const data = await res.json()
 
-      const { response } = await res.json()
+      if (!res.ok) {
+        const errorMsg = data.error || 'Chat request failed'
+        const assistantMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          text: errorMsg,
+        }
+        setMessages(prev => [...prev, assistantMsg])
+        return
+      }
 
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        text: response,
+        text: data.response,
       }
       setMessages(prev => [...prev, assistantMsg])
     } catch {
