@@ -2,26 +2,26 @@
 
 import { useApp } from "@/lib/app-context"
 import { QuestionnaireBase } from "@/components/screens/questionnaire-base"
-import { questionnaireStep1Questions } from "@/lib/questionnaire-data"
+import { questionnaireStep3Questions } from "@/lib/questionnaire-data"
 
-export function QuestionnaireMaintenance() {
+export function QuestionnaireGoals() {
   const { navigateTo } = useApp()
 
   const handleNext = () => {
-    navigateTo('questionnaire-2')
+    navigateTo('questionnaire-4')
   }
 
   const handleBack = () => {
-    navigateTo('upload')
+    navigateTo('questionnaire-2')
   }
 
   return (
     <QuestionnaireBase
-      stepNumber={1}
+      stepNumber={3}
       totalSteps={4}
-      title="About Your Hair"
-      subtitle="Help us understand your hair and lifestyle so we can recommend the perfect cut."
-      questions={questionnaireStep1Questions}
+      title="Your Goals"
+      subtitle="What are you trying to achieve with this haircut change?"
+      questions={questionnaireStep3Questions}
       onNext={handleNext}
       onBack={handleBack}
       nextLabel="NEXT"

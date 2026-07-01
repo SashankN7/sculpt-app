@@ -3,14 +3,18 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Mail } from "lucide-react"
+import { createClient } from "@/lib/supabase"
+import { ChevronLeft, Mail, Loader2, Lock } from "lucide-react"
 
 export function AuthScreen() {
   const { navigateTo, setUserSession, setEmail, goBack } = useApp()
-  const [email, setEmailInput] = useState("")
+  const [emailInput, setEmailInput] = useState("")
+  const [password, setPassword] = useState("")
+  const [isSignUp, setIsSignUp] = useState(true)
   const [isValidEmail, setIsValidEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -21,39 +25,108 @@ export function AuthScreen() {
     const value = e.target.value
     setEmailInput(value)
     validateEmail(value)
+    setError(null)
   }
 
   const handleSubmit = async () => {
-    if (!isValidEmail) return
-    
+    if (!isValidEmail || password.length < 6) return
     setIsSubmitting(true)
-    // Simulate auth request
-    await new Promise(resolve => setTimeout(resolve, 800))
-    setShowSuccess(true)
-    setEmail(email)
-    setUserSession('authenticated')
-    
-    await new Promise(resolve => setTimeout(resolve, 600))
-    navigateTo('upload')
+    setError(null)
+
+    try {
+      const supabase = createClient()
+
+      if (isSignUp) {
+        // Sign up with email/password
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: emailInput,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        })
+
+        if (signUpError) {
+          setError(signUpError.message)
+          setIsSubmitting(false)
+          return
+        }
+
+        // Check if user was created (auto-confirm enabled) or needs email verification
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (session) {
+          setEmail(emailInput)
+          setUserSession('authenticated')
+          setShowSuccess(true)
+          await new Promise(resolve => setTimeout(resolve, 600))
+          navigateTo('dashboard')
+        } else {
+          // Email confirmation required
+          setError("Check your email for a confirmation link!")
+          setIsSubmitting(false)
+        }
+      } else {
+        // Sign in with email/password
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: emailInput,
+          password,
+        })
+
+        if (signInError) {
+          setError(signInError.message)
+          setIsSubmitting(false)
+          return
+        }
+
+        setEmail(emailInput)
+        setUserSession('authenticated')
+        setShowSuccess(true)
+        await new Promise(resolve => setTimeout(resolve, 600))
+        navigateTo('dashboard')
+      }
+    } catch {
+      setError('Authentication failed. Please try again.')
+      setIsSubmitting(false)
+    }
   }
 
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setIsSubmitting(true)
-    // Simulate OAuth flow
-    await new Promise(resolve => setTimeout(resolve, 800))
-    setShowSuccess(true)
-    setEmail(`user@${provider}.com`)
-    setUserSession('authenticated')
-    
-    await new Promise(resolve => setTimeout(resolve, 600))
+    setError(null)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      })
+
+      if (error) {
+        setError(`Failed to sign in with ${provider}. ${error.message}`)
+        setIsSubmitting(false)
+      }
+      // OAuth redirects automatically on success
+    } catch {
+      setError(`Failed to sign in with ${provider}. Please try again.`)
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleGuestBypass = () => {
+    setUserSession('guest')
     navigateTo('upload')
   }
+
+  const canSubmit = isValidEmail && password.length >= 6
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center px-4 py-2">
-        <button 
+        <button
           onClick={goBack}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
@@ -62,7 +135,7 @@ export function AuthScreen() {
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-4">
+      <div className="flex-1 px-6 pt-4 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,25 +143,64 @@ export function AuthScreen() {
         >
           {/* Title */}
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            CREATE YOUR ACCOUNT
+            {isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
           </h2>
           <p className="text-sm text-muted-foreground mb-8">
-            Save your haircut evolution profile over time.
+            {isSignUp
+              ? 'Save your haircut evolution profile over time.'
+              : 'Sign in to access your saved recommendations.'
+            }
           </p>
 
           {/* Email Input */}
-          <div className="relative mb-6">
+          <div className="relative mb-3">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               <Mail className="w-5 h-5" />
             </div>
             <input
               type="email"
-              value={email}
+              value={emailInput}
               onChange={handleEmailChange}
               placeholder="Enter email address"
               className="w-full pl-12 pr-4 py-4 bg-secondary border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
             />
           </div>
+
+          {/* Password Input */}
+          <div className="relative mb-4">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Lock className="w-5 h-5" />
+            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setError(null)
+              }}
+              placeholder="Password (min 6 characters)"
+              className="w-full pl-12 pr-4 py-4 bg-secondary border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+            />
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <p className="text-xs text-error mb-4">{error}</p>
+          )}
+
+          {/* Toggle Sign In / Sign Up */}
+          <button
+            onClick={() => {
+              setIsSignUp(!isSignUp)
+              setError(null)
+            }}
+            className="text-xs text-gold mb-6 hover:underline"
+          >
+            {isSignUp
+              ? "Already have an account? Sign in"
+              : "Don't have an account? Sign up"
+            }
+          </button>
 
           {/* OAuth Buttons */}
           <button
@@ -117,22 +229,35 @@ export function AuthScreen() {
           </button>
 
           {/* Terms */}
-          <p className="text-xs text-muted-foreground text-center mb-8">
+          <p className="text-xs text-muted-foreground text-center mb-4">
             By continuing, you agree to our Terms of Service.
           </p>
 
-          {/* Continue Button */}
+          {/* Guest Option */}
+          <button
+            onClick={handleGuestBypass}
+            className="w-full py-3 px-6 border border-gold/40 text-gold font-medium rounded-xl hover:bg-gold/5 transition-colors mb-4"
+          >
+            Continue as Guest
+          </button>
+          <p className="text-[10px] text-muted-foreground/50 text-center mb-6">
+            Guest sessions are temporary. Create an account to save your results.
+          </p>
+
+          {/* Continue with Email Button */}
           <motion.button
             onClick={handleSubmit}
-            disabled={!isValidEmail || isSubmitting}
+            disabled={!canSubmit || isSubmitting}
             className={`relative w-full py-4 px-6 font-semibold rounded-xl transition-all overflow-hidden ${
-              isValidEmail 
-                ? 'bg-gold text-gold-foreground hover:bg-gold/90' 
+              canSubmit
+                ? 'bg-gold text-gold-foreground hover:bg-gold/90'
                 : 'bg-secondary text-muted-foreground opacity-40'
             }`}
-            whileTap={isValidEmail ? { scale: 0.98 } : {}}
+            whileTap={canSubmit ? { scale: 0.98 } : {}}
           >
-            {showSuccess ? (
+            {isSubmitting ? (
+              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+            ) : showSuccess ? (
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -152,7 +277,7 @@ export function AuthScreen() {
               </motion.div>
             ) : (
               <span className="flex items-center justify-center gap-2">
-                CONTINUE
+                {isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
                 <ChevronLeft className="w-4 h-4 rotate-180" />
               </span>
             )}

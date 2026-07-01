@@ -1,38 +1,116 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { X, Unlock, Crown, Check } from "lucide-react"
+import { PRICING } from "@/lib/types"
+import { X, Crown, Check, Loader2, Sparkles, Zap, Calendar, ArrowRight, Eye } from "lucide-react"
 
 export function PaywallScreen() {
-  const { navigateTo, setUserSession, goBack } = useApp()
+  const { state, navigateTo, setUserSession, startTrial, goBack } = useApp()
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [successType, setSuccessType] = useState<'trial' | 'subscribe'>('trial')
+  const [error, setError] = useState<string | null>(null)
 
-  const handleUpgrade = async () => {
+  const handleStartTrial = async () => {
     setIsProcessing(true)
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsSuccess(true)
-    setUserSession('premium')
-    
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    goBack() // Go back to barber card with premium access
+    setError(null)
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: state.email,
+          plan: billingCycle,
+          trial: true,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (data.simulated) {
+        // No Stripe configured — simulate trial start for local dev
+        await new Promise(resolve => setTimeout(resolve, 1200))
+        startTrial()
+        setSuccessType('trial')
+        setIsSuccess(true)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        navigateTo('dashboard')
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+
+      throw new Error(data.error || 'Failed to start trial')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      setError(message)
+      setIsProcessing(false)
+    }
   }
 
-  const features = [
-    'Unlimited barber specifications text downloads.',
-    'PDF offline card downloads to photos roll.',
-    'Multi-angle layout visual reference library views.',
-    'Automatic 4-week haircut maintenance tracking app.',
+  const handleSubscribe = async () => {
+    setIsProcessing(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: state.email,
+          plan: billingCycle,
+          trial: false,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (data.simulated) {
+        await new Promise(resolve => setTimeout(resolve, 1200))
+        setUserSession('premium')
+        setSuccessType('subscribe')
+        setIsSuccess(true)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        navigateTo('dashboard')
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+
+      throw new Error(data.error || 'Checkout failed')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Payment failed'
+      setError(message)
+      setIsProcessing(false)
+    }
+  }
+
+  const premiumFeatures = [
+    { text: 'Real GPT-4o Vision photo analysis', highlight: true },
+    { text: 'AI grooming chat assistant', highlight: true },
+    { text: 'Enhanced barber cards with personalized tips', highlight: false },
+    { text: 'Download barber cards as PDFs', highlight: false },
+    { text: 'Automatic maintenance reminders', highlight: false },
+    { text: 'Style evolution tracking', highlight: false },
   ]
+
+  const annualSavings = Math.round((1 - (PRICING.annual.price / (PRICING.monthly.price * 12))) * 100)
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center px-4 py-2">
-        <button 
+        <button
           onClick={goBack}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
@@ -41,7 +119,7 @@ export function PaywallScreen() {
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-8 pb-6 flex flex-col items-center text-center">
+      <div className="flex-1 px-6 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,42 +127,127 @@ export function PaywallScreen() {
           className="w-full"
         >
           {/* Icon */}
-          <motion.div 
-            className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/20 flex items-center justify-center"
+          <motion.div
+            className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/20 flex items-center justify-center"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Unlock className="w-8 h-8 text-gold" />
+            <Crown className="w-8 h-8 text-gold" />
           </motion.div>
 
           {/* Title */}
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            UNLOCK ALL BARBER CARDS
+          <h2 className="text-xl font-semibold text-foreground mb-1">
+            UNLOCK SCULPT PREMIUM
           </h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-            Take your precise AI haircut blueprints directly to the shop and guarantee perfect execution.
+          <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+            Real AI analysis of your face shape, hair density, and texture — personalized to you.
           </p>
 
+          {/* Free vs Premium comparison */}
+          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
+            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border">
+              <span className="text-xs font-medium text-muted-foreground">FREE</span>
+              <span className="text-[10px] text-muted-foreground">·</span>
+              <span className="text-xs text-muted-foreground">Unlimited scans, 1 free AI analysis/day</span>
+            </div>
+            <div className="flex items-center gap-2 mb-1">
+              <Crown className="w-4 h-4 text-gold" />
+              <span className="text-xs font-medium text-gold">PREMIUM</span>
+              <span className="text-[10px] text-gold">·</span>
+              <span className="text-xs text-gold">Every scan uses real AI + chat + PDF</span>
+            </div>
+          </div>
+
+          {/* Billing Toggle */}
+          <div className="bg-secondary border border-border rounded-xl p-1 mb-5">
+            <div className="grid grid-cols-2 gap-1">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                  billingCycle === 'monthly'
+                    ? 'bg-background border border-border text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all relative ${
+                  billingCycle === 'annual'
+                    ? 'bg-background border border-border text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Annual
+                <span className="ml-1.5 text-[10px] text-success font-semibold">
+                  Save {annualSavings}%
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Price Display */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={billingCycle}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="mb-5"
+            >
+              {billingCycle === 'annual' ? (
+                <div>
+                  <p className="text-2xl font-bold text-foreground">
+                    ${PRICING.annual.price}
+                    <span className="text-sm font-normal text-muted-foreground">/year</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    That's just ${PRICING.annual.monthlyEquivalent.toFixed(2)}/mo — save ${annualSavings}% vs monthly
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-2xl font-bold text-foreground">
+                    ${PRICING.monthly.price}
+                    <span className="text-sm font-normal text-muted-foreground">/month</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Billed monthly. Cancel anytime.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
           {/* Features */}
-          <div className="bg-secondary border border-border rounded-xl p-4 mb-8 text-left">
-            <p className="text-sm font-medium text-foreground mb-4">
-              PREMIUM ACCESS PASS INCLUDES:
+          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
+            <p className="text-sm font-medium text-foreground mb-3">
+              PREMIUM INCLUDES:
             </p>
-            <ul className="space-y-3">
-              {features.map((feature, index) => (
+            <ul className="space-y-2.5">
+              {premiumFeatures.map((feature, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-                  {feature}
+                  <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${feature.highlight ? 'text-gold' : 'text-success'}`} />
+                  <span className={feature.highlight ? 'text-foreground font-medium' : ''}>
+                    {feature.text}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Upgrade Button */}
+          {/* Error */}
+          {error && (
+            <p className="text-xs text-error mb-4">{error}</p>
+          )}
+
+          {/* Primary CTA — Start Free Trial */}
           <motion.button
-            onClick={handleUpgrade}
+            onClick={handleStartTrial}
             disabled={isProcessing}
-            className="relative flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 disabled:opacity-70"
+            className="relative flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 disabled:opacity-70 mb-3"
             whileTap={!isProcessing ? { scale: 0.98 } : {}}
           >
             {isSuccess ? (
@@ -94,33 +257,56 @@ export function PaywallScreen() {
                 className="flex items-center gap-2"
               >
                 <Check className="w-5 h-5" />
-                Welcome to Premium!
+                {successType === 'trial' ? 'Your trial has started!' : 'Welcome to Premium!'}
               </motion.div>
             ) : isProcessing ? (
               <span className="flex items-center gap-2">
-                <motion.div
-                  className="w-5 h-5 border-2 border-gold-foreground/30 border-t-gold-foreground rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-                Processing...
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Starting your trial...
               </span>
             ) : (
               <>
-                <Crown className="w-5 h-5" />
-                UPGRADE NOW — $15.00 / MONTH
+                <Zap className="w-5 h-5" />
+                START 7-DAY FREE TRIAL
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </motion.button>
 
-          {!isProcessing && !isSuccess && (
-            <p className="text-xs text-muted-foreground mt-3">
-              Cancel execution anytime seamlessly.
+          {/* Trial info */}
+          <p className="text-[11px] text-muted-foreground mb-4">
+            <Calendar className="w-3 h-3 inline mr-1" />
+            {PRICING.trialDays}-day free trial · No charge until trial ends · Cancel anytime
+          </p>
+
+          {/* Secondary CTA — Subscribe now (skip trial) */}
+          <button
+            onClick={handleSubscribe}
+            disabled={isProcessing}
+            className="w-full py-3 px-6 border border-border text-muted-foreground text-sm font-medium rounded-xl hover:bg-secondary transition-colors mb-3"
+          >
+            Subscribe without trial — {billingCycle === 'annual' ? PRICING.annual.label : PRICING.monthly.label}
+          </button>
+
+          {/* Preview Pack Upsell */}
+          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
+            <div className="flex items-center gap-2 mb-2">
+              <Eye className="w-4 h-4 text-gold" />
+              <p className="text-sm font-medium text-foreground">Just want previews?</p>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Buy a preview pack — see how each style looks on you before your appointment.
             </p>
-          )}
+            <button
+              onClick={goBack}
+              className="text-xs text-gold font-medium hover:text-gold/80 transition-colors"
+            >
+              Go back to try a preview →
+            </button>
+          </div>
 
           {/* Footer Links */}
-          <div className="flex items-center justify-center gap-4 mt-8 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
             <button className="hover:text-foreground transition-colors">
               Restore Purchase
             </button>

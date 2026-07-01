@@ -3,7 +3,7 @@
 import { useRef } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles } from "lucide-react"
+import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, Crown } from "lucide-react"
 
 interface UploadCardProps {
   label: string
@@ -20,9 +20,12 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Create object URL for preview (in real app, would upload to storage)
-      const url = URL.createObjectURL(file)
-      onUpload(url)
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result as string
+        onUpload(result)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -98,15 +101,19 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
 }
 
 export function UploadScreen() {
-  const { state, navigateTo, setUploadedImage, goBack } = useApp()
-  const { uploadedImages } = state
+  const { state, navigateTo, setUploadedImage, goBack, canScan, scansRemaining, incrementScanCount } = useApp()
+  const { uploadedImages, userSession } = state
+  const isPremium = userSession === 'premium'
 
   const hasFrontPhoto = !!uploadedImages.front
-  const canProceed = hasFrontPhoto
+  const scanAvailable = canScan()
+  const remaining = scansRemaining()
+  const canProceed = hasFrontPhoto && scanAvailable
 
   const handleAnalyze = () => {
     if (canProceed) {
-      navigateTo('questionnaire-maintenance')
+      incrementScanCount()
+      navigateTo('questionnaire-1')
     }
   }
 
@@ -121,7 +128,23 @@ export function UploadScreen() {
           <ChevronLeft className="w-5 h-5" />
           BACK
         </button>
-        <span className="text-sm text-muted-foreground">Step 1 of 3</span>
+        <div className="flex items-center gap-2">
+          {/* Scan Counter */}
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium ${
+            isPremium
+              ? 'bg-gold/10 border border-gold/30 text-gold'
+              : 'bg-secondary border border-border text-muted-foreground'
+          }`}>
+            {isPremium && <Crown className="w-3 h-3" />}
+            <span>{remaining} scan{remaining !== 1 ? 's' : ''} left</span>
+          </div>
+          <button
+            onClick={() => navigateTo('menu')}
+            className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 px-6 pt-4 pb-6 overflow-y-auto">
@@ -135,7 +158,9 @@ export function UploadScreen() {
             UPLOAD YOUR PHOTOS
           </h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Our vision model reads face geometry and density.
+            {isPremium
+              ? 'AI-powered analysis reads face geometry and density from your photos.'
+              : 'Our analysis reads face geometry and density from your photos.'}
           </p>
 
           {/* Upload Cards */}
@@ -166,6 +191,43 @@ export function UploadScreen() {
             />
           </div>
 
+          {/* Lighting Guidance Banner */}
+          <div className="flex items-start gap-2.5 p-3 bg-secondary border border-gold/20 rounded-xl mb-6">
+            <Sun className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Best results: natural light, neutral background, no hat or glasses.
+            </p>
+          </div>
+
+          {/* Photo Tips */}
+          <div className="mb-6">
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">PHOTO TIPS</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-secondary border border-success/30 rounded-xl p-3">
+                <div className="w-full h-16 bg-background rounded-lg flex items-center justify-center mb-2 border border-success/20">
+                  <div className="text-center">
+                    <div className="w-8 h-8 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-1">
+                      <svg className="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-success font-medium">Good photo</p>
+                <p className="text-[9px] text-muted-foreground leading-relaxed">Front-facing, even natural light, neutral background</p>
+              </div>
+              <div className="bg-secondary border border-error/30 rounded-xl p-3">
+                <div className="w-full h-16 bg-background rounded-lg flex items-center justify-center mb-2 border border-error/20">
+                  <div className="text-center">
+                    <div className="w-8 h-8 mx-auto rounded-full bg-error/10 flex items-center justify-center mb-1">
+                      <svg className="w-4 h-4 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><line x1="4" y1="4" x2="20" y2="20" /></svg>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-error font-medium">Avoid</p>
+                <p className="text-[9px] text-muted-foreground leading-relaxed">Shadows, hat/glasses, blurry, extreme angles</p>
+              </div>
+            </div>
+          </div>
+
           {/* Analyze Button */}
           <motion.button
             onClick={handleAnalyze}
@@ -190,9 +252,37 @@ export function UploadScreen() {
             )}
           </motion.button>
 
-          {!canProceed && (
+          {!scanAvailable && !isPremium && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-error text-center">
+                Daily scan limit reached. Resets tomorrow.
+              </p>
+              <button
+                onClick={() => navigateTo('paywall')}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gold/10 border border-gold/30 rounded-xl text-xs font-medium text-gold hover:bg-gold/15 transition-colors"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                Upgrade to Premium — 10 scans/day
+              </button>
+            </div>
+          )}
+
+          {!hasFrontPhoto && scanAvailable && (
             <p className="text-xs text-muted-foreground text-center mt-3">
-              Please upload required front photo to unlock analysis
+              Please upload a front photo to unlock analysis
+            </p>
+          )}
+
+          {/* Tier info */}
+          {!isPremium && scanAvailable && (
+            <p className="text-[10px] text-muted-foreground/50 text-center mt-4">
+              Unlimited scans · Premium unlocks AI-powered analysis
+            </p>
+          )}
+
+          {isPremium && (
+            <p className="text-[10px] text-gold/50 text-center mt-4">
+              Premium tier: AI-powered analysis with GPT-4o Vision
             </p>
           )}
         </motion.div>

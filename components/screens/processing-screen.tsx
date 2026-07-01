@@ -3,96 +3,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { Settings, Check, Loader2 } from "lucide-react"
-import type { HairstyleRecommendation } from "@/lib/types"
-
-// Mock recommendations data
-const mockRecommendations: HairstyleRecommendation[] = [
-  {
-    id: '1',
-    name: 'TEXTURED MODERN CROP',
-    compatibilityScore: 94,
-    description: 'Ideal for your determined Square face shape and wavy, medium-density hair texture.',
-    imageUrl: '/placeholder-haircut-1.jpg',
-    isSculptPick: true,
-    metadata: {
-      maintenance: 45,
-      stylingEffort: 35,
-      professionalism: 78,
-      trendiness: 88,
-    },
-    barberCard: {
-      hairstyleName: 'Textured Modern Crop',
-      cuttingMetrics: {
-        top: '2.5 inches length, blunt-textured point-cut strategy to maximize natural volume wave.',
-        sides: 'Low-drop taper fade beginning at skin, blending smoothly upward at temple apex line.',
-        boundary: 'Free natural blend edge, square neck.',
-      },
-      stylingProtocols: [
-        'Avoid high-shine oil base pomades.',
-        'Apply matte styling clay paste evenly over damp roots.',
-        'Use fingers to tousle for natural texture.',
-      ],
-      warnings: [],
-    },
-  },
-  {
-    id: '2',
-    name: 'CLASSIC SIDE PART',
-    compatibilityScore: 89,
-    description: 'A timeless professional look that complements your strong jawline and works well with your natural hair pattern.',
-    imageUrl: '/placeholder-haircut-2.jpg',
-    isSculptPick: false,
-    metadata: {
-      maintenance: 55,
-      stylingEffort: 50,
-      professionalism: 95,
-      trendiness: 62,
-    },
-    barberCard: {
-      hairstyleName: 'Classic Side Part',
-      cuttingMetrics: {
-        top: '3-4 inches on top with graduated length toward the part.',
-        sides: 'Medium fade with #2 guard at temples, blending into scissor work.',
-        boundary: 'Clean tapered neckline with natural hairline.',
-      },
-      stylingProtocols: [
-        'Apply pomade or wax to damp hair.',
-        'Comb through to define part line.',
-        'Use medium-hold product for all-day structure.',
-      ],
-      warnings: [],
-    },
-  },
-  {
-    id: '3',
-    name: 'LOW FADE QUIFF',
-    compatibilityScore: 86,
-    description: 'Modern and versatile style that adds height and works with your face proportions.',
-    imageUrl: '/placeholder-haircut-3.jpg',
-    isSculptPick: false,
-    metadata: {
-      maintenance: 68,
-      stylingEffort: 72,
-      professionalism: 72,
-      trendiness: 91,
-    },
-    barberCard: {
-      hairstyleName: 'Low Fade Quiff',
-      cuttingMetrics: {
-        top: '4-5 inches at the front, tapering to 3 inches at crown.',
-        sides: 'Low skin fade starting at #0, blending to #3 at parietal ridge.',
-        boundary: 'Crisp lineup at temples, tapered neckline.',
-      },
-      stylingProtocols: [
-        'Blow dry with round brush for volume.',
-        'Apply pre-styler to damp hair.',
-        'Finish with matte clay for hold and texture.',
-      ],
-      warnings: ['This style requires daily blow drying for best results.'],
-    },
-  },
-]
+import { Settings, Check, Loader2, AlertTriangle } from "lucide-react"
 
 // Use a module-level flag to prevent double execution across strict mode remounts
 let processingStarted = false
@@ -104,9 +15,80 @@ export function resetProcessingState() {
   processingTimers = []
 }
 
+function getPersonalizedTips(answers: Record<string, unknown>): string[] {
+  const tips: string[] = []
+  const concerns = answers['hairConcerns'] as string[] | undefined
+  const maintenance = answers['maintenance'] as string | undefined
+  const boldness = answers['boldness'] as number | undefined
+  const workContext = answers['workContext'] as string | undefined
+
+  // Tips based on hair concerns
+  if (concerns?.includes('thinning') || concerns?.includes('scalp')) {
+    tips.push('Styles with volume on top can create the illusion of thicker hair.')
+    tips.push('A matte clay adds texture without weighing hair down — great for thinning hair.')
+  }
+  if (concerns?.includes('frizzy')) {
+    tips.push('Anti-frizz serum applied to damp hair tames flyaways all day.')
+    tips.push('A leave-in conditioner before styling keeps frizz under control.')
+  }
+  if (concerns?.includes('flat')) {
+    tips.push('Sea salt spray on damp hair adds instant volume and texture.')
+    tips.push('Blow drying upside down lifts roots for a fuller look.')
+  }
+  if (concerns?.includes('oily')) {
+    tips.push('Dry shampoo between washes absorbs oil and adds volume.')
+    tips.push('Wash every 2-3 days instead of daily — overwashing increases oil production.')
+  }
+
+  // Tips based on maintenance level
+  if (maintenance === 'zero' || maintenance === 'low') {
+    tips.push('A textured crop is the lowest-maintenance style — just towel dry and go.')
+    tips.push('Low-maintenance haircuts save time but still need trims every 4-6 weeks.')
+  } else if (maintenance === 'high') {
+    tips.push('A pre-styler before blow drying makes the biggest difference for high-effort styles.')
+    tips.push('Invest in a quality blow dryer — it transforms styling results.')
+  }
+
+  // Tips based on boldness
+  if (boldness !== undefined && boldness >= 7) {
+    tips.push('Bold styles like a textured fringe or crop top make a statement.')
+    tips.push('Don\'t be afraid to experiment — your barber can always adjust.')
+  } else if (boldness !== undefined && boldness <= 3) {
+    tips.push('Classic styles like a side part or crew cut are timeless and professional.')
+    tips.push('Subtle changes to your current cut can feel fresh without being drastic.')
+  }
+
+  // Tips based on work context
+  if (workContext === 'critical') {
+    tips.push('For professional settings, keep the sides clean and the top structured.')
+    tips.push('A subtle taper fade balances professionalism with modern style.')
+  }
+
+  // Always include a few general tips
+  tips.push('Your face shape is the #1 factor in determining which cuts will look best on you.')
+  tips.push('Barbers prefer reference photos over verbal descriptions for precision cuts.')
+  tips.push('Most haircuts lose their shape after 4 weeks — booking early keeps you sharp.')
+
+  return tips
+}
+
 export function ProcessingScreen() {
-  const { navigateTo, setAnalysisResult, setRecommendations } = useApp()
-  const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done'>>(['reading', 'waiting', 'waiting'])
+  const { state, navigateTo, setAnalysisResult, setRecommendations, setLastCutDate, setCutFrequency } = useApp()
+  const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done' | 'error'>>(['reading', 'waiting', 'waiting'])
+  const [error, setError] = useState<string | null>(null)
+  const [tipIndex, setTipIndex] = useState(0)
+
+  // Build personalized tips from questionnaire answers
+  const personalizedTips = getPersonalizedTips(state.questionnaireData)
+
+  // Rotate tips every 8 seconds
+  useEffect(() => {
+    if (personalizedTips.length <= 1) return
+    const interval = setInterval(() => {
+      setTipIndex(prev => (prev + 1) % personalizedTips.length)
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [personalizedTips.length])
 
   const stepLabels = [
     'Mapping geometric face contours...',
@@ -115,61 +97,148 @@ export function ProcessingScreen() {
   ]
 
   useEffect(() => {
-    // Module-level guard prevents double execution even across remounts
-    if (processingStarted) {
-      return
-    }
+    if (processingStarted) return
     processingStarted = true
 
-    // Clear any existing timers
-    processingTimers.forEach(clearTimeout)
-    processingTimers = []
+    async function runAnalysis() {
+      try {
+        // Step 1: Call /api/analyze with uploaded images + questionnaire + user tier
+        setStepStatuses(['reading', 'waiting', 'waiting'])
 
-    processingTimers.push(setTimeout(() => {
-      setStepStatuses(['done', 'reading', 'waiting'])
-    }, 1500))
+        const analyzeRes = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            frontImage: state.uploadedImages.front,
+            sideImage: state.uploadedImages.side,
+            hairlineImage: state.uploadedImages.hairline,
+            questionnaireAnswers: state.questionnaireData,
+            userSession: state.userSession,
+            scanCountToday: state.scanCountToday,
+          }),
+        })
 
-    processingTimers.push(setTimeout(() => {
-      setStepStatuses(['done', 'done', 'reading'])
-    }, 3500))
+        if (!analyzeRes.ok) {
+          const errData = await analyzeRes.json()
+          throw new Error(errData.error || 'Analysis failed')
+        }
 
-    processingTimers.push(setTimeout(() => {
-      setStepStatuses(['done', 'done', 'done'])
+        const { analysis } = await analyzeRes.json()
+        setAnalysisResult(analysis)
+        setStepStatuses(['done', 'reading', 'waiting'])
 
-      // Set mock analysis result
-      setAnalysisResult({
-        faceShape: 'Square',
-        densityScore: 72,
-        textureProfile: {
-          waviness: 0.64,
-          curliness: 0.31,
-          straightness: 0.05,
-        },
-        confidenceScore: 0.92,
-        warnings: [],
-      })
+        // Step 2: Call /api/recommend with analysis + questionnaire
+        const recommendRes = await fetch('/api/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            analysis,
+            answers: state.questionnaireData,
+          }),
+        })
 
-      // Set mock recommendations
-      setRecommendations(mockRecommendations)
-    }, 5000))
+        if (!recommendRes.ok) {
+          const errData = await recommendRes.json()
+          throw new Error(errData.error || 'Recommendation generation failed')
+        }
 
-    processingTimers.push(setTimeout(() => {
-      processingStarted = false // Reset for next time user goes through flow
-      navigateTo('recommendations')
-    }, 6000))
+        const { recommendations } = await recommendRes.json()
+        setStepStatuses(['done', 'done', 'reading'])
 
-    // No cleanup - we want timers to continue even if component re-renders
+        // Small delay for visual feel
+        await new Promise(r => setTimeout(r, 800))
+
+        setRecommendations(recommendations)
+        setStepStatuses(['done', 'done', 'done'])
+
+        // Set maintenance tracking data from questionnaire
+        setLastCutDate(new Date().toISOString().split('T')[0])
+        const freq = state.questionnaireData['cutFrequency']
+        if (typeof freq === 'string') {
+          setCutFrequency(freq)
+        }
+
+        // Navigate to recommendations after brief pause
+        processingTimers.push(setTimeout(() => {
+          processingStarted = false
+          if (analysis.confidenceScore < 0.5) {
+            navigateTo('low-confidence')
+          } else {
+            navigateTo('recommendations')
+          }
+        }, 1200))
+
+      } catch (err: unknown) {
+        processingStarted = false
+        const message = err instanceof Error ? err.message : 'Unknown error occurred'
+        setError(message)
+        setStepStatuses(prev => prev.map((s) => s === 'reading' ? 'error' : s))
+      }
+    }
+
+    runAnalysis()
+
+    return () => {
+      processingTimers.forEach(clearTimeout)
+      processingTimers = []
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const getStatusIcon = (status: 'waiting' | 'reading' | 'done') => {
+  const getStatusIcon = (status: 'waiting' | 'reading' | 'done' | 'error') => {
     switch (status) {
       case 'done':
         return <Check className="w-4 h-4 text-success" />
       case 'reading':
         return <Loader2 className="w-4 h-4 text-gold animate-spin" />
+      case 'error':
+        return <AlertTriangle className="w-4 h-4 text-error" />
       default:
         return <span className="w-4 h-4 text-muted-foreground">-</span>
     }
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full"
+        >
+          <div className="w-16 h-16 rounded-full bg-error/10 border border-error/30 flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-8 h-8 text-error" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-2">
+            Analysis Failed
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            {error}
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                resetProcessingState()
+                setError(null)
+                setStepStatuses(['reading', 'waiting', 'waiting'])
+                window.location.reload()
+              }}
+              className="w-full py-3 px-6 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => {
+                resetProcessingState()
+                navigateTo('upload')
+              }}
+              className="w-full py-3 px-6 bg-secondary border border-border text-foreground font-medium rounded-xl hover:bg-muted transition-colors"
+            >
+              Back to Upload
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -222,9 +291,21 @@ export function ProcessingScreen() {
           ))}
         </div>
 
-        {/* Note */}
-        <p className="mt-10 text-xs text-muted-foreground">
-          Please keep the app open. This takes ~5-12 seconds.
+        {/* Tip while waiting — personalized based on questionnaire */}
+        <div className="mt-10 p-4 bg-secondary border border-border rounded-xl">
+          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">DID YOU KNOW?</p>
+          <motion.p
+            key={tipIndex}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-xs text-muted-foreground leading-relaxed"
+          >
+            {personalizedTips[tipIndex]}
+          </motion.p>
+        </div>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Please keep the app open. This takes ~5-15 seconds.
         </p>
       </motion.div>
     </div>

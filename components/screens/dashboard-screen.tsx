@@ -1,0 +1,566 @@
+"use client"
+
+import { useMemo } from "react"
+import { motion } from "framer-motion"
+import { useApp } from "@/lib/app-context"
+import { getMaintenanceReminder } from "@/lib/history"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap } from "lucide-react"
+
+const GROOMING_TIPS = [
+  { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
+  { title: 'The 4-Week Rule', content: 'Most men\'s haircuts start losing their shape after 4 weeks. Book your next appointment before you need one.' },
+  { title: 'Matte vs Shine', content: 'Matte products (clay, paste) give a natural look. Shine products (pomade, gel) give a polished, wet look. Match to your vibe.' },
+  { title: 'Pre-Styler Secret', content: 'A pre-styler (mousse or sea salt spray) before blow drying adds volume without the heavy feel of finishing products.' },
+  { title: 'Wash Less, Style More', content: 'Washing hair daily strips natural oils. Every 2-3 days is ideal. On off days, a water rinse is enough.' },
+  { title: 'Neckline Maintenance', content: 'Clean up your neckline between cuts with a trimmer. The neckline defines your haircut more than you think.' },
+]
+
+export function DashboardScreen() {
+  const { state, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex } = useApp()
+  const { userSession, savedRecommendations, email, recommendations } = state
+  const isPremium = userSession === 'premium'
+  const isTrial = userSession === 'trial'
+  const daysLeft = isTrial ? trialDaysLeft() : 0
+
+  const recentScans = recommendations.length > 0 ? 1 : 0
+  const savedCards = savedRecommendations.length
+  const avgScore = savedRecommendations.length > 0
+    ? Math.round(savedRecommendations.reduce((sum, r) => sum + r.compatibilityScore, 0) / savedRecommendations.length)
+    : 0
+
+  // Dynamic maintenance reminder
+  const reminder = useMemo(() => {
+    return getMaintenanceReminder(state.lastCutDate, state.cutFrequency)
+  }, [state.lastCutDate, state.cutFrequency])
+
+  // Whether this is a first-time user (no data yet)
+  const isFirstTime = recommendations.length === 0 && savedRecommendations.length === 0
+
+  const handleViewSavedCard = (index: number) => {
+    setCurrentSavedIndex(index)
+    syncRecommendationIndex(index)
+    navigateTo('recommendation-detail')
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            isPremium
+              ? 'bg-gold/20 border border-gold/40'
+              : 'bg-secondary border border-border'
+          }`}>
+            <span className={`text-xs font-semibold ${isPremium ? 'text-gold' : 'text-muted-foreground'}`}>
+              {email ? email.charAt(0).toUpperCase() : 'G'}
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground leading-tight">
+              {email ? email.split('@')[0] : 'Guest User'}
+            </p>
+            <div className="flex items-center gap-1.5">
+              {isPremium ? (
+                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-gold/10 rounded-full">
+                  <Crown className="w-2.5 h-2.5 text-gold" />
+                  <span className="text-[9px] font-semibold text-gold">PREMIUM</span>
+                </span>
+              ) : isTrial ? (
+                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-gold/10 rounded-full">
+                  <Timer className="w-2.5 h-2.5 text-warning" />
+                  <span className="text-[9px] font-semibold text-warning">TRIAL · {daysLeft}d</span>
+                </span>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">FREE TIER</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => navigateTo('menu')}
+          className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
+        >
+          <Settings className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 px-4 pb-4 overflow-y-auto space-y-5">
+        {/* Welcome banner for first-time users */}
+        {isFirstTime && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 rounded-xl p-5 text-center"
+          >
+            <div className="w-14 h-14 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
+              <Sparkles className="w-7 h-7 text-gold" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground mb-1">Welcome to Sculpt</h3>
+            <p className="text-xs text-muted-foreground mb-4 max-w-[260px] mx-auto">
+              Get AI-powered haircut recommendations tailored to your face shape, hair type, and style preferences.
+            </p>
+            <button
+              onClick={() => navigateTo('upload')}
+              className="w-full py-3 px-6 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+            >
+              Start Your First Analysis
+            </button>
+          </motion.div>
+        )}
+
+        {/* Trial Expiry Reminder (only for trial users) */}
+        {isTrial && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.02 }}
+            className={`rounded-xl p-4 flex items-center gap-3 ${
+              daysLeft <= 1
+                ? 'bg-error/10 border border-error/30'
+                : daysLeft <= 3
+                ? 'bg-warning/10 border border-warning/30'
+                : 'bg-gold/10 border border-gold/30'
+            }`}
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              daysLeft <= 1
+                ? 'bg-error/20'
+                : daysLeft <= 3
+                ? 'bg-warning/20'
+                : 'bg-gold/20'
+            }`}>
+              {daysLeft <= 1 ? (
+                <AlertTriangle className="w-5 h-5 text-error" />
+              ) : daysLeft <= 3 ? (
+                <Timer className="w-5 h-5 text-warning" />
+              ) : (
+                <Crown className="w-5 h-5 text-gold" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className={`text-sm font-medium ${
+                daysLeft <= 1 ? 'text-error' : daysLeft <= 3 ? 'text-warning' : 'text-foreground'
+              }`}>
+                {daysLeft <= 1
+                  ? 'Trial ends tomorrow!'
+                  : daysLeft <= 3
+                  ? `${daysLeft} days left in your trial`
+                  : `${daysLeft} days left in your free trial`
+                }
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {daysLeft <= 1
+                  ? 'Subscribe now to keep premium access'
+                  : daysLeft <= 3
+                  ? 'Lock in full AI analysis, chat, and PDF export'
+                  : 'You have full access to all premium features'
+                }
+              </p>
+            </div>
+            <button
+              onClick={() => navigateTo('paywall')}
+              className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors flex-shrink-0 ${
+                daysLeft <= 1
+                  ? 'bg-error/20 text-error hover:bg-error/30'
+                  : daysLeft <= 3
+                  ? 'bg-warning/20 text-warning hover:bg-warning/30'
+                  : 'bg-gold/20 text-gold hover:bg-gold/30'
+              }`}
+            >
+              Subscribe
+            </button>
+          </motion.div>
+        )}
+
+        {/* Scan Counter + Stats Row */}
+        {!isFirstTime && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            {/* AI Analysis Status */}
+            <div className={`rounded-xl p-3 mb-3 flex items-center justify-between ${
+              isPremium || isTrial
+                ? 'bg-gold/5 border border-gold/20'
+                : 'bg-secondary border border-border'
+            }`}>
+              <div className="flex items-center gap-2">
+                <Sparkles className={`w-4 h-4 ${isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'}`} />
+                <span className="text-xs font-medium text-foreground">
+                  {isPremium || isTrial ? 'AI Analysis' : (state.scanCountToday === 0 ? 'Free AI Available' : 'Free Analysis Used')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {isPremium || isTrial ? (
+                  <span className="text-[10px] font-semibold text-gold">UNLIMITED</span>
+                ) : (
+                  <button
+                    onClick={() => navigateTo('paywall')}
+                    className="px-2 py-0.5 bg-gold/10 border border-gold/30 rounded-full text-[9px] font-medium text-gold hover:bg-gold/15 transition-colors"
+                  >
+                    Unlock AI →
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-secondary border border-border rounded-xl p-3 text-center">
+                <p className="text-lg font-bold text-foreground">{recentScans}</p>
+                <p className="text-[10px] text-muted-foreground">Scans</p>
+              </div>
+              <div className="bg-secondary border border-border rounded-xl p-3 text-center">
+                <p className="text-lg font-bold text-foreground">{savedCards}</p>
+                <p className="text-[10px] text-muted-foreground">Saved</p>
+              </div>
+              <div className="bg-secondary border border-border rounded-xl p-3 text-center">
+                <p className="text-lg font-bold text-gold">{avgScore || '—'}</p>
+                <p className="text-[10px] text-muted-foreground">Avg Score</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Grooming Insight */}
+        {savedRecommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-secondary border border-border rounded-xl p-4"
+          >
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">SCULPT INSIGHT</p>
+            <p className="text-xs text-muted-foreground italic leading-relaxed">
+              You tend to prefer {savedRecommendations[0]?.metadata.professionalism >= 70 ? 'professional, polished' : 'modern, textured'} styles.
+              Your top pick scored {savedRecommendations[0]?.compatibilityScore}% — above average for your profile.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">QUICK ACTIONS</p>
+          <div className="space-y-2">
+            <button
+              onClick={() => navigateTo('upload')}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-gold/10 border border-gold/30 hover:bg-gold/15 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-lg bg-gold/20 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-gold" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-foreground">
+                  {isFirstTime ? 'Start Your Analysis' : 'New Analysis'}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {isPremium || isTrial
+                    ? 'Unlimited scans with real AI'
+                    : isFirstTime
+                    ? 'Free AI analysis included'
+                    : 'Unlimited scans · Free analysis included'}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+
+            {savedRecommendations.length > 0 && (
+              <button
+                onClick={() => handleViewSavedCard(0)}
+                className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
+              >
+                <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-gold" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-foreground">View Saved Picks</p>
+                  <p className="text-[10px] text-muted-foreground">{savedCards} saved style{savedCards !== 1 ? 's' : ''}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Saved Barber Cards */}
+        {savedRecommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">SAVED BARBER CARDS</p>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {savedRecommendations.map((rec, index) => (
+                <button
+                  key={rec.id}
+                  onClick={() => handleViewSavedCard(index)}
+                  className="flex-shrink-0 w-24 h-32 bg-secondary border border-gold/30 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 hover:border-gold/60 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center overflow-hidden">
+                    {rec.imageUrl ? (
+                      <img src={rec.imageUrl} alt={rec.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-5 h-5 text-gold" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-medium text-foreground text-center leading-tight truncate w-full">
+                    {rec.name}
+                  </p>
+                  <p className="text-[9px] text-gold font-semibold">{rec.compatibilityScore}%</p>
+                </button>
+              ))}
+              <button
+                onClick={() => navigateTo('upload')}
+                className="flex-shrink-0 w-24 h-32 bg-secondary border border-dashed border-border rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 hover:border-gold/40 transition-colors"
+              >
+                <Plus className="w-5 h-5 text-muted-foreground" />
+                <p className="text-[10px] text-muted-foreground">New</p>
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Maintenance Reminder */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className={`rounded-xl p-4 ${
+            reminder?.urgency === 'overdue'
+              ? 'bg-error/10 border border-error/30'
+              : reminder?.urgency === 'soon'
+              ? 'bg-warning/10 border border-warning/30'
+              : 'bg-secondary border border-border'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              reminder?.urgency === 'overdue'
+                ? 'bg-error/20'
+                : reminder?.urgency === 'soon'
+                ? 'bg-warning/10'
+                : 'bg-warning/10'
+            }`}>
+              {reminder?.urgency === 'overdue' ? (
+                <AlertTriangle className="w-5 h-5 text-error" />
+              ) : (
+                <Clock className="w-5 h-5 text-warning" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground mb-0.5">Cleanup Reminder</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {reminder
+                  ? reminder.message
+                  : state.lastCutDate
+                  ? 'Your haircut is looking fresh. No cleanup needed yet.'
+                  : 'Track your haircuts to get personalized cleanup reminders.'
+                }
+              </p>
+              {!state.lastCutDate && (
+                <button
+                  onClick={() => navigateTo('feedback')}
+                  className="text-[10px] text-gold hover:text-gold/80 transition-colors mt-1"
+                >
+                  Log your last haircut →
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Trending */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">TRENDING THIS MONTH</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {[
+              { name: 'Textured Crop', tag: 'Most Popular' },
+              { name: 'Low Taper Fade', tag: 'Rising' },
+              { name: 'Modern Quiff', tag: 'Classic' },
+            ].map((trend) => (
+              <div
+                key={trend.name}
+                className="flex-shrink-0 w-28 bg-secondary border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-1"
+              >
+                <TrendingUp className="w-4 h-4 text-gold" />
+                <p className="text-[10px] font-medium text-foreground text-center leading-tight">
+                  {trend.name}
+                </p>
+                <p className="text-[9px] text-muted-foreground">{trend.tag}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Retention: Grooming Tip of the Day */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <BookOpen className="w-4 h-4 text-gold" />
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase">GROOMING TIP OF THE DAY</p>
+          </div>
+          <p className="text-sm text-foreground font-medium mb-1">
+            {GROOMING_TIPS[new Date().getDay() % GROOMING_TIPS.length].title}
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {GROOMING_TIPS[new Date().getDay() % GROOMING_TIPS.length].content}
+          </p>
+        </motion.div>
+
+        {/* Retention: Style Evolution Tracker */}
+        {savedRecommendations.length >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="bg-secondary border border-border rounded-xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-gold" />
+              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">YOUR STYLE EVOLUTION</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground mb-1">Preferred style type</p>
+                <p className="text-sm font-medium text-foreground">
+                  {savedRecommendations[0]?.metadata.professionalism >= 70 ? 'Classic & Professional' : 'Modern & Textured'}
+                </p>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div className="flex-1 text-right">
+                <p className="text-xs text-muted-foreground mb-1">Avg compatibility</p>
+                <p className="text-sm font-bold text-gold">{avgScore}%</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Retention: Streak Tracker */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.34 }}
+          className="bg-secondary border border-border rounded-xl p-4"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Flame className="w-4 h-4 text-gold" />
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase">GROOMING STREAK</p>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center">
+                <span className="text-xl font-bold text-gold">{state.groomingStreak}</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Keep it going!</p>
+                <p className="text-[10px] text-muted-foreground">Log haircuts to build your streak</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Retention: Quick Grooming Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.36 }}
+        >
+          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">QUICK TIPS</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-secondary border border-border rounded-xl p-3">
+              <Timer className="w-4 h-4 text-gold mb-1.5" />
+              <p className="text-[10px] font-medium text-foreground mb-0.5">Between Cuts</p>
+              <p className="text-[9px] text-muted-foreground leading-relaxed">
+                Clean up your neckline every 2 weeks with a trimmer
+              </p>
+            </div>
+            <div className="bg-secondary border border-border rounded-xl p-3">
+              <Zap className="w-4 h-4 text-gold mb-1.5" />
+              <p className="text-[10px] font-medium text-foreground mb-0.5">Pro Tip</p>
+              <p className="text-[9px] text-muted-foreground leading-relaxed">
+                Wash hair every 2-3 days to preserve natural oils
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* How Sculpt Works */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-secondary border border-border rounded-xl p-4"
+        >
+          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-3">HOW SCULPT WORKS</p>
+          <div className="space-y-3">
+            {[
+              { step: '01', icon: <Camera className="w-4 h-4" />, text: 'Upload your face photos' },
+              { step: '02', icon: <Sparkles className="w-4 h-4" />, text: 'AI analyzes your features' },
+              { step: '03', icon: <Scissors className="w-4 h-4" />, text: 'Get personalized barber cards' },
+            ].map((item) => (
+              <div key={item.step} className="flex items-center gap-3">
+                <span className="text-[10px] font-bold text-gold w-5">{item.step}</span>
+                <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center text-gold">
+                  {item.icon}
+                </div>
+                <p className="text-xs text-muted-foreground">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Premium Upsell (for free users only — trial users get the banner above) */}
+        {!isPremium && !isTrial && !isFirstTime && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-gold/5 border border-gold/30 rounded-xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Crown className="w-4 h-4 text-gold" />
+              <p className="text-sm font-medium text-foreground">
+                Unlock AI-Powered Analysis
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Real AI photo analysis, 10 scans/day, enhanced barber cards, and AI chat.
+            </p>
+            <button
+              onClick={() => navigateTo('paywall')}
+              className="text-xs text-gold font-medium hover:text-gold/80 transition-colors"
+            >
+              Start Free 7-Day Trial →
+            </button>
+          </motion.div>
+        )}
+
+        {/* App Version */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.45 }}
+          className="text-center pb-4"
+        >
+          <p className="text-[10px] text-muted-foreground/50">Sculpt v1.0.0 · {isPremium ? 'Premium' : isTrial ? 'Trial' : 'Free'}</p>
+        </motion.div>
+      </div>
+    </div>
+  )
+}

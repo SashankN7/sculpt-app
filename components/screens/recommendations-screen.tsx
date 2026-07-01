@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion"
+import { useState } from "react"
+import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { User, Star, FileText } from "lucide-react"
+import { Star, FileText, Bookmark, User, Settings, List, LayoutGrid } from "lucide-react"
 import type { HairstyleRecommendation } from "@/lib/types"
 
 interface SwipeCardProps {
@@ -16,7 +16,6 @@ interface SwipeCardProps {
 function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCardProps) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-25, 25])
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5])
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const threshold = 100
@@ -31,35 +30,48 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
     }
   }
 
+  const isSculptPick = recommendation.isSculptPick
+
   return (
     <motion.div
-      style={{ x, rotate, opacity }}
+      style={{ x, rotate }}
       drag={isTop ? "x" : false}
       dragElastic={0.9}
       dragConstraints={{ left: -300, right: 300 }}
       onDragEnd={handleDragEnd}
       className={`absolute inset-0 ${isTop ? 'cursor-grab active:cursor-grabbing z-10' : 'z-0'} touch-pan-y`}
     >
-      <div className="h-full bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
+      {/* Opaque layer — covers card behind completely so nothing bleeds through */}
+      <div className="absolute inset-0 bg-background rounded-2xl" />
+      {/* Card content on top of the opaque layer */}
+      <div className={`relative h-full rounded-2xl flex flex-col border-2 ${isSculptPick ? 'border-gold ring-2 ring-gold/20 bg-gold/5' : 'border-border bg-secondary'}`}>
         {/* Sculpt Pick Badge */}
-        {recommendation.isSculptPick && (
+        {isSculptPick && (
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-gold text-gold-foreground rounded-full text-xs font-semibold">
             <Star className="w-3.5 h-3.5" />
-            SCULPT PICK
+            #1 SCULPT PICK
           </div>
         )}
 
         {/* Image Area */}
-        <div className="relative h-48 bg-background flex items-center justify-center">
-          <div className="text-muted-foreground text-center">
-            <User className="w-16 h-16 mx-auto mb-2 opacity-30" />
-            <span className="text-xs">Preview Image</span>
-          </div>
+        <div className="relative h-48 bg-background flex items-center justify-center overflow-hidden">
+          {recommendation.imageUrl ? (
+            <img
+              src={recommendation.imageUrl}
+              alt={recommendation.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-muted-foreground text-center">
+              <User className="w-16 h-16 mx-auto mb-2 opacity-30" />
+              <span className="text-xs">Preview Image</span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
         <div className="flex-1 p-4 flex flex-col">
-          <h3 className="text-lg font-semibold text-foreground mb-1">
+          <h3 className="text-base font-semibold text-foreground mb-1">
             {recommendation.name}
           </h3>
           
@@ -107,18 +119,25 @@ function MetadataItem({ label, value }: { label: string; value: number }) {
 }
 
 export function RecommendationsScreen() {
-  const { state, navigateTo, nextRecommendation, saveRecommendation } = useApp()
-  const { recommendations, currentRecommendationIndex } = state
-  const [exitDirection, setExitDirection] = useState<'left' | 'right' | null>(null)
+  const { state, navigateTo, nextRecommendation, saveRecommendation, rejectRecommendation, syncRecommendationIndex } = useApp()
+  const { recommendations, currentRecommendationIndex, savedRecommendations } = state
+  const [showFirstSaveModal, setShowFirstSaveModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'swipe' | 'list'>('swipe')
 
   const currentRecommendation = recommendations[currentRecommendationIndex]
   const nextRecommendationData = recommendations[currentRecommendationIndex + 1]
 
   const handleSwipeLeft = () => {
-    setExitDirection('left')
+    if (currentRecommendation) {
+      rejectRecommendation(currentRecommendation)
+    }
     setTimeout(() => {
-      nextRecommendation()
-      setExitDirection(null)
+      const isLast = currentRecommendationIndex >= recommendations.length - 1
+      if (isLast) {
+        navigateTo('recommendation-detail')
+      } else {
+        nextRecommendation()
+      }
     }, 100)
   }
 
@@ -126,19 +145,25 @@ export function RecommendationsScreen() {
     if (currentRecommendation) {
       saveRecommendation(currentRecommendation)
     }
-    setExitDirection('right')
+    if (savedRecommendations.length === 0) {
+      setShowFirstSaveModal(true)
+    }
     setTimeout(() => {
-      nextRecommendation()
-      setExitDirection(null)
+      const isLast = currentRecommendationIndex >= recommendations.length - 1
+      if (isLast) {
+        navigateTo('recommendation-detail')
+      } else {
+        nextRecommendation()
+      }
     }, 100)
   }
 
-  const handleViewBarberCard = () => {
-    navigateTo('barber-card')
+  const handleViewDetail = () => {
+    navigateTo('recommendation-full')
   }
 
-  const handleGoToProfile = () => {
-    navigateTo('history')
+  const handleGoToSavedPicks = () => {
+    navigateTo('recommendation-detail')
   }
 
   if (!currentRecommendation) {
@@ -152,13 +177,13 @@ export function RecommendationsScreen() {
             {"You've seen all recommendations!"}
           </h2>
           <p className="text-sm text-muted-foreground mb-8">
-            Check your saved styles in your profile.
+            Your picks are ready — see them all now.
           </p>
           <button
-            onClick={handleGoToProfile}
+            onClick={handleGoToSavedPicks}
             className="px-6 py-3 bg-gold text-gold-foreground font-semibold rounded-xl"
           >
-            View Saved Styles
+            View Saved Picks
           </button>
         </motion.div>
       </div>
@@ -169,57 +194,151 @@ export function RecommendationsScreen() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2">
-        <button 
-          onClick={handleGoToProfile}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <User className="w-5 h-5" />
-          Profile
-        </button>
-        <span className="text-sm text-muted-foreground">Step 3 of 3</span>
+        <div className="w-8" />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode(viewMode === 'swipe' ? 'list' : 'swipe')}
+            className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
+            title={viewMode === 'swipe' ? 'Switch to list view' : 'Switch to swipe view'}
+          >
+            {viewMode === 'swipe' ? <List className="w-4 h-4 text-muted-foreground" /> : <LayoutGrid className="w-4 h-4 text-muted-foreground" />}
+          </button>
+          <button
+            onClick={() => navigateTo('menu')}
+            className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 px-4 pt-2 pb-4 flex flex-col">
         {/* Title */}
-        <h2 className="text-lg font-semibold text-foreground mb-3 px-2">
-          YOUR CURATED MATCHES
-        </h2>
-
-        {/* Card Stack */}
-        <div className="relative flex-1 mb-4">
-          {nextRecommendationData && (
-            <SwipeCard
-              key={nextRecommendationData.id}
-              recommendation={nextRecommendationData}
-              onSwipeLeft={() => {}}
-              onSwipeRight={() => {}}
-              isTop={false}
-            />
-          )}
-          <SwipeCard
-            key={currentRecommendation.id}
-            recommendation={currentRecommendation}
-            onSwipeLeft={handleSwipeLeft}
-            onSwipeRight={handleSwipeRight}
-            isTop
-          />
+        <div className="flex items-center justify-between mb-3 px-2">
+          <h2 className="text-lg font-semibold text-foreground">
+            YOUR CURATED MATCHES
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            {currentRecommendationIndex + 1} / {recommendations.length}
+          </span>
         </div>
 
-        {/* Swipe Instructions */}
-        <p className="text-xs text-muted-foreground text-center mb-4">
-          SWIPE LEFT TO REJECT &nbsp;&nbsp; SWIPE RIGHT TO SAVE
-        </p>
+        {viewMode === 'list' ? (
+          /* List View */
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {recommendations.map((rec, index) => {
+              const isActive = index === currentRecommendationIndex
+              return (
+                <button
+                  key={rec.id}
+                  onClick={() => {
+                    syncRecommendationIndex(index)
+                    navigateTo('recommendation-full')
+                  }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    rec.isSculptPick
+                      ? 'bg-gold/5 border-gold/30'
+                      : 'bg-secondary border-border hover:border-muted-foreground/30'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{rec.name}</p>
+                      {rec.isSculptPick && <Star className="w-3 h-3 text-gold fill-gold flex-shrink-0" />}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className={`text-xs font-semibold ${
+                        rec.compatibilityScore >= 90 ? 'text-success' : rec.compatibilityScore >= 70 ? 'text-gold' : 'text-warning'
+                      }`}>{rec.compatibilityScore}%</span>
+                      <span className="text-[10px] text-muted-foreground">Maint: {rec.metadata.maintenance}</span>
+                      <span className="text-[10px] text-muted-foreground">Trend: {rec.metadata.trendiness}</span>
+                    </div>
+                  </div>
+                  <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                </button>
+              )
+            })}
+          </div>
+        ) : (
+          /* Card Stack (Swipe View) */
+          <>
+            <div className="relative flex-1 mb-4">
+              {nextRecommendationData && (
+                <SwipeCard
+                  key={nextRecommendationData.id}
+                  recommendation={nextRecommendationData}
+                  onSwipeLeft={() => {}}
+                  onSwipeRight={() => {}}
+                  isTop={false}
+                />
+              )}
+              <SwipeCard
+                key={currentRecommendation.id}
+                recommendation={currentRecommendation}
+                onSwipeLeft={handleSwipeLeft}
+                onSwipeRight={handleSwipeRight}
+                isTop
+              />
+            </div>
 
-        {/* Barber Card Button */}
-        <motion.button
-          onClick={handleViewBarberCard}
-          className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90"
-          whileTap={{ scale: 0.98 }}
-        >
-          <FileText className="w-5 h-5" />
-          VIEW BARBER CARD
-        </motion.button>
+            {/* Swipe Instructions */}
+            <p className="text-xs text-white/90 text-center mb-4 font-medium">
+              SWIPE LEFT TO REJECT &nbsp;&nbsp; SWIPE RIGHT TO SAVE
+            </p>
+
+            {/* View Detail Button */}
+            <motion.button
+              onClick={handleViewDetail}
+              className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90"
+              whileTap={{ scale: 0.98 }}
+            >
+              <FileText className="w-5 h-5" />
+              VIEW DETAILS
+            </motion.button>
+          </>
+        )}
       </div>
+
+      {/* First Save Congrats Modal */}
+      <AnimatePresence>
+        {showFirstSaveModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 z-50"
+              onClick={() => setShowFirstSaveModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 30 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="fixed inset-0 flex items-center justify-center z-50 px-6 pointer-events-none"
+            >
+              <div className="bg-secondary border border-gold/40 rounded-2xl p-6 w-full max-w-sm pointer-events-auto text-center shadow-2xl">
+                <div className="w-16 h-16 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center mx-auto mb-4">
+                  <Star className="w-8 h-8 text-gold" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">First Pick Saved!</h3>
+                <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+                  Nice eye. Keep swiping — save all the cuts you like, then we'll build your barber card.
+                </p>
+                <button
+                  onClick={() => setShowFirstSaveModal(false)}
+                  className="w-full py-3 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+                >
+                  Keep Swiping
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

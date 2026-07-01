@@ -1,22 +1,31 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Scissors, AlertTriangle, Share2 } from "lucide-react"
+import { ChevronLeft, Scissors, AlertTriangle, Share2, Loader2, Check } from "lucide-react"
+import { exportBarberCardToPDF } from "@/lib/pdf-export"
 
 export function BarberCardScreen() {
   const { state, navigateTo, goBack } = useApp()
-  const { recommendations, currentRecommendationIndex, userSession } = state
+  const { recommendations, currentRecommendationIndex, userSession, analysisResult } = state
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportDone, setExportDone] = useState(false)
   
   const currentRecommendation = recommendations[currentRecommendationIndex]
   const barberCard = currentRecommendation?.barberCard
 
-  const handleExport = () => {
-    if (userSession === 'premium') {
-      // In real app, would trigger native share sheet
-      alert('Export functionality - would open native share dialog')
-    } else {
-      navigateTo('paywall')
+  const handleExport = async () => {
+    if (!currentRecommendation) return
+    setIsExporting(true)
+    try {
+      await exportBarberCardToPDF(currentRecommendation, analysisResult)
+      setExportDone(true)
+      setTimeout(() => setExportDone(false), 2000)
+    } catch {
+      alert('Export failed. Please try again.')
+    } finally {
+      setIsExporting(false)
     }
   }
 
@@ -36,11 +45,11 @@ export function BarberCardScreen() {
       {/* Header */}
       <div className="flex items-center px-4 py-2">
         <button 
-          onClick={goBack}
+          onClick={() => navigateTo('recommendation-full')}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
-          BACK TO CARD STACK
+          BACK
         </button>
       </div>
 
@@ -116,11 +125,26 @@ export function BarberCardScreen() {
           {/* Export Button */}
           <motion.button
             onClick={handleExport}
-            className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 mt-4"
-            whileTap={{ scale: 0.98 }}
+            disabled={isExporting}
+            className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 mt-4 disabled:opacity-60"
+            whileTap={!isExporting ? { scale: 0.98 } : {}}
           >
-            <Share2 className="w-5 h-5" />
-            EXPORT & SHARE CARD
+            {exportDone ? (
+              <>
+                <Check className="w-5 h-5" />
+                DOWNLOADED!
+              </>
+            ) : isExporting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Share2 className="w-5 h-5" />
+                EXPORT & SHARE CARD
+              </>
+            )}
           </motion.button>
         </motion.div>
       </div>
