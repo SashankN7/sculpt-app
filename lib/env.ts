@@ -40,9 +40,15 @@ export function validateEnv() {
       `\n🚨 Sculpt: Missing required environment variables:\n   ${missing.join(", ")}\n\n` +
       `   Copy .env.example to .env.local and fill in the values.\n`
     )
-    // Don't crash in browser — only throw on server
-    if (typeof window === "undefined") {
-      throw new Error(`Missing required env vars: ${missing.join(", ")}`)
+    // Don't crash in browser or during build — only throw on server at runtime
+    // During build (next build), env vars may not be available yet
+    if (typeof window === "undefined" && typeof process !== 'undefined') {
+      const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' ||
+                          process.env.npm_lifecycle_event === 'build' ||
+                          !!process.env.__NEXT_PRIVATE_BUILD_WORKER
+      if (!isBuildTime) {
+        throw new Error(`Missing required env vars: ${missing.join(", ")}`)
+      }
     }
   }
 
