@@ -71,7 +71,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Content */}
         <div className="flex-1 p-4 flex flex-col">
-          <h3 className="text-base font-semibold text-foreground mb-1">
+          <h3 className="text-base font-semibold text-foreground mb-1 truncate">
             {recommendation.name}
           </h3>
           
