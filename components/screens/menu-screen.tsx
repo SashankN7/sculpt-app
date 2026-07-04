@@ -53,21 +53,22 @@ export function MenuScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center px-4 py-3 border-b border-border">
+      <div className="flex items-center px-4 md:px-6 py-3 border-b border-border">
         <button
           onClick={() => navigateTo('dashboard')}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           BACK
         </button>
-        <span className="flex-1 text-center text-sm font-medium text-foreground">
+        <span className="flex-1 text-center text-sm font-semibold text-foreground">
           Menu
         </span>
+        <div className="w-12" />
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6">
+      <div className="flex-1 overflow-y-auto px-6 md:px-8 pt-4 pb-6 mx-auto w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,7 +104,7 @@ export function MenuScreen() {
             <MenuItem
               icon={<User className="w-4 h-4 text-gold" />}
               label="Profile"
-              onClick={() => navigateTo('settings')}
+              onClick={() => navigateTo('profile')}
             />
             <MenuItem
               icon={<Crown className="w-4 h-4 text-gold" />}
@@ -133,12 +134,12 @@ export function MenuScreen() {
             <MenuItem
               icon={<HelpCircle className="w-4 h-4 text-gold" />}
               label="Help & Support"
-              onClick={() => navigateTo('settings')}
+              onClick={() => navigateTo('help-support')}
             />
             <MenuItem
               icon={<Shield className="w-4 h-4 text-gold" />}
               label="Privacy & Legal"
-              onClick={() => navigateTo('settings')}
+              onClick={() => navigateTo('privacy-legal')}
             />
           </div>
 

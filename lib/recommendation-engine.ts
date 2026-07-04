@@ -1,5 +1,6 @@
 import type { AnalysisResult, QuestionnaireAnswersMap, HairstyleRecommendation } from '@/lib/types'
 import { getCompatibleHairstyles, type HairstyleEntry } from '@/lib/hairstyle-db'
+import { getStyleTrendScore } from '@/lib/trends'
 
 interface ScoredHairstyle {
   entry: HairstyleEntry
@@ -119,22 +120,36 @@ function generateExplanation(
   return parts.join(' ')
 }
 
-export function generateRecommendations(
+export async function generateRecommendations(
   analysis: AnalysisResult,
   answers: QuestionnaireAnswersMap,
-  count?: number
-): HairstyleRecommendation[] {
+  count?: number,
+  includeTrends?: boolean
+): Promise<HairstyleRecommendation[]> {
   const compatible = getCompatibleHairstyles(
     analysis.faceShape,
     analysis.densityScore,
     analysis.textureProfile
   )
 
-  const scored: ScoredHairstyle[] = compatible.map(entry => {
-    const compatibilityScore = calculateCompatibilityScore(entry, analysis, answers)
-    const explanation = generateExplanation(entry, analysis, compatibilityScore)
-    return { entry, compatibilityScore, explanation }
-  })
+  // includeTrends passed as parameter from settings
+  
+  const scored: ScoredHairstyle[] = await Promise.all(
+    compatible.map(async entry => {
+      let compatibilityScore = calculateCompatibilityScore(entry, analysis, answers)
+      
+      // Apply trend boost if enabled
+      if (includeTrends) {
+        const trendScore = await getStyleTrendScore(entry.name)
+        // Boost score by up to 8 points for trending styles (trendScore 0-100)
+        const trendBoost = (trendScore / 100) * 8
+        compatibilityScore = Math.min(98, compatibilityScore + trendBoost)
+      }
+      
+      const explanation = generateExplanation(entry, analysis, compatibilityScore)
+      return { entry, compatibilityScore, explanation }
+    })
+  )
 
   // Sort by score descending
   scored.sort((a, b) => b.compatibilityScore - a.compatibilityScore)
@@ -142,20 +157,23 @@ export function generateRecommendations(
   // Return all compatible styles (optionally cap with count if provided)
   const top = count ? scored.slice(0, count) : scored
 
-  // Mark top 1-2 as Sculpt Pick
+  // Mark top 1 as Sculpt Pick, add trend badge for top trending styles
   return top.map((item, index) => ({
     id: `rec-${Date.now()}-${index}`,
     name: item.entry.name.toUpperCase(),
-    compatibilityScore: item.compatibilityScore,
+    compatibilityScore: Math.round(item.compatibilityScore),
     description: item.explanation,
     imageUrl: item.entry.imageUrl,
-    isSculptPick: index < 2 && item.compatibilityScore >= 80,
+    isSculptPick: index === 0,
+    isTrending: includeTrends && (item.compatibilityScore > 80),
+    trendScore: includeTrends ? Math.min(100, Math.round((item.compatibilityScore - 65) * 3.3)) : undefined,
     metadata: {
       maintenance: item.entry.maintenanceLevel,
       stylingEffort: item.entry.stylingEffort,
       professionalism: item.entry.professionalism,
       trendiness: item.entry.trendiness,
     },
+    elements: item.entry.elements,
     barberCard: {
       hairstyleName: item.entry.name,
       cuttingMetrics: item.entry.barberCard.cuttingMetrics,

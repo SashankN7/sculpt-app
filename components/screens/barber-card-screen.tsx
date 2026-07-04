@@ -44,17 +44,17 @@ export function BarberCardScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center px-4 py-2">
+      <div className="flex items-center px-4 md:px-6 py-2">
         <button 
-          onClick={() => navigateTo('recommendation-full')}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => navigateTo('recommendation-detail')}
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           BACK
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-4 pb-6 overflow-y-auto">
+      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,24 +69,24 @@ export function BarberCardScreen() {
           </p>
 
           {/* Cutting Metrics Card */}
-          <div className="bg-secondary border border-border rounded-xl p-4 mb-4">
+          <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-4">
             <div className="flex items-center gap-2 mb-4">
               <Scissors className="w-5 h-5 text-gold" />
-              <h3 className="text-sm font-semibold text-foreground">EXACT CUTTING METRICS</h3>
+              <h3 className="text-sm font-semibold text-gold">EXACT CUTTING METRICS</h3>
             </div>
             
-            <div className="space-y-4 text-sm">
+            <div className="space-y-3 text-sm">
               <div>
-                <span className="font-medium text-foreground">TOP: </span>
-                <span className="text-muted-foreground">{barberCard.cuttingMetrics.top}</span>
+                <span className="font-semibold text-gold">TOP: </span>
+                <span className="text-foreground">{barberCard.cuttingMetrics.top}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">SIDES: </span>
-                <span className="text-muted-foreground">{barberCard.cuttingMetrics.sides}</span>
+                <span className="font-semibold text-gold">SIDES: </span>
+                <span className="text-foreground">{barberCard.cuttingMetrics.sides}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">BOUNDARY: </span>
-                <span className="text-muted-foreground">{barberCard.cuttingMetrics.boundary}</span>
+                <span className="font-semibold text-gold">BOUNDARY: </span>
+                <span className="text-foreground">{barberCard.cuttingMetrics.boundary}</span>
               </div>
             </div>
           </div>
@@ -98,14 +98,18 @@ export function BarberCardScreen() {
               <h3 className="text-sm font-semibold text-foreground">STYLING / PRODUCT PROTOCOLS</h3>
             </div>
             
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <div className="space-y-3">
               {barberCard.stylingProtocols.map((protocol, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-gold mt-0.5">•</span>
-                  {protocol}
-                </li>
+                <div key={index} className="p-3 bg-gold/5 border border-gold/20 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-[10px] font-bold text-gold">{index + 1}</span>
+                    </span>
+                    <span className="text-sm text-foreground leading-relaxed">{protocol}</span>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           {/* Warnings if any */}

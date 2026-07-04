@@ -3,16 +3,17 @@ import type { HairstyleRecommendation } from '@/lib/types'
 import { getFallbackResponse } from '@/lib/chat-fallbacks'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { validateEnv, features } from '@/lib/env'
+import { DAILY_USAGE_LIMITS } from '@/lib/types'
 
 validateEnv()
 const HAS_OPENAI = features.hasOpenAI
 
-// Daily message limits per tier (free users are cost-gated)
+// Daily message limits per tier
 const DAILY_CHAT_LIMITS: Record<string, number> = {
   guest: 5,
   authenticated: 5,
-  trial: 999,   // unlimited
-  premium: 999, // unlimited
+  trial: DAILY_USAGE_LIMITS.chatMessages,   // 30/day
+  premium: DAILY_USAGE_LIMITS.chatMessages, // 30/day
 }
 
 // ── In-memory daily chat counter (guests only — not persisted) ──

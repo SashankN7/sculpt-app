@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     // Add 7-day free trial if requested
     if (trial) {
       sessionParams.subscription_data = {
-        trial_period_days: 7,
+        trial_period_days: 30,
         metadata: {
           product: 'sculpt-premium',
           user_id: user?.id || '',

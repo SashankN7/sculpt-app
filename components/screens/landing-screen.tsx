@@ -34,7 +34,7 @@ export function LandingScreen() {
       >
         {/* Logo */}
         <motion.h1 
-          className="text-4xl font-bold tracking-[0.3em] text-foreground mb-2"
+          className="text-5xl md:text-7xl font-bold tracking-[0.3em] text-foreground mb-2"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
@@ -42,7 +42,7 @@ export function LandingScreen() {
           SCULPT
         </motion.h1>
         <motion.div 
-          className="w-16 h-0.5 bg-gold mb-10"
+          className="w-20 md:w-28 h-0.5 bg-gold mb-10"
           initial={{ width: 0 }}
           animate={{ width: 64 }}
           transition={{ delay: 0.4, duration: 0.4 }}
@@ -50,7 +50,7 @@ export function LandingScreen() {
 
         {/* Tagline */}
         <motion.p 
-          className="text-lg text-muted-foreground mb-16 leading-relaxed"
+          className="text-xl md:text-2xl text-muted-foreground mb-16 leading-relaxed"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
@@ -63,7 +63,7 @@ export function LandingScreen() {
         {/* CTA Button */}
         <motion.button
           onClick={handleStartAnalysis}
-          className="flex items-center justify-center gap-2 w-full max-w-[240px] py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 active:scale-[0.98]"
+          className="flex items-center justify-center gap-2 w-full max-w-[280px] md:max-w-[320px] py-4 md:py-5 px-8 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 active:scale-[0.98] text-base md:text-lg"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.4 }}
@@ -76,7 +76,7 @@ export function LandingScreen() {
         {/* Guest Link */}
         <motion.button
           onClick={handleGuestBypass}
-          className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+          className="mt-6 text-sm md:text-base text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.4 }}

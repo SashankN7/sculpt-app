@@ -5,22 +5,25 @@ import { useApp } from "@/lib/app-context"
 import { Settings, Calendar, RefreshCw, FileText, Trash2, Star } from "lucide-react"
 
 export function HistoryScreen() {
-  const { state, navigateTo, resetUpload } = useApp()
+  const { state, navigateTo, resetUpload, syncRecommendationIndex } = useApp()
   const { savedRecommendations, rejectedRecommendations, recommendations, analysisResult } = state
 
   // Build history from actual data
   const allStyles = [...savedRecommendations, ...rejectedRecommendations]
   const hasData = allStyles.length > 0 || recommendations.length > 0
 
-  const handleViewBarberCard = (index: number) => {
-    // Find the recommendation index in the main list
-    const rec = savedRecommendations[index]
-    const origIndex = recommendations.findIndex(r => r.id === rec.id)
-    if (origIndex !== -1) {
-      navigateTo('recommendation-full')
-    } else {
-      navigateTo('recommendation-detail')
+  const handleViewBarberCard = (savedIndex: number) => {
+    // Find the recommendation index in the main list and sync before navigating
+    const rec = savedRecommendations[savedIndex]
+    if (rec) {
+      const origIndex = recommendations.findIndex(r => r.id === rec.id)
+      if (origIndex !== -1) {
+        syncRecommendationIndex(origIndex)
+        navigateTo('recommendation-full')
+        return
+      }
     }
+    navigateTo('recommendation-detail')
   }
 
   const handleNewAnalysis = () => {
@@ -31,17 +34,17 @@ export function HistoryScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between px-4 md:px-6 py-2">
         <button 
           onClick={() => navigateTo('menu')}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-sm text-foreground hover:text-gold transition-colors"
         >
           <Settings className="w-5 h-5" />
           Settings
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-4 pb-6 overflow-y-auto">
+      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -4,7 +4,9 @@ import { useMemo } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
-import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap } from "lucide-react"
+import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/lib/seasonal"
+import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap, Trophy } from "lucide-react"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -16,8 +18,8 @@ const GROOMING_TIPS = [
 ]
 
 export function DashboardScreen() {
-  const { state, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex } = useApp()
-  const { userSession, savedRecommendations, email, recommendations } = state
+  const { state, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, logHaircut } = useApp()
+  const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
   const daysLeft = isTrial ? trialDaysLeft() : 0
@@ -33,19 +35,32 @@ export function DashboardScreen() {
     return getMaintenanceReminder(state.lastCutDate, state.cutFrequency)
   }, [state.lastCutDate, state.cutFrequency])
 
+  // Seasonal styles
+  const seasonalStyles = useMemo(() => getTopSeasonalPicks(), [])
+  const currentSeason = useMemo(() => getCurrentSeason(), [])
+  const seasonDisplayName = useMemo(() => getSeasonDisplayName(currentSeason), [currentSeason])
+
+  // Gamification
+  const earnedBadges = useMemo(() => getEarnedBadges(gamification), [gamification])
+  const recentBadges = useMemo(() => getRecentBadges(gamification), [gamification])
+
   // Whether this is a first-time user (no data yet)
   const isFirstTime = recommendations.length === 0 && savedRecommendations.length === 0
 
-  const handleViewSavedCard = (index: number) => {
-    setCurrentSavedIndex(index)
-    syncRecommendationIndex(index)
+  const handleViewSavedCard = (savedIndex: number) => {
+    setCurrentSavedIndex(savedIndex)
+    const rec = savedRecommendations[savedIndex]
+    if (rec) {
+      const recIndex = recommendations.findIndex(r => r.id === rec.id)
+      if (recIndex !== -1) syncRecommendationIndex(recIndex)
+    }
     navigateTo('recommendation-detail')
   }
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
             isPremium
@@ -58,7 +73,7 @@ export function DashboardScreen() {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground leading-tight">
-              {email ? email.split('@')[0] : 'Guest User'}
+              {state.profile.firstName || (email ? email.split('@')[0] : 'Guest User')}
             </p>
             <div className="flex items-center gap-1.5">
               {isPremium ? (
@@ -81,12 +96,12 @@ export function DashboardScreen() {
           onClick={() => navigateTo('menu')}
           className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
         >
-          <Settings className="w-4 h-4 text-muted-foreground" />
+          <Settings className="w-4 h-4 text-foreground" />
         </button>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 px-4 pb-4 overflow-y-auto space-y-5">
+      <div className="flex-1 px-4 md:px-6 lg:px-8 pb-4 overflow-y-auto space-y-5 mx-auto w-full max-w-3xl">
         {/* Welcome banner for first-time users */}
         {isFirstTime && (
           <motion.div
@@ -208,7 +223,7 @@ export function DashboardScreen() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <div className="bg-secondary border border-border rounded-xl p-3 text-center">
                 <p className="text-lg font-bold text-foreground">{recentScans}</p>
                 <p className="text-[10px] text-muted-foreground">Scans</p>
@@ -220,6 +235,10 @@ export function DashboardScreen() {
               <div className="bg-secondary border border-border rounded-xl p-3 text-center">
                 <p className="text-lg font-bold text-gold">{avgScore || '—'}</p>
                 <p className="text-[10px] text-muted-foreground">Avg Score</p>
+              </div>
+              <div className="bg-secondary border border-border rounded-xl p-3 text-center">
+                <p className="text-lg font-bold text-orange-400">{gamification.currentStreak}</p>
+                <p className="text-[10px] text-muted-foreground">Streak</p>
               </div>
             </div>
           </motion.div>
@@ -286,6 +305,44 @@ export function DashboardScreen() {
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
+
+            {/* Progress Tracker Quick Action */}
+            <button
+              onClick={() => navigateTo('progress-tracker')}
+              className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
+            >
+              <div className="w-9 h-9 rounded-lg bg-blue-400/10 flex items-center justify-center">
+                <Camera className="w-5 h-5 text-blue-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-foreground">Hair Journey</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {progressPhotos.length > 0
+                    ? `${progressPhotos.length} progress photo${progressPhotos.length !== 1 ? 's' : ''} tracked`
+                    : 'Track your hair growth between cuts'}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+
+            {/* Achievements Quick Action */}
+            <button
+              onClick={() => navigateTo('gamification')}
+              className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
+            >
+              <div className="w-9 h-9 rounded-lg bg-orange-400/10 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-orange-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-foreground">Achievements</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {earnedBadges.length > 0
+                    ? `${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''} earned`
+                    : 'Earn badges for your grooming journey'}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
           </div>
         </motion.div>
 
@@ -328,11 +385,40 @@ export function DashboardScreen() {
           </motion.div>
         )}
 
-        {/* Maintenance Reminder */}
+        {/* Seasonal Styles (Dynamic) */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-medium text-gold tracking-wider uppercase">
+              {seasonDisplayName} PICKS
+            </p>
+            <span className="text-[9px] text-muted-foreground">Personalized</span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {seasonalStyles.map((style) => (
+              <div
+                key={style.name}
+                className="flex-shrink-0 w-32 bg-secondary border border-border rounded-xl p-3 flex flex-col gap-1"
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingUp className="w-3 h-3 text-gold flex-shrink-0" />
+                  <span className="text-[9px] font-medium text-gold truncate">{style.tag}</span>
+                </div>
+                <p className="text-[10px] font-medium text-foreground leading-tight">{style.name}</p>
+                <p className="text-[9px] text-muted-foreground leading-tight">{style.description}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Maintenance Reminder */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
           className={`rounded-xl p-4 ${
             reminder?.urgency === 'overdue'
               ? 'bg-error/10 border border-error/30'
@@ -377,38 +463,98 @@ export function DashboardScreen() {
           </div>
         </motion.div>
 
-        {/* Trending */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">TRENDING THIS MONTH</p>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {[
-              { name: 'Textured Crop', tag: 'Most Popular' },
-              { name: 'Low Taper Fade', tag: 'Rising' },
-              { name: 'Modern Quiff', tag: 'Classic' },
-            ].map((trend) => (
-              <div
-                key={trend.name}
-                className="flex-shrink-0 w-28 bg-secondary border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-1"
-              >
-                <TrendingUp className="w-4 h-4 text-gold" />
-                <p className="text-[10px] font-medium text-foreground text-center leading-tight">
-                  {trend.name}
-                </p>
-                <p className="text-[9px] text-muted-foreground">{trend.tag}</p>
+        {/* Log Haircut Button */}
+        {savedRecommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <button
+              onClick={() => {
+                const lastSaved = savedRecommendations[savedRecommendations.length - 1]
+                logHaircut(lastSaved.name)
+              }}
+              className="w-full flex items-center gap-3 p-3.5 bg-gradient-to-r from-orange-400/10 to-orange-400/5 border border-orange-400/30 rounded-xl hover:from-orange-400/15 hover:to-orange-400/10 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-lg bg-orange-400/20 flex items-center justify-center">
+                <Scissors className="w-5 h-5 text-orange-400" />
               </div>
-            ))}
-          </div>
-        </motion.div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-foreground">Log Haircut</p>
+                <p className="text-[10px] text-muted-foreground">Track your latest cut to build your streak</p>
+              </div>
+              <span className="text-lg">🔥</span>
+            </button>
+          </motion.div>
+        )}
 
-        {/* Retention: Grooming Tip of the Day */}
+        {/* Grooming Streak (Real) */}
+        {gamification.totalCutsLogged > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="bg-gradient-to-br from-orange-400/10 to-orange-400/5 border border-orange-400/30 rounded-xl p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-orange-400/20 flex items-center justify-center">
+                  <span className="text-xl font-bold text-orange-400">{gamification.currentStreak}</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Grooming Streak</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {gamification.totalCutsLogged} cut{gamification.totalCutsLogged !== 1 ? 's' : ''} logged
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigateTo('gamification')}
+                className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
+              >
+                View All →
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Recent Badges */}
+        {recentBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.34 }}
+            className="bg-gold/5 border border-gold/20 rounded-xl p-4"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">NEW BADGES</p>
+              <button
+                onClick={() => navigateTo('gamification')}
+                className="text-[10px] text-gold hover:text-gold/80 transition-colors"
+              >
+                View All →
+              </button>
+            </div>
+            <div className="flex gap-3">
+              {recentBadges.slice(0, 3).map((badge) => (
+                <div key={badge.id} className="flex items-center gap-2">
+                  <span className="text-lg">{badge.icon}</span>
+                  <div>
+                    <p className="text-xs font-medium text-foreground">{badge.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{badge.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Grooming Tip of the Day */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.36 }}
           className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4"
         >
           <div className="flex items-center gap-2 mb-2">
@@ -423,88 +569,11 @@ export function DashboardScreen() {
           </p>
         </motion.div>
 
-        {/* Retention: Style Evolution Tracker */}
-        {savedRecommendations.length >= 2 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.32 }}
-            className="bg-secondary border border-border rounded-xl p-4"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gold" />
-              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">YOUR STYLE EVOLUTION</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground mb-1">Preferred style type</p>
-                <p className="text-sm font-medium text-foreground">
-                  {savedRecommendations[0]?.metadata.professionalism >= 70 ? 'Classic & Professional' : 'Modern & Textured'}
-                </p>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div className="flex-1 text-right">
-                <p className="text-xs text-muted-foreground mb-1">Avg compatibility</p>
-                <p className="text-sm font-bold text-gold">{avgScore}%</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Retention: Streak Tracker */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.34 }}
-          className="bg-secondary border border-border rounded-xl p-4"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Flame className="w-4 h-4 text-gold" />
-            <p className="text-[10px] font-medium text-gold tracking-wider uppercase">GROOMING STREAK</p>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center">
-                <span className="text-xl font-bold text-gold">{state.groomingStreak}</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Keep it going!</p>
-                <p className="text-[10px] text-muted-foreground">Log haircuts to build your streak</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Retention: Quick Grooming Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.36 }}
-        >
-          <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">QUICK TIPS</p>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-secondary border border-border rounded-xl p-3">
-              <Timer className="w-4 h-4 text-gold mb-1.5" />
-              <p className="text-[10px] font-medium text-foreground mb-0.5">Between Cuts</p>
-              <p className="text-[9px] text-muted-foreground leading-relaxed">
-                Clean up your neckline every 2 weeks with a trimmer
-              </p>
-            </div>
-            <div className="bg-secondary border border-border rounded-xl p-3">
-              <Zap className="w-4 h-4 text-gold mb-1.5" />
-              <p className="text-[10px] font-medium text-foreground mb-0.5">Pro Tip</p>
-              <p className="text-[9px] text-muted-foreground leading-relaxed">
-                Wash hair every 2-3 days to preserve natural oils
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
         {/* How Sculpt Works */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
+          transition={{ delay: 0.38 }}
           className="bg-secondary border border-border rounded-xl p-4"
         >
           <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-3">HOW SCULPT WORKS</p>
@@ -525,7 +594,7 @@ export function DashboardScreen() {
           </div>
         </motion.div>
 
-        {/* Premium Upsell (for free users only — trial users get the banner above) */}
+        {/* Premium Upsell (for free users only) */}
         {!isPremium && !isTrial && !isFirstTime && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -546,7 +615,7 @@ export function DashboardScreen() {
               onClick={() => navigateTo('paywall')}
               className="text-xs text-gold font-medium hover:text-gold/80 transition-colors"
             >
-              Start Free 7-Day Trial →
+              Start Free 30-Day Trial →
             </button>
           </motion.div>
         )}

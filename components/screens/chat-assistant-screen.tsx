@@ -38,7 +38,8 @@ export function ChatAssistantScreen() {
     getUserId()
   }, [])
   const { recommendations, currentRecommendationIndex, analysisResult } = state
-  const recommendation = recommendations[currentRecommendationIndex]
+  const [selectedStyleIndex, setSelectedStyleIndex] = useState(currentRecommendationIndex)
+  const recommendation = recommendations[selectedStyleIndex]
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -124,10 +125,10 @@ export function ChatAssistantScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Top Bar */}
-      <div className="flex items-center px-4 py-2 border-b border-border">
+      <div className="flex items-center px-4 md:px-6 py-2 border-b border-border">
         <button
           onClick={() => navigateTo('recommendation-full')}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -141,24 +142,39 @@ export function ChatAssistantScreen() {
 
       {/* Context Card */}
       {recommendation && (
-        <div className="mx-4 mt-3 px-3 py-2.5 bg-secondary border border-border rounded-xl flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
-            <User className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-foreground truncate">
-              Discussing: {recommendation.name} — {recommendation.compatibilityScore}/100
-            </p>
-            <p className="text-[10px] text-muted-foreground">Tap to change</p>
-          </div>
-          {recommendation.isSculptPick && (
-            <Star className="w-4 h-4 text-gold fill-gold flex-shrink-0" />
-          )}
+        <div className="mx-auto w-full max-w-3xl px-4 mt-3">
+          <button
+            onClick={() => {
+              // Cycle through recommendations
+              const nextIndex = (selectedStyleIndex + 1) % recommendations.length
+              setSelectedStyleIndex(nextIndex)
+              // Add a system message about the change
+              setMessages(prev => [...prev, {
+                id: Date.now().toString(),
+                role: 'assistant' as const,
+                text: `Switched to discussing: ${recommendations[nextIndex].name} (${recommendations[nextIndex].compatibilityScore}/100). What would you like to know?`,
+              }])
+            }}
+            className="w-full px-3 py-2.5 bg-secondary border border-border rounded-xl flex items-center gap-3 hover:border-gold/30 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
+              <User className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground truncate">
+                Discussing: {recommendation.name} — {recommendation.compatibilityScore}/100
+              </p>
+              <p className="text-[10px] text-gold font-medium">Tap to change style</p>
+            </div>
+            {recommendation.isSculptPick && (
+              <Star className="w-4 h-4 text-gold fill-gold flex-shrink-0" />
+            )}
+          </button>
         </div>
       )}
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-3 mx-auto w-full max-w-3xl">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
@@ -208,7 +224,7 @@ export function ChatAssistantScreen() {
       </div>
 
       {/* Quick Reply Chips */}
-      <div className="px-4 pb-2">
+      <div className="mx-auto w-full max-w-3xl px-4 pb-2">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
           {QUICK_REPLIES.map((reply) => (
             <button
@@ -223,7 +239,7 @@ export function ChatAssistantScreen() {
       </div>
 
       {/* Input Bar */}
-      <div className="px-4 pb-4 pt-2 border-t border-border">
+      <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-2 border-t border-border">
         <div className="flex items-center gap-2 bg-background border border-border rounded-full px-4 py-2">
           <input
             type="text"

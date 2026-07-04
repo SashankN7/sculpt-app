@@ -25,6 +25,11 @@ function sanitizeForStorage(state: AppState): AppState {
       ...state.feedbackData,
       afterPhoto: state.feedbackData.afterPhoto?.startsWith('data:') ? state.feedbackData.afterPhoto : null,
     },
+    // Keep progress photo data URLs (base64 only)
+    progressPhotos: state.progressPhotos.map(p => ({
+      ...p,
+      imageUrl: p.imageUrl?.startsWith('data:') ? p.imageUrl : '',
+    })),
   }
 }
 

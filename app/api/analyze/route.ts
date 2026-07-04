@@ -132,9 +132,39 @@ export async function POST(request: NextRequest) {
     }
 
     // Free tier gets 1 real AI analysis to hook them, then random inference for subsequent scans
-    // Premium/trial users get unlimited real analysis
+    // Premium/trial users get daily-limited real analysis
     const isFirstFreeScan = userSession !== 'premium' && userSession !== 'trial' && (scanCountToday ?? 0) === 0
-    const useRealAI = HAS_OPENAI && (userSession === 'premium' || userSession === 'trial' || isFirstFreeScan)
+    const isPremiumOrTrial = userSession === 'premium' || userSession === 'trial'
+    let useRealAI = HAS_OPENAI && (isPremiumOrTrial || isFirstFreeScan)
+
+    // Enforce daily limit for premium/trial users
+    let analysesToday = 0
+    let supabaseUserId: string | undefined
+    let supabaseRef: ReturnType<typeof import('@supabase/supabase-js').createClient> | undefined
+    if (useRealAI && isPremiumOrTrial) {
+      const { DAILY_USAGE_LIMITS } = await import('@/lib/types')
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (supabaseUrl && serviceKey) {
+        const { createClient } = await import('@supabase/supabase-js')
+        supabaseRef = createClient(supabaseUrl, serviceKey)
+        const { data: { user } } = await supabaseRef.auth.getUser()
+        if (user) {
+          supabaseUserId = user.id
+          const today = new Date().toISOString().split('T')[0]
+          const { data: userData } = await supabaseRef
+            .from('user_data')
+            .select('analyses_today, last_analysis_date')
+            .eq('user_id', user.id)
+            .single()
+          const userDataRow = userData as Record<string, unknown> | null
+          analysesToday = userDataRow?.last_analysis_date === today ? ((userDataRow?.analyses_today as number) ?? 0) : 0
+          if (analysesToday >= DAILY_USAGE_LIMITS.analyses) {
+            useRealAI = false // Fall back to questionnaire inference
+          }
+        }
+      }
+    }
 
     if (!useRealAI) {
       const analysis = inferAnalysisFromQuestionnaire(questionnaireAnswers || {})
@@ -247,6 +277,16 @@ Return ONLY the JSON object, no other text.`
 
     if (!Array.isArray(analysis.warnings)) {
       analysis.warnings = []
+    }
+
+    // Increment daily counter after successful analysis
+    if (supabaseRef && supabaseUserId) {
+      const today = new Date().toISOString().split('T')[0]
+      await supabaseRef
+        .from('user_data')
+        // @ts-expect-error - analyses_today and last_analysis_date exist in DB but not yet in generated types
+        .update({ analyses_today: analysesToday + 1, last_analysis_date: today })
+        .eq('user_id', supabaseUserId)
     }
 
     return NextResponse.json({

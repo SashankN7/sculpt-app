@@ -78,7 +78,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Server-side credit validation (source of truth)
+    // Server-side Supabase client + daily limit + credit enforcement
+    const { DAILY_USAGE_LIMITS } = await import('@/lib/types')
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!supabaseUrl || !serviceKey) {
@@ -90,12 +91,23 @@ export async function POST(request: NextRequest) {
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(supabaseUrl, serviceKey)
 
+    // Check daily preview limit
+    const today = new Date().toISOString().split('T')[0]
     const { data: userData, error: fetchError } = await supabase
       .from('user_data')
-      .select('preview_credits')
+      .select('preview_credits, previews_today, last_preview_date')
       .eq('user_id', userId)
       .single()
 
+    const previewsToday = userData?.last_preview_date === today ? (userData?.previews_today ?? 0) : 0
+    if (previewsToday >= DAILY_USAGE_LIMITS.previews) {
+      return NextResponse.json(
+        { error: `Daily preview limit reached (${DAILY_USAGE_LIMITS.previews}/day). Try again tomorrow.` },
+        { status: 429 }
+      )
+    }
+
+    // Check credit balance
     if (fetchError || !userData || userData.preview_credits <= 0) {
       return NextResponse.json(
         { error: 'No preview credits remaining. Purchase a preview pack to continue.' },
@@ -103,10 +115,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Atomically decrement credits (server is source of truth)
+    // Atomically decrement credits and increment daily counter (server is source of truth)
     const { error: decrementError } = await supabase
       .from('user_data')
-      .update({ preview_credits: userData.preview_credits - 1 })
+      .update({
+        preview_credits: userData.preview_credits - 1,
+        previews_today: previewsToday + 1,
+        last_preview_date: today,
+      })
       .eq('user_id', userId)
       .eq('preview_credits', userData.preview_credits) // Optimistic lock
 

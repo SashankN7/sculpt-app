@@ -1,9 +1,10 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from "react"
-import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, defaultSettingsState, SCAN_LIMITS } from "@/lib/types"
+import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
-import { createClient } from "@/lib/supabase"
+import { createClient, clearRememberedEmail } from "@/lib/supabase"
+import { logHaircut as logHaircutUtil, awardBadge, initGamification } from "@/lib/gamification"
 
 interface AppContextType {
   state: AppState
@@ -47,23 +48,36 @@ interface AppContextType {
   addPreviewCredits: (count: number) => void
   previewRecommendation: HairstyleRecommendation | null
   setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
+  logHaircut: (hairstyleName: string) => void
+  addProgressPhoto: (photo: ProgressPhoto) => void
+  removeProgressPhoto: (id: string) => void
+  setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
+  setProfile: (profile: Partial<AppState['profile']>) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
+
+
 
 function getInitialState(): AppState {
   if (typeof window === 'undefined') return initialAppState
   const saved = loadStateFromStorage()
   if (saved) {
+    // Ensure badges are always initialized from definitions
+    const gamification = saved.gamification?.badges?.length
+      ? saved.gamification
+      : { ...initialAppState.gamification, ...saved.gamification, badges: initGamification().badges }
     return {
       ...initialAppState,
       ...saved,
+      gamification,
       currentScreen: saved.userSession !== 'guest' ? 'dashboard' : 'landing',
       lastCutDate: saved.lastCutDate ?? null,
       cutFrequency: saved.cutFrequency ?? null,
     }
   }
-  return initialAppState
+  // Fresh state — initialize badges from definitions
+  return { ...initialAppState, gamification: initGamification() }
 }
 
 // Cloud sync helpers
@@ -85,8 +99,7 @@ async function saveToSupabase(state: AppState) {
         questionnaire_data: state.questionnaireData,
         last_cut_date: state.lastCutDate,
         cut_frequency: state.cutFrequency,
-        grooming_streak: state.groomingStreak,
-        last_grooming_tip_date: state.lastGroomingTipDate,
+        grooming_streak: state.gamification.currentStreak,
         preview_credits: state.previewCredits,
         updated_at: new Date().toISOString(),
       }, {
@@ -123,8 +136,11 @@ async function loadFromSupabase(): Promise<Partial<AppState> | null> {
       questionnaireData: data.questionnaire_data ?? {},
       lastCutDate: data.last_cut_date,
       cutFrequency: data.cut_frequency,
-      groomingStreak: data.grooming_streak ?? 0,
-      lastGroomingTipDate: data.last_grooming_tip_date ?? null,
+      gamification: {
+        ...initialAppState.gamification,
+        currentStreak: data.grooming_streak ?? 0,
+        longestStreak: data.grooming_streak ?? 0,
+      },
       previewCredits: data.preview_credits ?? 0,
     }
   } catch (err) {
@@ -137,6 +153,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(getInitialState)
   const screenHistoryRef = useRef<Screen[]>([])
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Auto-restore Supabase session on mount ("Remember me" persistence)
+  // This ensures users stay logged in even after Safari clears cookies
+  useEffect(() => {
+    async function restoreSession() {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session && state.userSession !== 'authenticated' && state.userSession !== 'premium' && state.userSession !== 'trial') {
+        setUserSession('authenticated')
+      }
+    }
+    restoreSession()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Save to localStorage on every state change
   useEffect(() => {
@@ -179,18 +209,71 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadCloudData()
   }, [state.userSession])
 
-  // Get user email from Supabase on mount
+  // Detect OAuth callback on mount — clean URL and set session
+  // Profile loading and screen routing is handled by the getUserInfo effect below
   useEffect(() => {
-    async function getUserEmail() {
+    async function handleOAuthCallback() {
+      const url = new URL(window.location.href)
+      const hasAuthCode = url.searchParams.has('code')
+      const hasProfileSetup = url.searchParams.get('profile_setup') === 'true'
+
+      if (!hasAuthCode && !hasProfileSetup) return
+
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session) {
+        // Clean up OAuth redirect URL params
+        const cleanUrl = new URL(window.location.origin + window.location.pathname)
+        window.history.replaceState({}, '', cleanUrl.toString())
+
+        // Set session — triggers getUserInfo effect which handles profile + routing
+        setUserSession('authenticated')
+      }
+    }
+
+    handleOAuthCallback()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Get user email and profile from Supabase when session changes (non-OAuth)
+  useEffect(() => {
+    async function getUserInfo() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         setState(prev => ({ ...prev, email: user.email! }))
+
+        // Load profile data from user_profiles
+        const { data: profileData } = await supabase
+          .from('user_profiles')
+          .select('first_name, last_name, location, date_of_birth, profile_complete')
+          .eq('user_id', user.id)
+          .single()
+
+        if (profileData && profileData.profile_complete) {
+          setState(prev => ({
+            ...prev,
+            profile: {
+              firstName: profileData.first_name ?? '',
+              lastName: profileData.last_name ?? '',
+              location: profileData.location ?? '',
+              dateOfBirth: profileData.date_of_birth ?? '',
+              profileComplete: true,
+            },
+          }))
+        } else {
+          // No profile or incomplete — route to setup
+          setState(prev => ({
+            ...prev,
+            currentScreen: 'profile-setup',
+          }))
+        }
       }
     }
 
     if (state.userSession === 'authenticated' || state.userSession === 'premium') {
-      getUserEmail()
+      getUserInfo()
     }
   }, [state.userSession])
 
@@ -396,6 +479,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Sign out error:', err)
     }
+    clearRememberedEmail()
     setState(initialAppState)
     screenHistoryRef.current = []
   }, [])
@@ -408,6 +492,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setPreviewRecommendation = useCallback((rec: HairstyleRecommendation | null) => {
     setPreviewRecommendationState(rec)
+  }, [])
+
+  // ── Gamification ──
+  const logHaircut = useCallback((hairstyleName: string) => {
+    setState(prev => {
+      const uniqueStyles = [
+        ...new Set(prev.savedRecommendations.map(r => r.name)),
+        ...new Set(prev.rejectedRecommendations.map(r => r.name)),
+      ]
+      const newGamification = logHaircutUtil(prev.gamification, hairstyleName, uniqueStyles)
+      return { ...prev, gamification: newGamification, lastCutDate: new Date().toISOString().split('T')[0] }
+    })
+  }, [])
+
+  // ── Progress Photos ──
+  const addProgressPhoto = useCallback((photo: ProgressPhoto) => {
+    setState(prev => {
+      const newPhotos = [photo, ...prev.progressPhotos]
+      const newCount = newPhotos.length
+      let gamification = prev.gamification
+      if (newCount >= 10) gamification = awardBadge(gamification, 'progress-10')
+      else if (newCount >= 3) gamification = awardBadge(gamification, 'progress-3')
+      return { ...prev, progressPhotos: newPhotos, gamification }
+    })
+  }, [])
+
+  const removeProgressPhoto = useCallback((id: string) => {
+    setState(prev => ({ ...prev, progressPhotos: prev.progressPhotos.filter(p => p.id !== id) }))
+  }, [])
+
+  const setPushPermission = useCallback((permission: 'default' | 'granted' | 'denied') => {
+    setState(prev => ({ ...prev, pushPermission: permission }))
+  }, [])
+
+  const setProfile = useCallback((profile: Partial<AppState['profile']>) => {
+    setState(prev => ({
+      ...prev,
+      profile: { ...prev.profile, ...profile, profileComplete: true }
+    }))
   }, [])
 
   const setSettingsScrollTo = useCallback((section: string | null) => {
@@ -432,17 +555,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (state.userSession !== 'trial' || !state.trialStartedAt) return false
     const start = new Date(state.trialStartedAt).getTime()
     const now = Date.now()
-    const sevenDays = 7 * 24 * 60 * 60 * 1000
-    return now - start < sevenDays
+    const trialMs = PRICING.trialDays * 24 * 60 * 60 * 1000
+    return now - start < trialMs
   }, [state.userSession, state.trialStartedAt])
 
   const trialDaysLeft = useCallback(() => {
     if (state.userSession !== 'trial' || !state.trialStartedAt) return 0
     const start = new Date(state.trialStartedAt).getTime()
     const now = Date.now()
-    const sevenDays = 7 * 24 * 60 * 60 * 1000
+    const trialMs = PRICING.trialDays * 24 * 60 * 60 * 1000
     const elapsed = now - start
-    const remaining = Math.max(0, sevenDays - elapsed)
+    const remaining = Math.max(0, trialMs - elapsed)
     return Math.ceil(remaining / (24 * 60 * 60 * 1000))
   }, [state.userSession, state.trialStartedAt])
 
@@ -476,14 +599,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
-  const syncRecommendationIndex = useCallback((savedIndex: number) => {
-    const rec = state.savedRecommendations[savedIndex]
-    if (!rec) return
-    const originalIndex = state.recommendations.findIndex(r => r.id === rec.id)
-    if (originalIndex !== -1) {
-      setState(prev => ({ ...prev, currentRecommendationIndex: originalIndex }))
+  const syncRecommendationIndex = useCallback((recIndex: number) => {
+    if (recIndex >= 0 && recIndex < state.recommendations.length) {
+      setState(prev => ({ ...prev, currentRecommendationIndex: recIndex }))
     }
-  }, [state.savedRecommendations, state.recommendations])
+  }, [state.recommendations.length])
 
   const contextValue = useMemo(() => ({
     state,
@@ -527,6 +647,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addPreviewCredits,
     previewRecommendation,
     setPreviewRecommendation,
+    logHaircut,
+    addProgressPhoto,
+    removeProgressPhoto,
+    setPushPermission,
+    setProfile,
   }), [
     state,
     navigateTo,
@@ -569,6 +694,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addPreviewCredits,
     previewRecommendation,
     setPreviewRecommendation,
+    logHaircut,
+    addProgressPhoto,
+    removeProgressPhoto,
+    setPushPermission,
+    setProfile,
   ])
 
   return (

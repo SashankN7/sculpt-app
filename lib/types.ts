@@ -20,22 +20,28 @@ export type Screen =
   | 'dashboard'
   | 'menu'
   | 'preview'
+  | 'progress-tracker'
+  | 'gamification'
+  | 'profile'
+  | 'help-support'
+  | 'privacy-legal'
+  | 'profile-setup'
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
 // Scan limits per tier — free users get unlimited scans, premium unlocks real AI analysis
 export const SCAN_LIMITS: Record<UserSession, number> = {
-  guest: 999,   // unlimited scans (local engine only)
-  authenticated: 999, // unlimited scans (local engine only)
-  trial: 999,    // unlimited scans + real AI
-  premium: 999,  // unlimited scans + real AI
+  guest: 3,       // free users get 3 scans
+  authenticated: 3, // authenticated free users get 3 scans
+  trial: 10,      // trial users get 10 scans/day
+  premium: 999,    // premium users get unlimited scans
 }
 
 // Pricing
 export const PRICING = {
   monthly: { price: 14.99, label: '$14.99/mo', period: 'Monthly' },
   annual: { price: 89.99, label: '$89.99/yr', period: 'Annual', monthlyEquivalent: 7.50 },
-  trialDays: 7,
+  trialDays: 30,
 } as const
 
 // Preview pack pricing
@@ -43,6 +49,14 @@ export const PREVIEW_PACK_PRICING = {
   price: 2.99,
   credits: 5,
   label: '$2.99 for 5 Previews',
+} as const
+
+// Daily usage limits for premium/trial users (cost protection)
+export const DAILY_USAGE_LIMITS = {
+  analyses: 10,    // GPT-4o Vision photo analyses per day
+  previews: 5,     // gpt-image-1 preview generations per day
+  chatMessages: 30, // GPT-4o-mini chat messages per day
+  barberCards: 10,  // AI-enhanced barber card generations per day
 } as const
 
 // Questionnaire question types
@@ -121,12 +135,15 @@ export interface HairstyleRecommendation {
   description: string
   imageUrl: string
   isSculptPick: boolean
+  isTrending?: boolean
+  trendScore?: number
   metadata: {
     maintenance: number
     stylingEffort: number
     professionalism: number
     trendiness: number
   }
+  elements: string[] // Tags for AI mixing
   barberCard: BarberCard
 }
 
@@ -147,6 +164,44 @@ export interface HaircutHistory {
   date: string
   accuracyIndex: number
   isCurrent: boolean
+}
+
+// ── Gamification ──
+export interface Badge {
+  id: string
+  name: string
+  description: string
+  icon: string // emoji
+  category: 'streak' | 'milestone' | 'style' | 'social'
+  requirement: number // e.g. cuts logged, days streak
+  earnedAt: string | null
+}
+
+export interface GamificationState {
+  badges: Badge[]
+  totalCutsLogged: number
+  currentStreak: number
+  longestStreak: number
+  styleVariety: number // unique styles tried
+  lastCutLoggedDate: string | null
+}
+
+// ── Hair Growth Tracker ──
+export interface ProgressPhoto {
+  id: string
+  imageUrl: string
+  date: string
+  growthStage: 'fresh' | 'growing' | 'needs-trim' | 'overgrown'
+  notes: string
+  haircutName?: string
+}
+
+// ── Seasonal Styles ──
+export interface SeasonalStyle {
+  name: string
+  description: string
+  tag: string // 'Trending' | 'Seasonal' | 'Classic'
+  season: 'spring' | 'summer' | 'fall' | 'winter' | 'all'
 }
 
 export interface FeedbackData {
@@ -179,11 +234,23 @@ export interface AppState {
   cutFrequency: string | null
   // Trial state
   trialStartedAt: string | null
-  // Retention
-  groomingStreak: number
-  lastGroomingTipDate: string | null
+  // Gamification
+  gamification: GamificationState
+  // Hair growth tracker
+  progressPhotos: ProgressPhoto[]
+  // Push notifications
+  pushPermission: 'default' | 'granted' | 'denied'
+  pushSubscriptionEndpoint: string | null
   // Preview
   previewCredits: number
+  // Profile
+  profile: {
+    firstName: string
+    lastName: string
+    location: string
+    dateOfBirth: string
+    profileComplete: boolean
+  }
   // Navigation helpers
   settingsScrollTo: string | null
 }
@@ -233,8 +300,41 @@ export const initialAppState: AppState = {
   lastCutDate: null,
   cutFrequency: null,
   trialStartedAt: null,
-  groomingStreak: 0,
-  lastGroomingTipDate: null,
+  gamification: {
+    badges: [
+      { id: 'streak-3', name: 'Getting Started', description: 'Log 3 haircuts in a row', icon: '🔥', category: 'streak' as const, requirement: 3, earnedAt: null },
+      { id: 'streak-7', name: 'On Fire', description: '7-day grooming streak', icon: '🔥', category: 'streak' as const, requirement: 7, earnedAt: null },
+      { id: 'streak-30', name: 'Unstoppable', description: '30-day grooming streak', icon: '💫', category: 'streak' as const, requirement: 30, earnedAt: null },
+      { id: 'streak-90', name: 'Grooming Legend', description: '90-day grooming streak', icon: '👑', category: 'streak' as const, requirement: 90, earnedAt: null },
+      { id: 'cuts-1', name: 'First Cut', description: 'Log your first haircut', icon: '✂️', category: 'milestone' as const, requirement: 1, earnedAt: null },
+      { id: 'cuts-5', name: 'Regular', description: 'Log 5 haircuts', icon: '💇', category: 'milestone' as const, requirement: 5, earnedAt: null },
+      { id: 'cuts-10', name: 'Dedicated', description: 'Log 10 haircuts', icon: '🏆', category: 'milestone' as const, requirement: 10, earnedAt: null },
+      { id: 'cuts-25', name: 'Haircut Veteran', description: 'Log 25 haircuts', icon: '🎖️', category: 'milestone' as const, requirement: 25, earnedAt: null },
+      { id: 'cuts-50', name: 'Sculpt Master', description: 'Log 50 haircuts', icon: '🏅', category: 'milestone' as const, requirement: 50, earnedAt: null },
+      { id: 'variety-3', name: 'Style Explorer', description: 'Try 3 different styles', icon: '🎨', category: 'style' as const, requirement: 3, earnedAt: null },
+      { id: 'variety-5', name: 'Fashion Forward', description: 'Try 5 different styles', icon: '🌟', category: 'style' as const, requirement: 5, earnedAt: null },
+      { id: 'variety-10', name: 'Chameleon', description: 'Try 10 different styles', icon: '🦎', category: 'style' as const, requirement: 10, earnedAt: null },
+      { id: 'share-1', name: 'Social Butterfly', description: 'Share your first barber card', icon: '🦋', category: 'social' as const, requirement: 1, earnedAt: null },
+      { id: 'share-5', name: 'Trendsetter', description: 'Share 5 barber cards', icon: '📡', category: 'social' as const, requirement: 5, earnedAt: null },
+      { id: 'progress-3', name: 'Documentarian', description: 'Upload 3 progress photos', icon: '📸', category: 'milestone' as const, requirement: 3, earnedAt: null },
+      { id: 'progress-10', name: 'Hair Historian', description: 'Upload 10 progress photos', icon: '📚', category: 'milestone' as const, requirement: 10, earnedAt: null },
+    ],
+    totalCutsLogged: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    styleVariety: 0,
+    lastCutLoggedDate: null,
+  },
+  progressPhotos: [],
+  pushPermission: 'default',
+  pushSubscriptionEndpoint: null,
   previewCredits: 0,
+  profile: {
+    firstName: '',
+    lastName: '',
+    location: '',
+    dateOfBirth: '',
+    profileComplete: false,
+  },
   settingsScrollTo: null,
 }

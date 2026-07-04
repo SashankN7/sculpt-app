@@ -109,17 +109,17 @@ export function PaywallScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center px-4 py-2">
+      <div className="flex items-center px-4 md:px-6 py-2">
         <button
           onClick={goBack}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <X className="w-5 h-5" />
           CLOSE
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto">
+      <div className="flex-1 px-6 md:px-8 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto mx-auto w-full max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -272,7 +272,7 @@ export function PaywallScreen() {
             ) : (
               <>
                 <Zap className="w-5 h-5" />
-                START 7-DAY FREE TRIAL
+                START 30-DAY FREE TRIAL
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

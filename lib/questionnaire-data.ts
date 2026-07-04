@@ -106,6 +106,7 @@ export const questionnaireStep3Questions: QuestionnaireQuestion[] = [
       { label: 'Critical — needs to be boardroom-ready', value: 'critical' },
       { label: 'Important — mostly professional with some flexibility', value: 'important' },
       { label: 'Flexible — my workplace is casual', value: 'flexible' },
+      { label: "Not applicable - I don't work in a formal setting", value: 'na' },
     ],
   },
   {

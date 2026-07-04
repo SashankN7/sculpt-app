@@ -77,6 +77,7 @@ export function ProcessingScreen() {
   const [stepStatuses, setStepStatuses] = useState<Array<'waiting' | 'reading' | 'done' | 'error'>>(['reading', 'waiting', 'waiting'])
   const [error, setError] = useState<string | null>(null)
   const [tipIndex, setTipIndex] = useState(0)
+  const [retryKey, setRetryKey] = useState(0)
 
   // Build personalized tips from questionnaire answers
   const personalizedTips = getPersonalizedTips(state.questionnaireData)
@@ -127,13 +128,14 @@ export function ProcessingScreen() {
         setAnalysisResult(analysis)
         setStepStatuses(['done', 'reading', 'waiting'])
 
-        // Step 2: Call /api/recommend with analysis + questionnaire
+        // Step 2: Call /api/recommend with analysis + questionnaire + trend settings
         const recommendRes = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             analysis,
             answers: state.questionnaireData,
+            includeTrends: state.settings.aiPersonalization.includeTrends,
           }),
         })
 
@@ -182,7 +184,7 @@ export function ProcessingScreen() {
       processingTimers.forEach(clearTimeout)
       processingTimers = []
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [retryKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getStatusIcon = (status: 'waiting' | 'reading' | 'done' | 'error') => {
     switch (status) {
@@ -203,7 +205,7 @@ export function ProcessingScreen() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full"
+          className="w-full max-w-md"
         >
           <div className="w-16 h-16 rounded-full bg-error/10 border border-error/30 flex items-center justify-center mx-auto mb-6">
             <AlertTriangle className="w-8 h-8 text-error" />
@@ -220,7 +222,7 @@ export function ProcessingScreen() {
                 resetProcessingState()
                 setError(null)
                 setStepStatuses(['reading', 'waiting', 'waiting'])
-                window.location.reload()
+                setRetryKey(k => k + 1)
               }}
               className="w-full py-3 px-6 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
             >
@@ -247,7 +249,7 @@ export function ProcessingScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full"
+        className="w-full max-w-md"
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-foreground mb-2">

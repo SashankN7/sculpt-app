@@ -188,10 +188,10 @@ export function QuestionnaireBase({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between px-4 md:px-6 py-2">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           BACK
@@ -199,7 +199,7 @@ export function QuestionnaireBase({
         <span className="text-sm text-muted-foreground">Step {stepNumber} of {totalSteps}</span>
       </div>
 
-      <div className="flex-1 px-6 pt-4 pb-6 flex flex-col overflow-y-auto">
+      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 flex flex-col overflow-y-auto mx-auto w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -41,16 +41,12 @@ export function RecommendationFullScreen() {
     )
   }
 
-  const handleViewBarberCard = () => {
-    navigateTo('barber-card')
-  }
-
   const handleOpenChat = () => {
     navigateTo('chat-assistant')
   }
 
   const handleBack = () => {
-    navigateTo('recommendations')
+    navigateTo('recommendation-detail')
   }
 
   // Mock analysis data — in real app this comes from the analysis result
@@ -76,7 +72,7 @@ export function RecommendationFullScreen() {
       <div className="flex items-center justify-between px-4 py-2">
         <button
           onClick={handleBack}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           RESULTS
@@ -91,7 +87,7 @@ export function RecommendationFullScreen() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto mx-auto w-full max-w-3xl">
         {/* Hero Image Area */}
         <div className="relative h-48 bg-background flex items-center justify-center mx-4 rounded-xl overflow-hidden">
           {recommendation.imageUrl ? (
@@ -255,14 +251,14 @@ export function RecommendationFullScreen() {
         </div>
       </div>
 
-      {/* Sticky Bottom CTA */}
+      {/* Bottom Actions */}
       <div className="px-4 py-3 border-t border-border">
         <motion.button
-          onClick={handleViewBarberCard}
-          className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90"
+          onClick={handleBack}
+          className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-secondary border border-border text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors"
           whileTap={{ scale: 0.98 }}
         >
-          VIEW BARBER CARD →
+          ← Back to Results
         </motion.button>
       </div>
     </div>

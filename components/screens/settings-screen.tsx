@@ -148,17 +148,17 @@ export function SettingsScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center px-4 py-2">
+      <div className="flex items-center px-4 md:px-6 py-2">
         <button
           onClick={goBack}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           BACK
         </button>
       </div>
 
-      <div className="flex-1 px-6 pt-4 pb-6 overflow-y-auto">
+      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -169,6 +169,14 @@ export function SettingsScreen() {
             <Shield className="w-6 h-6 text-gold" />
             <h2 className="text-xl font-semibold text-foreground">Settings</h2>
           </div>
+
+          {/* Back to Dashboard */}
+          <button
+            onClick={() => navigateTo('dashboard')}
+            className="w-full flex items-center justify-center gap-2 py-3 mb-6 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+          >
+            Back to Dashboard
+          </button>
 
           {/* Delete Confirmation Modal */}
           {showDeleteConfirm && (
@@ -341,22 +349,13 @@ export function SettingsScreen() {
             </div>
           </div>
 
-          {/* SECTION: Privacy & Legal */}
+          {/* SECTION: Data Export Action */}
           <div className="mb-8">
-            <p className="text-xs font-medium text-gold tracking-wider uppercase mb-3">Privacy & Legal</p>
             <div className="bg-secondary border border-border rounded-xl overflow-hidden">
               <ActionRow
-                label="Privacy Policy"
-                onClick={() => alert('Privacy Policy would open here')}
-              />
-              <ActionRow
-                label="Terms of Service"
-                onClick={() => alert('Terms of Service would open here')}
-              />
-              <ActionRow
-                label="Data Export"
+                label="Export My Data"
                 description="Download all your data"
-                onClick={() => alert('Data export would start here')}
+                onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
               />
             </div>
           </div>

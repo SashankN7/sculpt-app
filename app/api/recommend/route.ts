@@ -5,10 +5,11 @@ import type { AnalysisResult, QuestionnaireAnswersMap } from '@/lib/types'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { analysis, answers, count } = body as {
+    const { analysis, answers, count, includeTrends } = body as {
       analysis: AnalysisResult
       answers: QuestionnaireAnswersMap
       count?: number
+      includeTrends?: boolean
     }
 
     if (!analysis) {
@@ -19,10 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate recommendations using the structured scoring engine
-    const recommendations = generateRecommendations(
+    const recommendations = await generateRecommendations(
       analysis,
       answers || {},
-      count || 5
+      count || 5,
+      includeTrends
     )
 
     return NextResponse.json({
