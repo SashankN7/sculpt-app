@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Scissors, AlertTriangle, Share2, Loader2, Check, Lock, Crown } from "lucide-react"
+import { ChevronLeft, Scissors, AlertTriangle, Share2, Loader2, Check, Lock, Crown, ExternalLink } from "lucide-react"
 import { exportBarberCardToPDF } from "@/lib/pdf-export"
 
 export function BarberCardScreen() {
@@ -126,6 +126,20 @@ export function BarberCardScreen() {
               </ul>
             </div>
           )}
+
+          {/* View Reference Photos Button */}
+          <button
+            onClick={() => {
+              window.open(
+                `https://www.google.com/search?q=${encodeURIComponent((barberCard.hairstyleName || currentRecommendation?.name || '') + ' men haircut')}&tbm=isch`,
+                '_blank'
+              )
+            }}
+            className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-secondary border border-border text-sm font-medium text-muted-foreground rounded-xl hover:text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all mt-4"
+          >
+            <ExternalLink className="w-4 h-4" />
+            View Reference Photos
+          </button>
 
           {/* Export Button */}
           {isPremium ? (

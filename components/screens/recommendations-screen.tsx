@@ -40,12 +40,12 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
       dragElastic={0.9}
       dragConstraints={{ left: -300, right: 300 }}
       onDragEnd={handleDragEnd}
-      className={`absolute inset-0 ${isTop ? 'cursor-grab active:cursor-grabbing z-10' : 'z-0'} touch-pan-y select-none`}
+      className={`absolute inset-0 overflow-hidden ${isTop ? 'cursor-grab active:cursor-grabbing z-10' : 'z-0'} touch-pan-y select-none`}
     >
       {/* Opaque layer — covers card behind completely so nothing bleeds through */}
       <div className="absolute inset-0 bg-background rounded-2xl" />
       {/* Card content on top of the opaque layer — flex-col so button always sits at bottom */}
-      <div className={`relative h-full rounded-2xl flex flex-col border-2 pointer-events-none ${isSculptPick ? 'border-gold ring-2 ring-gold/20 bg-gold/5' : 'border-border bg-secondary'}`}>
+      <div className={`relative h-full rounded-2xl flex flex-col border-2 pointer-events-none overflow-hidden ${isSculptPick ? 'border-gold ring-2 ring-gold/20 bg-gold/5' : 'border-border bg-secondary'}`}>
         {/* Sculpt Pick Badge */}
         {isSculptPick && (
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-gold text-gold-foreground rounded-full text-xs font-semibold">
@@ -55,7 +55,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
         )}
 
         {/* Image Area */}
-        <div className="relative h-48 bg-background flex items-center justify-center overflow-hidden">
+        <div className="relative h-44 shrink-0 bg-background flex items-center justify-center overflow-hidden">
           {recommendation.imageUrl ? (
             <img
               src={recommendation.imageUrl}
@@ -71,14 +71,14 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
         </div>
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
-        <div className="flex-1 min-h-0 p-4 flex flex-col overflow-y-auto">
-          <h3 className="text-base font-semibold text-foreground mb-1 truncate">
+        <div className="flex-1 min-h-0 p-4 flex flex-col overflow-hidden">
+          <h3 className="text-sm font-semibold text-foreground mb-1 truncate">
             {recommendation.name}
           </h3>
           
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">Compatibility Rating:</span>
-            <span className={`text-lg font-bold ${
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-muted-foreground">Compatibility Rating:</span>
+            <span className={`text-base font-bold ${
               recommendation.compatibilityScore >= 90 ? 'text-success' :
               recommendation.compatibilityScore >= 70 ? 'text-gold' : 'text-warning'
             }`}>
@@ -86,12 +86,12 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
             </span>
           </div>
 
-          <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
             Analysis: {recommendation.description}
           </p>
 
           {/* Metadata Scores */}
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-3">
             <MetadataItem label="Maintenance" value={recommendation.metadata.maintenance} traitKey="maintenance" />
             <MetadataItem label="Styling" value={recommendation.metadata.stylingEffort} traitKey="stylingEffort" />
             <MetadataItem label="Professional" value={recommendation.metadata.professionalism} traitKey="professionalism" />
@@ -99,20 +99,20 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
           </div>
         </div>
 
-        {/* View Hairstyle Button — positioned outside pointer-events-none so it's always clickable and visible */}
-        <div className="px-4 pb-4">
+        {/* View Reference Photos Button — positioned outside pointer-events-none so it's always clickable and visible */}
+        <div className="px-4 pb-4 shrink-0">
           <button
             onClick={(e) => {
               e.stopPropagation()
               window.open(
-                `https://www.google.com/search?q=${encodeURIComponent(recommendation.name + ' hairstyle')}&tbm=isch`,
+                `https://www.google.com/search?q=${encodeURIComponent(recommendation.name + ' men haircut')}&tbm=isch`,
                 '_blank'
               )
             }}
             className="pointer-events-auto z-20 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border bg-secondary/80 backdrop-blur-sm text-sm font-medium text-muted-foreground hover:text-foreground hover:border-gold/40 hover:bg-gold/5 active:scale-[0.98] transition-all"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            View Hairstyle
+            View Reference Photos
           </button>
         </div>
       </div>
@@ -122,10 +122,10 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
 function MetadataItem({ label, value, traitKey }: { label: string; value: number; traitKey: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className={`w-2 h-2 rounded-full ${getTraitBgColor(value, traitKey as TraitKey)}`} />
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground ml-auto">{value}</span>
+    <div className="flex items-center gap-1.5">
+      <div className={`w-2 h-2 rounded-full shrink-0 ${getTraitBgColor(value, traitKey as TraitKey)}`} />
+      <span className="text-[11px] text-muted-foreground truncate">{label}</span>
+      <span className="text-[11px] font-semibold text-foreground ml-auto tabular-nums shrink-0">{value}</span>
     </div>
   )
 }
