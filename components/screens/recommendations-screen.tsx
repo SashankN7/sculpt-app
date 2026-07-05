@@ -54,24 +54,11 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
           </div>
         )}
 
-        {/* Image Area */}
+        {/* Image Area — gold decorative name */}
         <div className="relative h-44 shrink-0 bg-background flex items-center justify-center overflow-hidden">
-          {recommendation.imageUrl ? (
-            <img
-              src={recommendation.imageUrl}
-              alt={recommendation.name}
-              className="w-full h-full object-contain p-2"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          ) : null}
-          {/* Show name as small text when no image */}
-          {!recommendation.imageUrl && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest text-center px-4 line-clamp-2">
-                {recommendation.name}
-              </span>
-            </div>
-          )}
+          <span style={{ fontSize: '11px', lineHeight: '1.1' }} className="font-bold text-gold uppercase tracking-widest text-center px-4 line-clamp-2 pointer-events-none">
+            {recommendation.name}
+          </span>
         </div>
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
