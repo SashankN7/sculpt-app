@@ -156,15 +156,11 @@ export function PaywallScreen() {
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                  3 scans per day
+                  Unlimited scans
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                   1 free AI photo analysis (then questionnaire-based suggestions)
-                </li>
-                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                  No style previews
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
@@ -186,7 +182,7 @@ export function PaywallScreen() {
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-[11px] text-foreground">
                   <Check className="w-3 h-3 text-gold flex-shrink-0" />
-                  Unlimited scans per day
+                  Unlimited scans
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-foreground">
                   <Check className="w-3 h-3 text-gold flex-shrink-0" />
@@ -194,17 +190,14 @@ export function PaywallScreen() {
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-foreground">
                   <Check className="w-3 h-3 text-gold flex-shrink-0" />
-                  5 style previews per day
-                </li>
-                <li className="flex items-center gap-2 text-[11px] text-foreground">
-                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
                   30 AI chat messages per day
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-foreground">
                   <Check className="w-3 h-3 text-gold flex-shrink-0" />
-                  10 AI barber cards per day + PDF export
+                  PDF barber card export
                 </li>
               </ul>
+              <p className="text-[10px] text-gold/60 mt-2 italic">Style previews are a separate purchase ($2.99 / 5-pack) for all users.</p>
             </div>
           </div>
 
@@ -356,17 +349,14 @@ export function PaywallScreen() {
           <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
             <div className="flex items-center gap-2 mb-2">
               <Eye className="w-4 h-4 text-gold" />
-              <p className="text-sm font-medium text-foreground">Just want previews?</p>
+              <p className="text-sm font-medium text-foreground">Style Previews — for everyone</p>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Buy a preview pack — see how each style looks on you before your appointment.
+            <p className="text-xs text-muted-foreground mb-1">
+              See how each style looks on you before your appointment.
             </p>
-            <button
-              onClick={goBack}
-              className="text-xs text-gold font-medium hover:text-gold/80 transition-colors"
-            >
-              Go back to try a preview →
-            </button>
+            <p className="text-xs font-semibold text-foreground">
+              $2.99 for 5 previews · available to all tiers
+            </p>
           </div>
 
           {/* Footer Links */}

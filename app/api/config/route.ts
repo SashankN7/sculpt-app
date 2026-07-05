@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { features } from '@/lib/env'
-import { DAILY_USAGE_LIMITS, SCAN_LIMITS } from '@/lib/types'
+import { DAILY_USAGE_LIMITS } from '@/lib/types'
 
 export async function GET() {
   return NextResponse.json({
@@ -8,15 +8,15 @@ export async function GET() {
     hasStripe: features.hasStripe,
     limits: {
       free: {
-        scansPerDay: SCAN_LIMITS.authenticated,
-        aiAnalyses: 1,   // 1 free AI analysis, then questionnaire-based inference
-        previews: 0,
+        scansPerDay: 9999,  // unlimited for all tiers
+        aiAnalyses: 1,       // 1 free AI analysis, then questionnaire-based
+        previews: 0,         // separate purchase for all tiers
         chatMessages: 0,
       },
       premium: {
-        scansPerDay: SCAN_LIMITS.premium,
+        scansPerDay: 9999,  // unlimited for all tiers
         aiAnalyses: DAILY_USAGE_LIMITS.analyses,
-        previews: DAILY_USAGE_LIMITS.previews,
+        previews: 0,         // separate purchase for all tiers
         chatMessages: DAILY_USAGE_LIMITS.chatMessages,
         barberCards: DAILY_USAGE_LIMITS.barberCards,
       },
