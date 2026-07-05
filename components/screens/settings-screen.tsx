@@ -243,27 +243,33 @@ export function SettingsScreen() {
               )}
 
               {/* Export My Data */}
-              <ActionRow
-                label="Export My Data"
-                description="Download all your data"
-                onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
-              />
+              <div className="pl-8">
+                <ActionRow
+                  label="Export My Data"
+                  description="Download all your data"
+                  onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
+                />
+              </div>
 
               {/* Sign Out */}
-              <ActionRow
-                label="Sign Out"
-                onClick={handleSignOut}
-                isDestructive
-                showChevron={false}
-              />
+              <div className="pl-8">
+                <ActionRow
+                  label="Sign Out"
+                  onClick={handleSignOut}
+                  isDestructive
+                  showChevron={false}
+                />
+              </div>
 
               {/* Delete Account */}
-              <ActionRow
-                label="Delete Account"
-                onClick={handleDeleteAccount}
-                isDestructive
-                showChevron={false}
-              />
+              <div className="pl-8">
+                <ActionRow
+                  label="Delete Account"
+                  onClick={handleDeleteAccount}
+                  isDestructive
+                  showChevron={false}
+                />
+              </div>
             </div>
           </div>
 

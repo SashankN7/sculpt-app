@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { Star, User, Settings, ExternalLink } from "lucide-react"
+import { Star, Settings, ExternalLink } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
 
@@ -60,12 +60,16 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
             <img
               src={recommendation.imageUrl}
               alt={recommendation.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-2"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
-          ) : (
-            <div className="text-muted-foreground text-center">
-              <User className="w-16 h-16 mx-auto mb-2 opacity-30" />
-              <span className="text-xs">Preview Image</span>
+          ) : null}
+          {/* Show name as small text when no image */}
+          {!recommendation.imageUrl && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest text-center px-4 line-clamp-2">
+                {recommendation.name}
+              </span>
             </div>
           )}
         </div>

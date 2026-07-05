@@ -42,7 +42,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=High+Skin%0AFade&font=raleway',
+    imageUrl: '',
     description: 'A sharp, modern look with high contrast between the faded sides and textured top. Clean and trendy without being over the top.',
     elements: ['skin-fade', 'texture', 'short-sides', 'high-contrast'],
     barberCard: {
@@ -72,7 +72,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Mid+Fade&font=raleway',
+    imageUrl: '',
     description: 'A balanced fade that starts at the midpoint of the head. Versatile enough for both professional and casual settings.',
     elements: ['mid-fade', 'clean', 'versatile', 'medium-sides'],
     barberCard: {
@@ -102,7 +102,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Low+Fade&font=raleway',
+    imageUrl: '',
     description: 'A subtle, professional fade that starts just above the ears. Clean and polished without being too dramatic.',
     elements: ['low-fade', 'subtle', 'professional', 'clean'],
     barberCard: {
@@ -132,7 +132,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Drop+Fade&font=raleway',
+    imageUrl: '',
     description: 'A fade that drops behind the ear, creating a curved silhouette. Adds a unique, modern twist to the classic fade.',
     elements: ['drop-fade', 'curved', 'modern', 'unique-silhouette'],
     barberCard: {
@@ -162,7 +162,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Burst+Fade&font=raleway',
+    imageUrl: '',
     description: 'A circular fade that "bursts" around the ear. Bold and eye-catching, often paired with mullets or longer tops.',
     elements: ['burst-fade', 'circular', 'bold', 'ear-accent'],
     barberCard: {
@@ -192,7 +192,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Taper+Fade&font=raleway',
+    imageUrl: '',
     description: 'A conservative fade concentrated at the temples and neckline. The most professional fade option — clean without being flashy.',
     elements: ['taper', 'fade', 'conservative', 'professional', 'clean'],
     barberCard: {
@@ -222,7 +222,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Temple+Fade&font=raleway',
+    imageUrl: '',
     description: 'A fade concentrated at the temples only. Subtle and professional, perfect for those who want a clean look without full fade commitment.',
     elements: ['temple-fade', 'subtle', 'professional', 'minimal'],
     barberCard: {
@@ -252,7 +252,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Shadow+Fade&font=raleway',
+    imageUrl: '',
     description: 'A very soft, blurry fade transition. The most subtle fade — looks natural and organic while still being intentionally styled.',
     elements: ['shadow-fade', 'soft', 'blurry', 'subtle', 'natural'],
     barberCard: {
@@ -282,7 +282,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 35,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Skin+Fade%0ABuzz&font=raleway',
+    imageUrl: '',
     description: 'A buzz cut on top with a skin fade on the sides. Ultra-low maintenance with a sharp, clean silhouette.',
     elements: ['skin-fade', 'buzz', 'ultra-short', 'low-maintenance', 'sharp'],
     barberCard: {
@@ -308,7 +308,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Scissor+Fade&font=raleway',
+    imageUrl: '',
     description: 'A fade done entirely with scissors instead of clippers. Softer, more natural-looking blend. The premium barber choice.',
     elements: ['scissor-fade', 'soft', 'natural', 'premium', 'blend'],
     barberCard: {
@@ -338,7 +338,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Undercut%0AFade&font=raleway',
+    imageUrl: '',
     description: 'A disconnected undercut where the sides are significantly shorter than the top, with a fade blend. High contrast and modern.',
     elements: ['undercut', 'fade', 'disconnected', 'high-contrast', 'modern'],
     barberCard: {
@@ -368,7 +368,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Burst+Fade%0AMullet&font=raleway',
+    imageUrl: '',
     description: 'A modern mullet with burst fades around the ears. Business in the front, party in the back — with a sharp fade twist.',
     elements: ['burst-fade', 'mullet', 'edgy', 'volume', 'length-contrast'],
     barberCard: {
@@ -398,7 +398,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Fade+with%0AHard+Part&font=raleway',
+    imageUrl: '',
     description: 'A fade with a razor-sharp part line shaved in. Clean, structured, and effortlessly professional.',
     elements: ['fade', 'hard-part', 'razor-line', 'structured', 'professional'],
     barberCard: {
@@ -428,7 +428,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Drop+Taper%0AFade&font=raleway',
+    imageUrl: '',
     description: 'A taper fade that drops behind the ear. Subtle yet distinctive — the modern professional fade.',
     elements: ['drop-fade', 'taper', 'subtle', 'modern', 'professional'],
     barberCard: {
@@ -462,7 +462,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 72,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Textured%0ACrop&font=raleway',
+    imageUrl: '',
     description: 'A versatile, low-maintenance style that uses natural texture on top with a clean fade or taper on the sides.',
     elements: ['texture', 'crop', 'forward', 'low-maintenance', 'versatile'],
     barberCard: {
@@ -492,7 +492,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=French%0ACrop&font=raleway',
+    imageUrl: '',
     description: 'A clean fringe-forward crop with textured top. Excellent for hiding a higher forehead while looking sharp and modern.',
     elements: ['crop', 'fringe', 'forward-swept', 'texture', 'clean'],
     barberCard: {
@@ -522,7 +522,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 35,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Caesar%0ACut&font=raleway',
+    imageUrl: '',
     description: 'A short, even crop with a slight fringe. Minimal effort, maximum reliability. Great for thinning hair.',
     elements: ['crop', 'short', 'forward', 'low-maintenance', 'classic'],
     barberCard: {
@@ -552,7 +552,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Blunt+Crop&font=raleway',
+    imageUrl: '',
     description: 'A crop with a straight-across blunt fringe. Clean, geometric, and intentionally styled.',
     elements: ['crop', 'blunt', 'fringe', 'geometric', 'clean'],
     barberCard: {
@@ -582,7 +582,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Micro+Crop&font=raleway',
+    imageUrl: '',
     description: 'An ultra-short crop — almost a buzz but with just enough length on top for texture. Clean and effortless.',
     elements: ['crop', 'micro', 'ultra-short', 'low-maintenance', 'clean'],
     barberCard: {
@@ -608,7 +608,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 48,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Cropped%0AFringe&font=raleway',
+    imageUrl: '',
     description: 'A crop with a longer, textured fringe that falls naturally over the forehead. Youthful and trendy.',
     elements: ['crop', 'fringe', 'texture', 'forward', 'youthful'],
     barberCard: {
@@ -638,7 +638,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Choppy+Crop&font=raleway',
+    imageUrl: '',
     description: 'A heavily textured crop with choppy, piece-y layers. Edgy and intentional — the "I woke up like this" crop.',
     elements: ['crop', 'choppy', 'texture', 'piece-y', 'edgy'],
     barberCard: {
@@ -668,7 +668,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 48,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Forward%0ASwept&font=raleway',
+    imageUrl: '',
     description: 'All hair swept forward from the crown to the forehead. Clean, structured, and easy to maintain.',
     elements: ['crop', 'forward-swept', 'structured', 'clean', 'minimal'],
     barberCard: {
@@ -698,7 +698,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Layered%0ACrop&font=raleway',
+    imageUrl: '',
     description: 'A crop with graduated layers on top for natural volume and movement. Works beautifully with wavy hair.',
     elements: ['crop', 'layered', 'volume', 'movement', 'natural'],
     barberCard: {
@@ -728,7 +728,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Angular%0AFringe&font=raleway',
+    imageUrl: '',
     description: 'A crop with a sharp, angular fringe that cuts across the forehead diagonally. Bold and fashion-forward.',
     elements: ['crop', 'angular', 'fringe', 'geometric', 'fashion-forward'],
     barberCard: {
@@ -758,7 +758,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Messy+Crop&font=raleway',
+    imageUrl: '',
     description: 'A deliberately messy, undone crop. Effortlessly cool — the hair equivalent of a relaxed attitude.',
     elements: ['crop', 'messy', 'casual', 'effortless', 'texture'],
     barberCard: {
@@ -788,7 +788,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Short+Crop%0AFade&font=raleway',
+    imageUrl: '',
     description: 'A very short crop paired with a clean fade. The ultimate low-effort, high-impact cut.',
     elements: ['crop', 'short', 'fade', 'low-maintenance', 'clean'],
     barberCard: {
@@ -818,7 +818,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Classic%0ASide+Part&font=raleway',
+    imageUrl: '',
     description: 'A timeless professional look with a defined part line. Clean, structured, and boardroom-appropriate.',
     elements: ['part', 'side-part', 'structured', 'professional', 'classic', 'polished'],
     barberCard: {
@@ -848,7 +848,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Slick%0ABack&font=raleway',
+    imageUrl: '',
     description: 'Clean, powerful, and professional. Hair slicked back with a natural or wet finish. Exudes confidence.',
     elements: ['slick-back', 'smooth', 'professional', 'polished', 'classic'],
     barberCard: {
@@ -878,7 +878,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 60,
     idealDensityScore: 80,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Modern%0APompadour&font=raleway',
+    imageUrl: '',
     description: 'A bold, voluminous style with height at the front. Statement look that requires commitment to daily styling.',
     elements: ['pompadour', 'volume', 'height', 'bold', 'statement'],
     barberCard: {
@@ -908,7 +908,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Crew%0ACut&font=raleway',
+    imageUrl: '',
     description: 'A clean, low-maintenance classic. Short on the sides, slightly longer on top. Works for virtually every face shape.',
     elements: ['classic', 'short', 'low-maintenance', 'versatile', 'clean'],
     barberCard: {
@@ -938,7 +938,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Ivy%0ALeague&font=raleway',
+    imageUrl: '',
     description: 'The refined cousin of the crew cut. Slightly longer on top for side-parting flexibility. Preppy and polished.',
     elements: ['classic', 'preppy', 'versatile', 'part', 'side-part', 'polished'],
     barberCard: {
@@ -968,7 +968,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Executive%0AContour&font=raleway',
+    imageUrl: '',
     description: 'The most formal men\'s cut — longer on top, tightly tapered on sides. The Wall Street standard.',
     elements: ['executive', 'formal', 'taper', 'part', 'professional', 'conservative'],
     barberCard: {
@@ -998,7 +998,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Regulation%0ACut&font=raleway',
+    imageUrl: '',
     description: 'A military-inspired, ultra-neat cut. Short, disciplined, and always appropriate.',
     elements: ['regulation', 'military', 'neat', 'disciplined', 'professional'],
     barberCard: {
@@ -1028,7 +1028,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Gentleman%27s%0ACut&font=raleway',
+    imageUrl: '',
     description: 'A refined, timeless cut with soft volume on top and clean tapered sides. The definition of class.',
     elements: ['gentleman', 'refined', 'classic', 'volume', 'polished'],
     barberCard: {
@@ -1058,7 +1058,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Classic%0ATaper&font=raleway',
+    imageUrl: '',
     description: 'The foundation of men\'s hairstyling — a clean taper with natural blending. Always appropriate, always sharp.',
     elements: ['taper', 'classic', 'natural', 'versatile', 'professional'],
     barberCard: {
@@ -1088,7 +1088,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Slicked+Back%0AUndercut&font=raleway',
+    imageUrl: '',
     description: 'Long top slicked back with a disconnected undercut. Bold contrast, clean silhouette, confident energy.',
     elements: ['slick-back', 'undercut', 'disconnected', 'bold', 'contrast'],
     barberCard: {
@@ -1118,7 +1118,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Side+Part%0AFade&font=raleway',
+    imageUrl: '',
     description: 'A classic side part with a modern fade on the sides. The best of both worlds — traditional meets contemporary.',
     elements: ['side-part', 'fade', 'classic', 'modern', 'professional'],
     barberCard: {
@@ -1148,7 +1148,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 78,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Hard+Part%0APomp&font=raleway',
+    imageUrl: '',
     description: 'A voluminous pompadour with a razor-sharp hard part. Maximum impact, maximum style.',
     elements: ['pompadour', 'hard-part', 'volume', 'razor-line', 'statement'],
     barberCard: {
@@ -1178,7 +1178,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Brushed+Back%0AClassic&font=raleway',
+    imageUrl: '',
     description: 'Hair brushed back with volume and movement. Less rigid than a slick back — more natural and relaxed.',
     elements: ['brushed-back', 'volume', 'natural', 'relaxed', 'classic'],
     barberCard: {
@@ -1208,7 +1208,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Ducktail&font=raleway',
+    imageUrl: '',
     description: 'Hair styled back and meeting at the center back in a "ducktail" shape. Retro cool with a modern edge.',
     elements: ['ducktail', 'retro', 'center-back', 'styled', 'vintage'],
     barberCard: {
@@ -1238,7 +1238,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Short+Back+and%0ASides&font=raleway',
+    imageUrl: '',
     description: 'The British classic — short, neat sides with slightly more length on top. Clean, simple, effective.',
     elements: ['classic', 'neat', 'short-sides', 'versatile', 'clean'],
     barberCard: {
@@ -1272,7 +1272,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curtains&font=raleway',
+    imageUrl: '',
     description: 'A retro-modern style with a center part and flowing sides. Trendy and youthful with a relaxed, effortless vibe.',
     elements: ['center-part', 'curtains', 'flowing', 'youthful', 'retro'],
     barberCard: {
@@ -1302,7 +1302,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Modern%0AMullet&font=raleway',
+    imageUrl: '',
     description: 'The bold, trend-forward choice. Business in the front, party in the back — modernized with cleaner lines.',
     elements: ['mullet', 'edgy', 'length-contrast', 'bold', 'trendy'],
     barberCard: {
@@ -1332,7 +1332,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Wolf+Cut&font=raleway',
+    imageUrl: '',
     description: 'A messy, layered medium-length cut with volume at the crown. Wild, textured, and effortlessly cool.',
     elements: ['wolf-cut', 'layered', 'messy', 'volume', 'wild'],
     barberCard: {
@@ -1362,7 +1362,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 72,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Mop+Top&font=raleway',
+    imageUrl: '',
     description: 'A rounded, Beatles-inspired cut with full coverage. Classic, approachable, and easy to maintain.',
     elements: ['mop-top', 'rounded', 'full', 'classic', 'approachable'],
     barberCard: {
@@ -1392,7 +1392,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Feathered%0AHair&font=raleway',
+    imageUrl: '',
     description: '70s-inspired layers that "feather" back from the face. Flowing, dimensional, and full of movement.',
     elements: ['feathered', 'layered', 'flowing', 'retro', 'movement'],
     barberCard: {
@@ -1422,7 +1422,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Medium%0ALayered&font=raleway',
+    imageUrl: '',
     description: 'Medium-length hair with graduated layers for natural volume and movement. Versatile and easy to style.',
     elements: ['layered', 'medium', 'volume', 'versatile', 'natural'],
     barberCard: {
@@ -1452,7 +1452,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 72,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Flow&font=raleway',
+    imageUrl: '',
     description: 'Medium-length hair that flows naturally back. The "hockey player" look — relaxed, masculine, and free.',
     elements: ['flow', 'medium', 'natural', 'relaxed', 'masculine'],
     barberCard: {
@@ -1482,7 +1482,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Side+Swept%0AMedium&font=raleway',
+    imageUrl: '',
     description: 'Medium-length hair swept to one side with natural volume. Professional enough for work, relaxed enough for weekends.',
     elements: ['side-swept', 'medium', 'versatile', 'professional', 'natural'],
     barberCard: {
@@ -1512,7 +1512,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Messy%0AMedium&font=raleway',
+    imageUrl: '',
     description: 'Medium-length hair styled with deliberate messiness. Effortlessly cool — like you just ran your hands through it.',
     elements: ['messy', 'medium', 'casual', 'effortless', 'texture'],
     barberCard: {
@@ -1542,7 +1542,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Push+Back&font=raleway',
+    imageUrl: '',
     description: 'Medium hair pushed back from the forehead with volume. Confident, polished, and ageless.',
     elements: ['push-back', 'volume', 'polished', 'confident', 'versatile'],
     barberCard: {
@@ -1572,7 +1572,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curtain%0ABangs&font=raleway',
+    imageUrl: '',
     description: 'Face-framing bangs that part in the middle and sweep to each side. Youthful, trendy, and flattering.',
     elements: ['curtain-bangs', 'face-framing', 'center-part', 'youthful', 'trendy'],
     barberCard: {
@@ -1602,7 +1602,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Medium%0ATaper&font=raleway',
+    imageUrl: '',
     description: 'Medium-length hair with a clean taper on the sides. The sweet spot between short and long.',
     elements: ['taper', 'medium', 'clean', 'versatile', 'balanced'],
     barberCard: {
@@ -1636,7 +1636,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Man+Bun&font=raleway',
+    imageUrl: '',
     description: 'Long hair gathered into a bun at the crown. Practical, stylish, and surprisingly versatile.',
     elements: ['man-bun', 'long', 'tied', 'practical', 'versatile'],
     barberCard: {
@@ -1666,7 +1666,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Top+Knot&font=raleway',
+    imageUrl: '',
     description: 'Long top tied into a knot with shorter or faded sides. The warrior aesthetic — bold and intentional.',
     elements: ['top-knot', 'long', 'tied', 'bold', 'warrior'],
     barberCard: {
@@ -1696,7 +1696,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Slicked+Back%0ALong&font=raleway',
+    imageUrl: '',
     description: 'Long hair slicked straight back. Polished and intentional — the rockstar-meets-executive look.',
     elements: ['slick-back', 'long', 'polished', 'rockstar', 'confident'],
     barberCard: {
@@ -1726,7 +1726,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Long+Layers&font=raleway',
+    imageUrl: '',
     description: 'Long hair with graduated layers for natural movement and dimension. Flowing, dimensional, and free.',
     elements: ['long', 'layered', 'flowing', 'dimensional', 'natural'],
     barberCard: {
@@ -1756,7 +1756,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Surfer+Hair&font=raleway',
+    imageUrl: '',
     description: 'Beachy, sun-kissed waves with natural texture. Effortlessly cool — the California vibe.',
     elements: ['surfer', 'wavy', 'beachy', 'effortless', 'natural'],
     barberCard: {
@@ -1786,7 +1786,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Long+Curly&font=raleway',
+    imageUrl: '',
     description: 'Long, defined curls with natural volume and bounce. Bold, expressive, and full of personality.',
     elements: ['long', 'curly', 'defined', 'volume', 'expressive'],
     barberCard: {
@@ -1820,7 +1820,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Afro&font=raleway',
+    imageUrl: '',
     description: 'A full, rounded afro celebrating natural curl texture. Bold, expressive, and iconic.',
     elements: ['afro', 'full', 'rounded', 'natural', 'iconic'],
     barberCard: {
@@ -1850,7 +1850,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Frohawk&font=raleway',
+    imageUrl: '',
     description: 'A faux hawk silhouette with natural curl texture. Edgy but wearable — the best of both worlds.',
     elements: ['frohawk', 'hawk', 'curly', 'edgy', 'bold'],
     barberCard: {
@@ -1880,7 +1880,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Twist+Out&font=raleway',
+    imageUrl: '',
     description: 'Defined, springy curls created by twisting sections and unraveling. The ultimate natural texture showcase.',
     elements: ['twist-out', 'defined', 'curly', 'natural', 'textured'],
     barberCard: {
@@ -1910,7 +1910,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curly+Top%0AFade&font=raleway',
+    imageUrl: '',
     description: 'Natural curls on top with a clean fade on the sides. The perfect balance of texture and structure.',
     elements: ['curly', 'fade', 'natural', 'structured', 'balanced'],
     barberCard: {
@@ -1940,7 +1940,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Defined%0ACurls&font=raleway',
+    imageUrl: '',
     description: 'Well-defined, separated curls with shine and bounce. The polished take on natural texture.',
     elements: ['defined', 'curly', 'polished', 'shine', 'bounce'],
     barberCard: {
@@ -1970,7 +1970,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Coily+High%0ATop&font=raleway',
+    imageUrl: '',
     description: 'Coily natural texture styled upward into a high top. Bold, architectural, and expressive.',
     elements: ['coily', 'high-top', 'upward', 'architectural', 'bold'],
     barberCard: {
@@ -2000,7 +2000,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 48,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curly+Crop&font=raleway',
+    imageUrl: '',
     description: 'A short crop that embraces natural curl texture. Low-maintenance with built-in character.',
     elements: ['curly', 'crop', 'short', 'natural', 'low-maintenance'],
     barberCard: {
@@ -2030,7 +2030,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Loose%0ACurls&font=raleway',
+    imageUrl: '',
     description: 'Relaxed, loose curls with natural movement. The effortless middle ground between straight and tightly curled.',
     elements: ['loose', 'curly', 'relaxed', 'natural', 'movement'],
     barberCard: {
@@ -2060,7 +2060,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curly+Slick%0ABack&font=raleway',
+    imageUrl: '',
     description: 'Natural curls slicked back for a polished yet textured look. Professional with personality.',
     elements: ['slick-back', 'curly', 'polished', 'textured', 'professional'],
     barberCard: {
@@ -2090,7 +2090,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Curly+Quiff&font=raleway',
+    imageUrl: '',
     description: 'A voluminous quiff made even better with natural curl texture. Height meets character.',
     elements: ['quiff', 'curly', 'volume', 'height', 'character'],
     barberCard: {
@@ -2124,7 +2124,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Low+Fade%0AQuiff&font=raleway',
+    imageUrl: '',
     description: 'Modern and versatile with volume at the front. Adds height and works with your face proportions.',
     elements: ['quiff', 'low-fade', 'volume', 'height', 'modern'],
     barberCard: {
@@ -2154,7 +2154,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Faux%0AHawk&font=raleway',
+    imageUrl: '',
     description: 'A subtle take on the mohawk — volume centered on top without shaved sides. Edgy but wearable.',
     elements: ['faux-hawk', 'volume', 'center', 'edgy', 'bold'],
     barberCard: {
@@ -2184,7 +2184,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Messy%0ATexture&font=raleway',
+    imageUrl: '',
     description: 'Deliberately messy, heavily textured hair. The "just rolled out of bed" look that actually takes skill.',
     elements: ['messy', 'texture', 'casual', 'effortless', 'undone'],
     barberCard: {
@@ -2214,7 +2214,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Piece-y%0ATexture&font=raleway',
+    imageUrl: '',
     description: 'Hair styled into distinct, separated pieces. Intentional texture that looks effortlessly cool.',
     elements: ['piece-y', 'texture', 'separated', 'intentional', 'cool'],
     barberCard: {
@@ -2244,7 +2244,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Tousled%0ATop&font=raleway',
+    imageUrl: '',
     description: 'A casually tousled top with natural movement. Relaxed sophistication — put-together without trying too hard.',
     elements: ['tousled', 'texture', 'natural', 'relaxed', 'sophisticated'],
     barberCard: {
@@ -2274,7 +2274,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Textured%0AQuiff&font=raleway',
+    imageUrl: '',
     description: 'A quiff with heavy texture — volume meets dimension. The modern evolution of the classic quiff.',
     elements: ['quiff', 'texture', 'volume', 'dimension', 'modern'],
     barberCard: {
@@ -2304,7 +2304,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Choppy%0ALayers&font=raleway',
+    imageUrl: '',
     description: 'Uneven, choppy layers that create natural texture and movement. Edgy without being extreme.',
     elements: ['choppy', 'layered', 'texture', 'edgy', 'movement'],
     barberCard: {
@@ -2334,7 +2334,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Deconstructed%0ACrop&font=raleway',
+    imageUrl: '',
     description: 'A crop that looks deliberately undone — like it was styled and then messed up on purpose. Artfully messy.',
     elements: ['deconstructed', 'crop', 'messy', 'artful', 'undone'],
     barberCard: {
@@ -2364,7 +2364,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 48,
     idealDensityScore: 70,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Air-Dried%0ATexture&font=raleway',
+    imageUrl: '',
     description: 'Hair styled with zero heat — just product and air drying. The healthiest way to wear texture.',
     elements: ['air-dried', 'texture', 'natural', 'healthy', 'low-maintenance'],
     barberCard: {
@@ -2394,7 +2394,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Textured%0ASpikes&font=raleway',
+    imageUrl: '',
     description: 'Chunky, textured spikes — not the 90s frosted tips. Modern, dimensional, and intentional.',
     elements: ['spikes', 'texture', 'chunky', 'dimensional', 'modern'],
     barberCard: {
@@ -2428,7 +2428,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 30,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Buzz+Cut%0AFade&font=raleway',
+    imageUrl: '',
     description: 'Ultra-low maintenance with a bold, clean statement. The fade adds dimension to the simplicity.',
     elements: ['buzz', 'fade', 'ultra-short', 'low-maintenance', 'bold'],
     barberCard: {
@@ -2454,7 +2454,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 30,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Induction%0ACut&font=raleway',
+    imageUrl: '',
     description: 'The shortest military-regulation cut — #1 guard all over. Maximum simplicity, zero styling.',
     elements: ['induction', 'ultra-short', 'military', 'zero-maintenance'],
     barberCard: {
@@ -2480,7 +2480,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 35,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=High+and%0ATight&font=raleway',
+    imageUrl: '',
     description: 'A military classic — high fade on the sides with a tight strip of hair on top. Clean and disciplined.',
     elements: ['high-fade', 'tight', 'military', 'clean', 'disciplined'],
     barberCard: {
@@ -2506,7 +2506,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Flattop&font=raleway',
+    imageUrl: '',
     description: 'A flat, level surface on top — architectural and bold. The retro military classic making a comeback.',
     elements: ['flattop', 'architectural', 'military', 'retro', 'bold'],
     barberCard: {
@@ -2536,7 +2536,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 35,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Butch+Cut&font=raleway',
+    imageUrl: '',
     description: 'A uniform buzz cut at #2-3 guard length. Simple, clean, and maintenance-free.',
     elements: ['butch', 'buzz', 'uniform', 'zero-maintenance', 'clean'],
     barberCard: {
@@ -2562,7 +2562,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 35,
     idealDensityScore: 60,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Brush+Cut&font=raleway',
+    imageUrl: '',
     description: 'Slightly longer than a buzz — just enough to brush with your fingers. Simple with a touch of texture.',
     elements: ['brush', 'short', 'simple', 'low-maintenance', 'clean'],
     barberCard: {
@@ -2588,7 +2588,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 40,
     idealDensityScore: 65,
     maxDensityScore: 95,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Short+Taper&font=raleway',
+    imageUrl: '',
     description: 'Short hair with a clean taper at the sides and back. Professional, neat, and always appropriate.',
     elements: ['taper', 'short', 'professional', 'neat', 'versatile'],
     barberCard: {
@@ -2618,7 +2618,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 30,
     idealDensityScore: 55,
     maxDensityScore: 100,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=High+Skin+Fade%0ABuzz&font=raleway',
+    imageUrl: '',
     description: 'The ultimate buzz — skin fade on the sides, ultra-short on top. Sharp, bold, and zero-effort.',
     elements: ['skin-fade', 'buzz', 'ultra-short', 'sharp', 'zero-effort'],
     barberCard: {
@@ -2648,7 +2648,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 92,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Disconnected%0AUndercut&font=raleway',
+    imageUrl: '',
     description: 'No blending between the short sides and long top. Maximum contrast, maximum statement.',
     elements: ['undercut', 'disconnected', 'high-contrast', 'bold', 'statement'],
     barberCard: {
@@ -2678,7 +2678,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Two-Block&font=raleway',
+    imageUrl: '',
     description: 'A Korean-inspired cut with a distinct disconnect between the longer top block and shorter sides block.',
     elements: ['two-block', 'korean', 'disconnected', 'trendy', 'youthful'],
     barberCard: {
@@ -2708,7 +2708,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 55,
     idealDensityScore: 75,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Liberty%0ASpikes&font=raleway',
+    imageUrl: '',
     description: 'Tall, dramatic spikes standing straight up. The punk rock statement — bold, defiant, unforgettable.',
     elements: ['spikes', 'liberty', 'punk', 'dramatic', 'defiant'],
     barberCard: {
@@ -2738,7 +2738,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Messy%0AMohawk&font=raleway',
+    imageUrl: '',
     description: 'A mohawk with a deliberately messy, undone finish. Punk meets modern — less rigid, more texture.',
     elements: ['mohawk', 'messy', 'punk', 'textured', 'edgy'],
     barberCard: {
@@ -2768,7 +2768,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 72,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Undercut+%0A%2B+Design&font=raleway',
+    imageUrl: '',
     description: 'An undercut with shaved-in designs or patterns on the sides. Hair as a canvas — wearable art.',
     elements: ['undercut', 'design', 'shaved', 'artistic', 'bold'],
     barberCard: {
@@ -2798,7 +2798,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 48,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Bleached%0ACrop&font=raleway',
+    imageUrl: '',
     description: 'A textured crop with bleached or highlighted top. The color adds another dimension to a clean cut.',
     elements: ['bleached', 'crop', 'color', 'bold', 'fashion-forward'],
     barberCard: {
@@ -2828,7 +2828,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Edgy+Fringe&font=raleway',
+    imageUrl: '',
     description: 'A long, heavy fringe swept dramatically to one side. Fashion-forward with editorial energy.',
     elements: ['fringe', 'edgy', 'dramatic', 'fashion-forward', 'asymmetric'],
     barberCard: {
@@ -2858,7 +2858,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Frosted%0ATips&font=raleway',
+    imageUrl: '',
     description: 'The 90s revival — bleached tips on a textured style. Nostalgic, playful, and unmistakably bold.',
     elements: ['frosted', 'bleached', 'retro', '90s', 'playful'],
     barberCard: {
@@ -2892,7 +2892,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 45,
     idealDensityScore: 68,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Taper%0AFringe&font=raleway',
+    imageUrl: '',
     description: 'A textured fringe with a clean taper. Modern and forgiving — the fringe adds character while the taper keeps it clean.',
     elements: ['taper', 'fringe', 'texture', 'modern', 'forgiving'],
     barberCard: {
@@ -2922,7 +2922,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 50,
     idealDensityScore: 70,
     maxDensityScore: 88,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Taper+Fade%0A%2B+Part&font=raleway',
+    imageUrl: '',
     description: 'A taper fade with a defined side part. Professional, structured, and always sharp.',
     elements: ['taper', 'fade', 'part', 'side-part', 'professional', 'structured'],
     barberCard: {
@@ -2952,7 +2952,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 42,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Temple%0ATaper&font=raleway',
+    imageUrl: '',
     description: 'A subtle taper concentrated at the temples. Clean, professional, and grows out beautifully.',
     elements: ['temple', 'taper', 'subtle', 'professional', 'clean'],
     barberCard: {
@@ -2982,7 +2982,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 42,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Side%0ATaper&font=raleway',
+    imageUrl: '',
     description: 'A clean taper on the sides with natural blending. The foundation of a good haircut — simple and effective.',
     elements: ['taper', 'side', 'clean', 'natural', 'versatile'],
     barberCard: {
@@ -3012,7 +3012,7 @@ export const hairstyleDatabase: HairstyleEntry[] = [
     minDensityScore: 42,
     idealDensityScore: 65,
     maxDensityScore: 90,
-    imageUrl: 'https://placehold.co/400x500/1C1917/D4A853?text=Neck%0ATaper&font=raleway',
+    imageUrl: '',
     description: 'A taper concentrated at the neckline. Clean and professional — the detail that makes a haircut look fresh.',
     elements: ['taper', 'neck', 'clean', 'professional', 'detail'],
     barberCard: {
