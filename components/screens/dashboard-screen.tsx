@@ -21,15 +21,20 @@ const GROOMING_TIPS = [
 
 export function DashboardScreen() {
   const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, logHaircut } = useApp()
-  const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos } = state
+  const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos, currentScanIds } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
   const daysLeft = isTrial ? trialDaysLeft() : 0
 
+  // Filter saved barber cards to current scan only (avoid duplicates across scans)
+  const currentSavedCards = currentScanIds.length > 0
+    ? savedRecommendations.filter(r => currentScanIds.includes(r.id))
+    : savedRecommendations
+
   const recentScans = recommendations.length > 0 ? 1 : 0
-  const savedCards = savedRecommendations.length
-  const avgScore = savedRecommendations.length > 0
-    ? Math.round(savedRecommendations.reduce((sum, r) => sum + r.compatibilityScore, 0) / savedRecommendations.length)
+  const savedCards = currentSavedCards.length
+  const avgScore = currentSavedCards.length > 0
+    ? Math.round(currentSavedCards.reduce((sum, r) => sum + r.compatibilityScore, 0) / currentSavedCards.length)
     : 0
 
   // Dynamic maintenance reminder
@@ -54,7 +59,7 @@ export function DashboardScreen() {
 
   const handleViewSavedCard = (savedIndex: number) => {
     setCurrentSavedIndex(savedIndex)
-    const rec = savedRecommendations[savedIndex]
+    const rec = currentSavedCards[savedIndex]
     if (rec) {
       const recIndex = recommendations.findIndex(r => r.id === rec.id)
       if (recIndex !== -1) syncRecommendationIndex(recIndex)
@@ -299,7 +304,7 @@ export function DashboardScreen() {
         )}
 
         {/* Grooming Insight */}
-        {savedRecommendations.length > 0 && (
+        {currentSavedCards.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -308,8 +313,8 @@ export function DashboardScreen() {
           >
             <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">SCULPT INSIGHT</p>
             <p className="text-xs text-muted-foreground italic leading-relaxed">
-              You tend to prefer {savedRecommendations[0]?.metadata.professionalism >= 70 ? 'professional, polished' : 'modern, textured'} styles.
-              Your top pick scored {savedRecommendations[0]?.compatibilityScore}% — above average for your profile.
+              You tend to prefer {currentSavedCards[0]?.metadata.professionalism >= 70 ? 'professional, polished' : 'modern, textured'} styles.
+              Your top pick scored {currentSavedCards[0]?.compatibilityScore}% — above average for your profile.
             </p>
           </motion.div>
         )}
@@ -344,7 +349,7 @@ export function DashboardScreen() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            {savedRecommendations.length > 0 && (
+            {currentSavedCards.length > 0 && (
               <button
                 onClick={() => handleViewSavedCard(0)}
                 className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
@@ -398,10 +403,8 @@ export function DashboardScreen() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
-        </motion.div>
-
-        {/* Saved Barber Cards */}
-        {savedRecommendations.length > 0 && (
+        </motion.div>            {/* Saved Barber Cards */}
+        {currentSavedCards.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -409,7 +412,7 @@ export function DashboardScreen() {
           >
             <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-2">SAVED BARBER CARDS</p>
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {savedRecommendations.map((rec, index) => (
+              {currentSavedCards.map((rec, index) => (
                 <button
                   key={rec.id}
                   onClick={() => handleViewSavedCard(index)}
@@ -518,7 +521,7 @@ export function DashboardScreen() {
         </motion.div>
 
         {/* Log Haircut Button */}
-        {savedRecommendations.length > 0 && (
+        {currentSavedCards.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -527,7 +530,7 @@ export function DashboardScreen() {
             <button
               onClick={() => {
                 if (!haircutCooldown.allowed) return
-                const lastSaved = savedRecommendations[savedRecommendations.length - 1]
+                const lastSaved = currentSavedCards[currentSavedCards.length - 1]
                 logHaircut(lastSaved.name)
               }}
               disabled={!haircutCooldown.allowed}
