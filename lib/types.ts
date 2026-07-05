@@ -249,6 +249,16 @@ export interface FeedbackData {
   satisfaction?: number
 }
 
+// ── Scan History — each entry archives one completed scan's results ──
+export interface ScanHistoryEntry {
+  id: string
+  date: string
+  savedRecommendations: HairstyleRecommendation[]
+  rejectedRecommendations: HairstyleRecommendation[]
+  recommendations: HairstyleRecommendation[]
+  analysisResult: AnalysisResult | null
+}
+
 export interface AppState {
   currentScreen: Screen
   userSession: UserSession
@@ -287,6 +297,8 @@ export interface AppState {
     dateOfBirth: string
     profileComplete: boolean
   }
+  // Scan history — archived saved/rejected from previous scans
+  scanHistory: ScanHistoryEntry[]
   // Navigation helpers
   settingsScrollTo: string | null
 }
@@ -365,6 +377,7 @@ export const initialAppState: AppState = {
   pushPermission: 'default',
   pushSubscriptionEndpoint: null,
   previewCredits: 0,
+  scanHistory: [],
   profile: {
     firstName: '',
     lastName: '',

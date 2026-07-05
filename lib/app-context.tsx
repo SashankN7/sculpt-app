@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from "react"
-import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
+import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, type ScanHistoryEntry, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
 import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
@@ -488,17 +488,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const resetUpload = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      uploadedImages: { front: null, side: null, hairline: null },
-      questionnaireData: {},
-      analysisResult: null,
-      recommendations: [],
-      currentRecommendationIndex: 0,
-      savedRecommendations: [],
-      rejectedRecommendations: [],
-      currentSavedIndex: 0,
-    }))
+    setState(prev => {
+      // Archive current scan's saved/rejected into scanHistory before clearing
+      const hasScanData = prev.savedRecommendations.length > 0 || prev.rejectedRecommendations.length > 0 || prev.recommendations.length > 0
+      const newScanHistory = hasScanData
+        ? [...prev.scanHistory, {
+            id: `scan-${Date.now()}`,
+            date: new Date().toISOString(),
+            savedRecommendations: [...prev.savedRecommendations],
+            rejectedRecommendations: [...prev.rejectedRecommendations],
+            recommendations: [...prev.recommendations],
+            analysisResult: prev.analysisResult,
+          }]
+        : prev.scanHistory
+
+      return {
+        ...prev,
+        uploadedImages: { front: null, side: null, hairline: null },
+        questionnaireData: {},
+        analysisResult: null,
+        recommendations: [],
+        currentRecommendationIndex: 0,
+        savedRecommendations: [],
+        rejectedRecommendations: [],
+        currentSavedIndex: 0,
+        scanHistory: newScanHistory.slice(-10), // Cap at 10 scans to prevent unbounded localStorage growth
+      }
+    })
   }, [])
 
   const resetAll = useCallback(() => {

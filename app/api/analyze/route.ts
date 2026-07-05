@@ -131,11 +131,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Free tier gets 1 real AI analysis to hook them, then random inference for subsequent scans
-    // Premium/trial users get daily-limited real analysis
-    const isFirstFreeScan = userSession !== 'premium' && userSession !== 'trial' && (scanCountToday ?? 0) === 0
+    // Only premium/trial users get real AI analysis
+    // Guest and free authenticated users always get questionnaire-based inference
     const isPremiumOrTrial = userSession === 'premium' || userSession === 'trial'
-    let useRealAI = HAS_OPENAI && (isPremiumOrTrial || isFirstFreeScan)
+    let useRealAI = HAS_OPENAI && isPremiumOrTrial
 
     // Enforce daily limit for premium/trial users
     let analysesToday = 0

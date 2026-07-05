@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { Settings, Check, Loader2, AlertTriangle } from "lucide-react"
+import { Settings, Check, Loader2, AlertTriangle, LogIn } from "lucide-react"
 
 // Use a module-level flag to prevent double execution across strict mode remounts
 let processingStarted = false
@@ -251,6 +251,29 @@ export function ProcessingScreen() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
+        {/* Guest user login prompt */}
+        {state.userSession === 'guest' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-3 bg-blue-400/10 border border-blue-400/30 rounded-xl flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-full bg-blue-400/20 flex items-center justify-center flex-shrink-0">
+              <LogIn className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-blue-400">Using questionnaire-based analysis</p>
+              <p className="text-[10px] text-muted-foreground">Sign in for AI-powered photo analysis</p>
+            </div>
+            <button
+              onClick={() => navigateTo('auth')}
+              className="flex-shrink-0 px-3 py-1.5 bg-blue-400 text-white text-[10px] font-semibold rounded-lg hover:bg-blue-400/90 transition-colors"
+            >
+              Sign In
+            </button>
+          </motion.div>
+        )}
+
         {/* Title */}
         <h2 className="text-lg font-semibold text-foreground mb-2">
           SCULPT AI ENGINE ACTIVE

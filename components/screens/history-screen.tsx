@@ -6,11 +6,14 @@ import { Settings, Calendar, RefreshCw, FileText, Trash2, Star } from "lucide-re
 
 export function HistoryScreen() {
   const { state, navigateTo, resetUpload, syncRecommendationIndex } = useApp()
-  const { savedRecommendations, rejectedRecommendations, recommendations, analysisResult } = state
+  const { savedRecommendations, rejectedRecommendations, recommendations, analysisResult, scanHistory } = state
 
-  // Build history from actual data
-  const allStyles = [...savedRecommendations, ...rejectedRecommendations]
-  const hasData = allStyles.length > 0 || recommendations.length > 0
+  // Build history from current scan + all archived scans
+  const allHistoricalSaved = scanHistory.flatMap(entry => entry.savedRecommendations)
+  const allHistoricalRejected = scanHistory.flatMap(entry => entry.rejectedRecommendations)
+  const allSavedEver = [...allHistoricalSaved, ...savedRecommendations]
+  const allRejectedEver = [...allHistoricalRejected, ...rejectedRecommendations]
+  const hasData = allSavedEver.length > 0 || allRejectedEver.length > 0 || recommendations.length > 0
 
   const handleViewBarberCard = (savedIndex: number) => {
     // Find the recommendation index in the main list and sync before navigating
@@ -92,11 +95,11 @@ export function HistoryScreen() {
                 </motion.div>
               )}
 
-              {/* Saved Styles */}
+              {/* Current Scan Saved Styles */}
               {savedRecommendations.length > 0 && (
                 <div className="mb-6">
                   <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-3">
-                    SAVED PICKS ({savedRecommendations.length})
+                    CURRENT SCAN — SAVED ({savedRecommendations.length})
                   </p>
                   <div className="space-y-2">
                     {savedRecommendations.map((item, index) => (
@@ -145,11 +148,11 @@ export function HistoryScreen() {
                 </div>
               )}
 
-              {/* Rejected Styles */}
+              {/* Current Scan Rejected Styles */}
               {rejectedRecommendations.length > 0 && (
                 <div className="mb-6">
                   <p className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase mb-3">
-                    PASSED ON ({rejectedRecommendations.length})
+                    CURRENT SCAN — PASSED ON ({rejectedRecommendations.length})
                   </p>
                   <div className="space-y-2">
                     {rejectedRecommendations.map((item, index) => (
@@ -183,8 +186,46 @@ export function HistoryScreen() {
                 </div>
               )}
 
-              {/* All Recommendations */}
-              {savedRecommendations.length === 0 && rejectedRecommendations.length === 0 && recommendations.length > 0 && (
+              {/* All Saved From Previous Scans */}
+              {allHistoricalSaved.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-3">
+                    ALL PREVIOUSLY SAVED ({allHistoricalSaved.length})
+                  </p>
+                  <div className="space-y-2">
+                    {allHistoricalSaved.map((item, index) => (
+                      <motion.div
+                        key={`hist-${item.id}-${index}`}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-secondary border border-gold/20 rounded-xl p-3 opacity-80"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-background overflow-hidden flex-shrink-0">
+                            {item.imageUrl ? (
+                              <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Star className="w-4 h-4 text-gold" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              Score: {item.compatibilityScore}%
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* All Recommendations (fallback when no saved/rejected at all) */}
+              {allSavedEver.length === 0 && allRejectedEver.length === 0 && recommendations.length > 0 && (
                 <div className="mb-6">
                   <p className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase mb-3">
                     ALL RECOMMENDATIONS ({recommendations.length})
