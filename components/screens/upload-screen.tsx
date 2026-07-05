@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, Crown } from "lucide-react"
+import { processUploadedImage } from "@/lib/image-utils"
+import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, Crown, AlertTriangle } from "lucide-react"
 
 interface UploadCardProps {
   label: string
@@ -16,16 +17,25 @@ interface UploadCardProps {
 
 function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClear }: UploadCardProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [processing, setProcessing] = useState(false)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result as string
-        onUpload(result)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    setError(null)
+    setProcessing(true)
+    try {
+      const dataUrl = await processUploadedImage(file)
+      onUpload(dataUrl)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to process image'
+      setError(message)
+    } finally {
+      setProcessing(false)
+      // Reset input so same file can be re-selected
+      if (inputRef.current) inputRef.current.value = ''
     }
   }
 
@@ -65,7 +75,7 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -76,6 +86,7 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
   return (
     <button
       onClick={handleClick}
+      disabled={processing}
       className="w-full bg-secondary border border-border rounded-xl p-4 text-left hover:border-gold/30 transition-colors group"
     >
       <div className="flex items-start gap-3">
@@ -89,10 +100,22 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
       </div>
+      {processing && (
+        <div className="mt-2 flex items-center gap-2 text-xs text-gold">
+          <div className="w-3 h-3 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          Processing image...
+        </div>
+      )}
+      {error && (
+        <div className="mt-2 flex items-start gap-2 text-xs text-error">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         onChange={handleFileChange}
         className="hidden"
       />
