@@ -72,13 +72,13 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
         <div className="flex-1 min-h-0 px-4 pt-3 pb-2 flex flex-col overflow-hidden">
-          <h3 style={{ fontSize: '11px', lineHeight: '1.2' }} className="font-semibold text-foreground mb-1 line-clamp-1 shrink-0 truncate">
+          <h3 style={{ fontSize: '9px', lineHeight: '1.15' }} className="font-semibold text-foreground mb-1 line-clamp-1 shrink-0 truncate uppercase tracking-wide">
             {recommendation.name}
           </h3>
           
           <div className="flex items-center gap-2 mb-2 shrink-0">
-            <span className="text-xs text-muted-foreground">Compatibility Rating:</span>
-            <span className={`text-base font-bold ${
+            <span className="text-[9px] text-muted-foreground uppercase tracking-wide">Compatibility:</span>
+            <span className={`text-xs font-bold ${
               recommendation.compatibilityScore >= 90 ? 'text-success' :
               recommendation.compatibilityScore >= 70 ? 'text-gold' : 'text-warning'
             }`}>
@@ -131,7 +131,7 @@ function MetadataItem({ label, value, traitKey }: { label: string; value: number
 }
 
 export function RecommendationsScreen() {
-  const { state, navigateTo, goBack, nextRecommendation, saveRecommendation, rejectRecommendation } = useApp()
+  const { state, navigateTo, nextRecommendation, saveRecommendation, rejectRecommendation } = useApp()
   const { recommendations, currentRecommendationIndex, savedRecommendations } = state
   const [showFirstSaveModal, setShowFirstSaveModal] = useState(false)
 
@@ -204,7 +204,7 @@ export function RecommendationsScreen() {
         <div className="w-8" />
         <div className="flex items-center gap-2">
           <button
-            onClick={goBack}
+            onClick={() => navigateTo('settings')}
             className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
           >
             <Settings className="w-4 h-4 text-muted-foreground" />

@@ -41,7 +41,7 @@ function MenuItem({ icon, label, value, onClick, isDestructive, badge }: MenuIte
 }
 
 export function MenuScreen() {
-  const { state, navigateTo, setUserSession, setSettingsScrollTo } = useApp()
+  const { state, navigateTo, goBack, setUserSession, setSettingsScrollTo } = useApp()
   const { userSession, email, settings } = state
   const isPremium = userSession === 'premium'
 
@@ -55,7 +55,7 @@ export function MenuScreen() {
       {/* Header */}
       <div className="flex items-center px-4 md:px-6 py-3 border-b border-border">
         <button
-          onClick={() => navigateTo('dashboard')}
+          onClick={goBack}
           className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
