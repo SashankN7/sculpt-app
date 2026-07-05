@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useCallback, useMemo, useRef, useE
 import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
-import { logHaircut as logHaircutUtil, awardBadge, initGamification } from "@/lib/gamification"
+import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
 
 interface AppContextType {
   state: AppState
@@ -48,7 +48,7 @@ interface AppContextType {
   addPreviewCredits: (count: number) => void
   previewRecommendation: HairstyleRecommendation | null
   setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
-  logHaircut: (hairstyleName: string) => void
+  logHaircut: (hairstyleName: string) => boolean
   addProgressPhoto: (photo: ProgressPhoto) => void
   removeProgressPhoto: (id: string) => void
   setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
@@ -496,6 +496,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── Gamification ──
   const logHaircut = useCallback((hairstyleName: string) => {
+    // Check cooldown — only allow logging every 2 weeks
+    const { allowed } = canLogHaircut(state.gamification.lastCutLoggedDate)
+    if (!allowed) return false
+
     setState(prev => {
       const uniqueStyles = [
         ...new Set(prev.savedRecommendations.map(r => r.name)),
@@ -504,7 +508,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const newGamification = logHaircutUtil(prev.gamification, hairstyleName, uniqueStyles)
       return { ...prev, gamification: newGamification, lastCutDate: new Date().toISOString().split('T')[0] }
     })
-  }, [])
+    return true
+  }, [state.gamification.lastCutLoggedDate])
 
   // ── Progress Photos ──
   const addProgressPhoto = useCallback((photo: ProgressPhoto) => {

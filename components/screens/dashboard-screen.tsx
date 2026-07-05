@@ -6,7 +6,8 @@ import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
 import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/lib/seasonal"
 import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
-import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap, Trophy } from "lucide-react"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap, Trophy, Lock } from "lucide-react"
+import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -46,6 +47,9 @@ export function DashboardScreen() {
 
   // Whether this is a first-time user (no data yet)
   const isFirstTime = recommendations.length === 0 && savedRecommendations.length === 0
+
+  // Haircut cooldown check
+  const haircutCooldown = useMemo(() => canLogHaircut(state.gamification.lastCutLoggedDate), [state.gamification.lastCutLoggedDate])
 
   const handleViewSavedCard = (savedIndex: number) => {
     setCurrentSavedIndex(savedIndex)
@@ -472,19 +476,38 @@ export function DashboardScreen() {
           >
             <button
               onClick={() => {
+                if (!haircutCooldown.allowed) return
                 const lastSaved = savedRecommendations[savedRecommendations.length - 1]
                 logHaircut(lastSaved.name)
               }}
-              className="w-full flex items-center gap-3 p-3.5 bg-gradient-to-r from-orange-400/10 to-orange-400/5 border border-orange-400/30 rounded-xl hover:from-orange-400/15 hover:to-orange-400/10 transition-colors"
+              disabled={!haircutCooldown.allowed}
+              className={`w-full flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
+                haircutCooldown.allowed
+                  ? 'bg-gradient-to-r from-orange-400/10 to-orange-400/5 border border-orange-400/30 hover:from-orange-400/15 hover:to-orange-400/10'
+                  : 'bg-secondary border border-border opacity-60 cursor-not-allowed'
+              }`}
             >
-              <div className="w-9 h-9 rounded-lg bg-orange-400/20 flex items-center justify-center">
-                <Scissors className="w-5 h-5 text-orange-400" />
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                haircutCooldown.allowed ? 'bg-orange-400/20' : 'bg-muted-foreground/10'
+              }`}>
+                {haircutCooldown.allowed ? (
+                  <Scissors className="w-5 h-5 text-orange-400" />
+                ) : (
+                  <Lock className="w-5 h-5 text-muted-foreground" />
+                )}
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-foreground">Log Haircut</p>
-                <p className="text-[10px] text-muted-foreground">Track your latest cut to build your streak</p>
+                <p className={`text-sm font-medium ${haircutCooldown.allowed ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  {haircutCooldown.allowed ? 'Log Haircut' : `Available in ${haircutCooldown.daysUntilAvailable} days`}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {haircutCooldown.allowed
+                    ? 'Track your latest cut to build your streak'
+                    : `${HAIRCUT_COOLDOWN_DAYS}-day cooldown between logs`
+                  }
+                </p>
               </div>
-              <span className="text-lg">🔥</span>
+              <span className="text-lg">{haircutCooldown.allowed ? '🔥' : '⏳'}</span>
             </button>
           </motion.div>
         )}

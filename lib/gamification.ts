@@ -63,6 +63,25 @@ export function calculateStreak(lastCutDate: string | null, currentStreak: numbe
   return { streak: currentStreak, isNewDay: false }
 }
 
+// ── Minimum days between haircut logs (2 weeks) ──
+export const HAIRCUT_COOLDOWN_DAYS = 14
+
+// ── Check if user can log a haircut (cooldown check) ──
+export function canLogHaircut(lastCutLoggedDate: string | null): { allowed: boolean; daysUntilAvailable: number } {
+  if (!lastCutLoggedDate) return { allowed: true, daysUntilAvailable: 0 }
+
+  const last = new Date(lastCutLoggedDate)
+  const now = new Date()
+  const diffMs = now.getTime() - last.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays >= HAIRCUT_COOLDOWN_DAYS) {
+    return { allowed: true, daysUntilAvailable: 0 }
+  }
+
+  return { allowed: false, daysUntilAvailable: HAIRCUT_COOLDOWN_DAYS - diffDays }
+}
+
 // ── Log a haircut and update gamification state ──
 export function logHaircut(
   gamification: GamificationState,
