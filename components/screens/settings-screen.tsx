@@ -219,9 +219,9 @@ export function SettingsScreen() {
           {/* SECTION: Account */}
           <div className="mb-8">
             <p className="text-xs font-medium text-gold tracking-wider uppercase mb-3">Account</p>
-            <div className="bg-secondary border border-border rounded-xl overflow-hidden">
+            <div className="bg-secondary border border-border rounded-xl px-4">
               {/* Account Type */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-foreground">Account Type</span>
                 <span
                   className={`px-3 py-1 text-xs font-medium rounded-full ${
@@ -243,33 +243,27 @@ export function SettingsScreen() {
               )}
 
               {/* Export My Data */}
-              <div className="px-4">
-                <ActionRow
-                  label="Export My Data"
-                  description="Download all your data"
-                  onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
-                />
-              </div>
+              <ActionRow
+                label="Export My Data"
+                description="Download all your data"
+                onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
+              />
 
               {/* Sign Out */}
-              <div className="px-4">
-                <ActionRow
-                  label="Sign Out"
-                  onClick={handleSignOut}
-                  isDestructive
-                  showChevron={false}
-                />
-              </div>
+              <ActionRow
+                label="Sign Out"
+                onClick={handleSignOut}
+                isDestructive
+                showChevron={false}
+              />
 
               {/* Delete Account */}
-              <div className="px-4">
-                <ActionRow
-                  label="Delete Account"
-                  onClick={handleDeleteAccount}
-                  isDestructive
-                  showChevron={false}
-                />
-              </div>
+              <ActionRow
+                label="Delete Account"
+                onClick={handleDeleteAccount}
+                isDestructive
+                showChevron={false}
+              />
             </div>
           </div>
 

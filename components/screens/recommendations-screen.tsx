@@ -72,13 +72,13 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
         <div className="flex-1 min-h-0 px-4 pt-3 pb-2 flex flex-col overflow-hidden">
-          <h3 style={{ fontSize: '9px', lineHeight: '1.15' }} className="font-semibold text-foreground mb-1 line-clamp-1 shrink-0 truncate uppercase tracking-wide">
+          <h3 style={{ fontSize: '7px', lineHeight: '1.1' }} className="font-semibold text-foreground mb-1 truncate uppercase tracking-wide">
             {recommendation.name}
           </h3>
           
           <div className="flex items-center gap-2 mb-2 shrink-0">
-            <span className="text-[9px] text-muted-foreground uppercase tracking-wide">Compatibility:</span>
-            <span className={`text-xs font-bold ${
+            <span className="text-[7px] text-muted-foreground uppercase tracking-wide">Compatibility:</span>
+            <span className={`text-[9px] font-bold ${
               recommendation.compatibilityScore >= 90 ? 'text-success' :
               recommendation.compatibilityScore >= 70 ? 'text-gold' : 'text-warning'
             }`}>
