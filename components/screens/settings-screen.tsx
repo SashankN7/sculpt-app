@@ -85,16 +85,21 @@ interface ActionRowProps {
   showChevron?: boolean
 }
 
-function ActionRow({ label, value, onClick, isDestructive, showChevron = true }: ActionRowProps) {
+function ActionRow({ label, value, description, onClick, isDestructive, showChevron = true }: ActionRowProps) {
   return (
     <button
       onClick={onClick}
       className="w-full flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-secondary/50 transition-colors"
     >
-      <span className={`text-sm ${isDestructive ? 'text-error' : 'text-foreground'}`}>
-        {label}
-      </span>
-      <div className="flex items-center gap-2">
+      <div className="flex-1">
+        <span className={`text-sm ${isDestructive ? 'text-error' : 'text-foreground'}`}>
+          {label}
+        </span>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
         {value && (
           <span className={`text-sm ${isDestructive ? 'text-error/70' : 'text-muted-foreground'}`}>
             {value}
@@ -237,6 +242,15 @@ export function SettingsScreen() {
                 />
               )}
 
+              {/* Export My Data */}
+              <div className="px-4">
+                <ActionRow
+                  label="Export My Data"
+                  description="Download all your data"
+                  onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
+                />
+              </div>
+
               {/* Sign Out */}
               <div className="px-4">
                 <ActionRow
@@ -345,17 +359,6 @@ export function SettingsScreen() {
                 sublabel="When your profile updates with new matching styles."
                 value={settings.notifications.newRecommendations}
                 onChange={(v) => setNotification('newRecommendations', v)}
-              />
-            </div>
-          </div>
-
-          {/* SECTION: Data Export Action */}
-          <div className="mb-8">
-            <div className="bg-secondary border border-border rounded-xl overflow-hidden">
-              <ActionRow
-                label="Export My Data"
-                description="Download all your data"
-                onClick={() => alert('Data export request sent. You will receive an email with your data within 48 hours.')}
               />
             </div>
           </div>
