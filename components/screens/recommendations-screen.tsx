@@ -109,13 +109,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
                 '_blank'
               )
             }}
-            style={{
-              borderColor: 'var(--gold)',
-              color: 'var(--gold)',
-              backgroundColor: 'color-mix(in oklch, var(--gold) 10%, transparent)',
-              animation: 'pulse-gold 2s ease-in-out infinite',
-            }}
-            className="pointer-events-auto z-20 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 backdrop-blur-sm text-sm font-semibold hover:brightness-110 active:scale-[0.98] transition-all"
+            className="pointer-events-auto z-20 swipe-card-ref-btn"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             View Reference Photos

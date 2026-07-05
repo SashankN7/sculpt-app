@@ -149,6 +149,43 @@
   animation: slide-up 0.4s ease-out forwards;
 }
 
+/* View Reference Photos pulsating button */
+.swipe-card-ref-btn {
+  border: 2px solid oklch(0.78 0.12 85);
+  color: oklch(0.78 0.12 85);
+  background: oklch(0.78 0.12 85 / 0.12);
+  animation: pulse-gold-btn 2s ease-in-out infinite;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.swipe-card-ref-btn:hover {
+  background: oklch(0.78 0.12 85 / 0.22);
+  filter: brightness(1.1);
+}
+
+.swipe-card-ref-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes pulse-gold-btn {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.78 0.12 85 / 0.5), 0 0 12px oklch(0.78 0.12 85 / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.78 0.12 85 / 0), 0 0 20px oklch(0.78 0.12 85 / 0.15);
+  }
+}
+
 /* Custom Gold Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
