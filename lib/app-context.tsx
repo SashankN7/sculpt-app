@@ -209,30 +209,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadCloudData()
   }, [state.userSession])
 
-  // Detect OAuth callback on mount — clean URL and set session
+  // Detect OAuth callback, Stripe upgrade/cancel on mount — clean URL and set session
   // Profile loading and screen routing is handled by the getUserInfo effect below
   useEffect(() => {
-    async function handleOAuthCallback() {
+    async function handleUrlCallbacks() {
       const url = new URL(window.location.href)
       const hasAuthCode = url.searchParams.has('code')
       const hasProfileSetup = url.searchParams.get('profile_setup') === 'true'
+      const hasUpgraded = url.searchParams.get('upgraded') === 'true'
+      const hasCancelled = url.searchParams.get('cancelled') === 'true'
 
-      if (!hasAuthCode && !hasProfileSetup) return
-
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session) {
-        // Clean up OAuth redirect URL params
+      // Clean up any URL params
+      if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
         const cleanUrl = new URL(window.location.origin + window.location.pathname)
         window.history.replaceState({}, '', cleanUrl.toString())
+      }
 
-        // Set session — triggers getUserInfo effect which handles profile + routing
-        setUserSession('authenticated')
+      // Handle Stripe checkout success — verify session first, then set premium
+      if (hasUpgraded) {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          setState(prev => ({ ...prev, userSession: 'premium', currentScreen: 'dashboard' }))
+        }
+        return
+      }
+
+      // Handle Stripe checkout cancellation — just stay where they are
+      if (hasCancelled) {
+        return
+      }
+
+      // Handle OAuth callback (Google login)
+      if (hasAuthCode || hasProfileSetup) {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (session) {
+          // Set session — triggers getUserInfo effect which handles profile + routing
+          setUserSession('authenticated')
+        }
       }
     }
 
-    handleOAuthCallback()
+    handleUrlCallbacks()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -262,13 +282,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
               profileComplete: true,
             },
           }))
-        } else {
-          // No profile or incomplete — route to setup
-          setState(prev => ({
-            ...prev,
-            currentScreen: 'profile-setup',
-          }))
         }
+        // Note: if no profile exists yet, don't force profile-setup.
+        // Users can complete it optionally from the profile screen.
       }
     }
 
