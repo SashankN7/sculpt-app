@@ -72,7 +72,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
         <div className="flex-1 min-h-0 p-4 flex flex-col overflow-hidden">
-          <h3 className="text-sm font-semibold text-foreground mb-1 truncate">
+          <h3 className="text-[11px] font-semibold text-foreground mb-1 truncate leading-tight">
             {recommendation.name}
           </h3>
           
@@ -109,7 +109,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
                 '_blank'
               )
             }}
-            className="pointer-events-auto z-20 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border bg-secondary/80 backdrop-blur-sm text-sm font-medium text-muted-foreground hover:text-foreground hover:border-gold/40 hover:bg-gold/5 active:scale-[0.98] transition-all"
+            className="pointer-events-auto z-20 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-gold bg-gold/10 backdrop-blur-sm text-sm font-semibold text-gold animate-pulse-gold hover:bg-gold/20 active:scale-[0.98] transition-all"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             View Reference Photos
