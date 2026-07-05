@@ -56,7 +56,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Image Area — gold decorative name */}
         <div className="relative h-44 shrink-0 bg-background flex items-center justify-center overflow-hidden">
-          <span style={{ fontSize: '11px', lineHeight: '1.1' }} className="font-bold text-gold uppercase tracking-widest text-center px-4 line-clamp-2 pointer-events-none">
+          <span style={{ fontSize: '14px', lineHeight: '1.1' }} className="font-bold text-gold uppercase tracking-widest text-center px-4 line-clamp-2 pointer-events-none">
             {recommendation.name}
           </span>
         </div>
