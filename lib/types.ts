@@ -297,6 +297,8 @@ export interface AppState {
     dateOfBirth: string
     profileComplete: boolean
   }
+  // Current scan recommendation IDs — used to filter saved/rejected to only current scan
+  currentScanIds: string[]
   // Scan history — archived saved/rejected from previous scans
   scanHistory: ScanHistoryEntry[]
   // Navigation helpers
@@ -377,6 +379,7 @@ export const initialAppState: AppState = {
   pushPermission: 'default',
   pushSubscriptionEndpoint: null,
   previewCredits: 0,
+  currentScanIds: [],
   scanHistory: [],
   profile: {
     firstName: '',

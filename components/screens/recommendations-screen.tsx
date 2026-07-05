@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { Star, FileText, User, Settings, List, LayoutGrid, TrendingUp, ExternalLink } from "lucide-react"
+import { Star, User, Settings, ExternalLink } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
 
@@ -72,7 +72,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
         {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
         <div className="flex-1 min-h-0 px-4 pt-3 pb-2 flex flex-col overflow-hidden">
-          <h3 style={{ fontSize: '12px', lineHeight: '1.3' }} className="font-semibold text-foreground mb-1 line-clamp-2 shrink-0">
+          <h3 style={{ fontSize: '11px', lineHeight: '1.2' }} className="font-semibold text-foreground mb-1 line-clamp-1 shrink-0 truncate">
             {recommendation.name}
           </h3>
           
@@ -131,10 +131,9 @@ function MetadataItem({ label, value, traitKey }: { label: string; value: number
 }
 
 export function RecommendationsScreen() {
-  const { state, navigateTo, nextRecommendation, saveRecommendation, rejectRecommendation, syncRecommendationIndex } = useApp()
+  const { state, navigateTo, goBack, nextRecommendation, saveRecommendation, rejectRecommendation } = useApp()
   const { recommendations, currentRecommendationIndex, savedRecommendations } = state
   const [showFirstSaveModal, setShowFirstSaveModal] = useState(false)
-  const [viewMode, setViewMode] = useState<'swipe' | 'list'>('swipe')
 
   const currentRecommendation = recommendations[currentRecommendationIndex]
   const nextRecommendationData = recommendations[currentRecommendationIndex + 1]
@@ -205,14 +204,7 @@ export function RecommendationsScreen() {
         <div className="w-8" />
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setViewMode(viewMode === 'swipe' ? 'list' : 'swipe')}
-            className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
-            title={viewMode === 'swipe' ? 'Switch to list view' : 'Switch to swipe view'}
-          >
-            {viewMode === 'swipe' ? <List className="w-4 h-4 text-muted-foreground" /> : <LayoutGrid className="w-4 h-4 text-muted-foreground" />}
-          </button>
-          <button
-            onClick={() => navigateTo('menu')}
+            onClick={goBack}
             className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
           >
             <Settings className="w-4 h-4 text-muted-foreground" />
@@ -231,74 +223,32 @@ export function RecommendationsScreen() {
           </span>
         </div>
 
-        {viewMode === 'list' ? (
-          /* List View */
-          <div className="flex-1 overflow-y-auto space-y-2">
-            {recommendations.map((rec, index) => {
-              const isActive = index === currentRecommendationIndex
-              return (
-                <button
-                  key={rec.id}
-                  onClick={() => {
-                    syncRecommendationIndex(index)
-                    navigateTo('recommendation-full')
-                  }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                    rec.isSculptPick
-                      ? 'bg-gold/5 border-gold/30'
-                      : 'bg-secondary border-border hover:border-muted-foreground/30'
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-foreground truncate">{rec.name}</p>
-                      {rec.isSculptPick && <Star className="w-3 h-3 text-gold fill-gold flex-shrink-0" />}
-                      {rec.isTrending && <TrendingUp className="w-3 h-3 text-blue-400 flex-shrink-0" />}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className={`text-xs font-semibold ${
-                        rec.compatibilityScore >= 90 ? 'text-success' : rec.compatibilityScore >= 70 ? 'text-gold' : 'text-warning'
-                      }`}>{rec.compatibilityScore}%</span>
-                      <span className="text-[10px] text-muted-foreground">Maint: {rec.metadata.maintenance}</span>
-                      <span className="text-[10px] text-muted-foreground">Trend: {rec.metadata.trendiness}</span>
-                    </div>
-                  </div>
-                  <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                </button>
-              )
-            })}
-          </div>
-        ) : (
-          /* Card Stack (Swipe View) */
-          <>
-            <div className="relative flex-1 mb-4">
-              {nextRecommendationData && (
-                <SwipeCard
-                  key={nextRecommendationData.id}
-                  recommendation={nextRecommendationData}
-                  onSwipeLeft={() => {}}
-                  onSwipeRight={() => {}}
-                  isTop={false}
-                />
-              )}
+        {/* Card Stack (Swipe View) */}
+        <>
+          <div className="relative flex-1 mb-4">
+            {nextRecommendationData && (
               <SwipeCard
-                key={currentRecommendation.id}
-                recommendation={currentRecommendation}
-                onSwipeLeft={handleSwipeLeft}
-                onSwipeRight={handleSwipeRight}
-                isTop
+                key={nextRecommendationData.id}
+                recommendation={nextRecommendationData}
+                onSwipeLeft={() => {}}
+                onSwipeRight={() => {}}
+                isTop={false}
               />
-            </div>
+            )}
+            <SwipeCard
+              key={currentRecommendation.id}
+              recommendation={currentRecommendation}
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+              isTop
+            />
+          </div>
 
-            {/* Swipe Instructions */}
-            <p className="text-xs text-white/90 text-center font-medium">
-              SWIPE LEFT TO REJECT &nbsp;&nbsp; SWIPE RIGHT TO SAVE
-            </p>
-          </>
-        )}
+          {/* Swipe Instructions */}
+          <p className="text-xs text-white/90 text-center font-medium">
+            SWIPE LEFT TO REJECT &nbsp;&nbsp; SWIPE RIGHT TO SAVE
+          </p>
+        </>
       </div>
 
       {/* First Save Congrats Modal */}

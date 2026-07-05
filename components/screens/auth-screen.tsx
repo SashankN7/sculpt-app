@@ -146,7 +146,7 @@ export function AuthScreen() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/?profile_setup=true`,
+          redirectTo: `${window.location.origin}/?profile_setup=true&returnTo=upload`,
         },
       })
 

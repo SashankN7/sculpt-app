@@ -55,9 +55,9 @@ export function LandingScreen() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          {'"Find the haircut that'}
+          Find the haircut that
           <br />
-          {'actually fits you."'}
+          actually fits you
         </motion.p>
 
         {/* CTA Button */}

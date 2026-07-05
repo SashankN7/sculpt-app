@@ -242,6 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const url = new URL(window.location.href)
       const hasAuthCode = url.searchParams.has('code')
       const hasProfileSetup = url.searchParams.get('profile_setup') === 'true'
+      const hasReturnTo = url.searchParams.get('returnTo')
       const hasUpgraded = url.searchParams.get('upgraded') === 'true'
       const hasCancelled = url.searchParams.get('cancelled') === 'true'
 
@@ -274,6 +275,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (session) {
           // Set session — triggers getUserInfo effect which handles profile + routing
           setUserSession('authenticated')
+
+          // If returnTo param is present, navigate there after auth (e.g. from analysis flow)
+          if (hasReturnTo === 'upload') {
+            setState(prev => ({ ...prev, currentScreen: 'upload' }))
+          }
         }
       }
     }
@@ -378,7 +384,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const setRecommendations = useCallback((recommendations: HairstyleRecommendation[]) => {
-    setState(prev => ({ ...prev, recommendations, currentRecommendationIndex: 0 }))
+    setState(prev => ({ ...prev, recommendations, currentRecommendationIndex: 0, currentScanIds: recommendations.map(r => r.id) }))
   }, [])
 
   const nextRecommendation = useCallback(() => {
@@ -509,6 +515,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         analysisResult: null,
         recommendations: [],
         currentRecommendationIndex: 0,
+        currentScanIds: [],
         savedRecommendations: [],
         rejectedRecommendations: [],
         currentSavedIndex: 0,
