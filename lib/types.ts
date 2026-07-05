@@ -29,12 +29,13 @@ export type Screen =
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
-// Scan limits per tier — free users get unlimited scans, premium unlocks real AI analysis
+// Scan limits per tier — how many times a user can initiate the scan flow per day
+// Trial = Premium: trial users get the full premium experience for 30 days
 export const SCAN_LIMITS: Record<UserSession, number> = {
-  guest: 3,       // free users get 3 scans
-  authenticated: 3, // authenticated free users get 3 scans
-  trial: 10,      // trial users get 10 scans/day
-  premium: 999,    // premium users get unlimited scans
+  guest: 3,         // guests get 3 scans
+  authenticated: 3, // free users get 3 scans
+  trial: 999,       // trial users get unlimited scans (same as premium)
+  premium: 999,     // premium users get unlimited scans
 }
 
 // Pricing
@@ -52,12 +53,15 @@ export const PREVIEW_PACK_PRICING = {
 } as const
 
 // Daily usage limits for premium/trial users (cost protection)
+// Trial users get identical limits to premium users
 export const DAILY_USAGE_LIMITS = {
   analyses: 10,    // GPT-4o Vision photo analyses per day
   previews: 5,     // gpt-image-1 preview generations per day
   chatMessages: 30, // GPT-4o-mini chat messages per day
   barberCards: 10,  // AI-enhanced barber card generations per day
 } as const
+
+
 
 // Questionnaire question types
 export type QuestionType = 'single' | 'multiple' | 'scale' | 'text'

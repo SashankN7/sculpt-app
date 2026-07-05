@@ -147,17 +147,64 @@ export function PaywallScreen() {
           </p>
 
           {/* Free vs Premium comparison */}
-          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border">
-              <span className="text-xs font-medium text-muted-foreground">FREE</span>
-              <span className="text-[10px] text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground">Unlimited scans, 1 free AI analysis/day</span>
+          <div className="bg-secondary border border-border rounded-xl mb-5 text-left overflow-hidden">
+            {/* Free Tier */}
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-semibold text-muted-foreground">FREE TIER</span>
+              </div>
+              <ul className="space-y-1.5">
+                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  3 scans per day
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  1 free AI photo analysis (then questionnaire-based suggestions)
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  No style previews
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  No AI chat assistant
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  No PDF barber card export
+                </li>
+              </ul>
             </div>
-            <div className="flex items-center gap-2 mb-1">
-              <Crown className="w-4 h-4 text-gold" />
-              <span className="text-xs font-medium text-gold">PREMIUM</span>
-              <span className="text-[10px] text-gold">·</span>
-              <span className="text-xs text-gold">Every scan uses real AI + chat + PDF</span>
+            {/* Premium Tier */}
+            <div className="p-4 bg-gold/5">
+              <div className="flex items-center gap-2 mb-2">
+                <Crown className="w-3.5 h-3.5 text-gold" />
+                <span className="text-xs font-semibold text-gold">PREMIUM / TRIAL</span>
+                <span className="text-[10px] text-gold/70">· same features</span>
+              </div>
+              <ul className="space-y-1.5">
+                <li className="flex items-center gap-2 text-[11px] text-foreground">
+                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                  Unlimited scans per day
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-foreground">
+                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                  10 real GPT-4o Vision analyses per day
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-foreground">
+                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                  5 style previews per day
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-foreground">
+                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                  30 AI chat messages per day
+                </li>
+                <li className="flex items-center gap-2 text-[11px] text-foreground">
+                  <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                  10 AI barber cards per day + PDF export
+                </li>
+              </ul>
             </div>
           </div>
 

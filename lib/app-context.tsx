@@ -6,8 +6,18 @@ import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
 import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
 
+interface FeatureConfig {
+  hasOpenAI: boolean
+  hasStripe: boolean
+  limits: {
+    free: { scansPerDay: number; aiAnalyses: number; previews: number; chatMessages: number }
+    premium: { scansPerDay: number; aiAnalyses: number; previews: number; chatMessages: number; barberCards: number }
+  }
+}
+
 interface AppContextType {
   state: AppState
+  featureConfig: FeatureConfig | null
   navigateTo: (screen: Screen) => void
   setUserSession: (session: AppState['userSession']) => void
   setEmail: (email: string) => void
@@ -151,8 +161,24 @@ async function loadFromSupabase(): Promise<Partial<AppState> | null> {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(getInitialState)
+  const [featureConfig, setFeatureConfig] = useState<FeatureConfig | null>(null)
   const screenHistoryRef = useRef<Screen[]>([])
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Fetch feature config (hasOpenAI, hasStripe, limits) on mount
+  useEffect(() => {
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(setFeatureConfig)
+      .catch(() => setFeatureConfig({
+        hasOpenAI: false,
+        hasStripe: false,
+        limits: {
+          free: { scansPerDay: 3, aiAnalyses: 1, previews: 0, chatMessages: 0 },
+          premium: { scansPerDay: 999, aiAnalyses: 10, previews: 5, chatMessages: 30, barberCards: 10 },
+        },
+      }))
+  }, [])
 
   // Auto-restore Supabase session on mount ("Remember me" persistence)
   // This ensures users stay logged in even after Safari clears cookies
@@ -628,6 +654,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const contextValue = useMemo(() => ({
     state,
+    featureConfig,
     navigateTo,
     setUserSession,
     setEmail,
@@ -675,6 +702,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProfile,
   }), [
     state,
+    featureConfig,
     navigateTo,
     setUserSession,
     setEmail,

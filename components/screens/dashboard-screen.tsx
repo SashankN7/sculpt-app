@@ -6,8 +6,9 @@ import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
 import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/lib/seasonal"
 import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
-import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap, Trophy, Lock } from "lucide-react"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Flame, Timer, BookOpen, Zap, Trophy, Lock, BarChart3, MessageSquare, Eye } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
+import { DAILY_USAGE_LIMITS, SCAN_LIMITS } from "@/lib/types"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -19,7 +20,7 @@ const GROOMING_TIPS = [
 ]
 
 export function DashboardScreen() {
-  const { state, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, logHaircut } = useApp()
+  const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, logHaircut } = useApp()
   const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
@@ -200,30 +201,96 @@ export function DashboardScreen() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
           >
-            {/* AI Analysis Status */}
-            <div className={`rounded-xl p-3 mb-3 flex items-center justify-between ${
+            {/* Usage Status — Clear breakdown for ALL tiers */}
+            <div className={`rounded-xl p-3.5 mb-3 ${
               isPremium || isTrial
                 ? 'bg-gold/5 border border-gold/20'
                 : 'bg-secondary border border-border'
             }`}>
-              <div className="flex items-center gap-2">
-                <Sparkles className={`w-4 h-4 ${isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'}`} />
-                <span className="text-xs font-medium text-foreground">
-                  {isPremium || isTrial ? 'AI Analysis' : (state.scanCountToday === 0 ? 'Free AI Available' : 'Free Analysis Used')}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {isPremium || isTrial ? (
-                  <span className="text-[10px] font-semibold text-gold">UNLIMITED</span>
-                ) : (
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className={`w-4 h-4 ${isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'}`} />
+                  <span className="text-xs font-semibold text-foreground">
+                    {isPremium ? 'PREMIUM' : isTrial ? `TRIAL · ${daysLeft}d left` : 'FREE TIER'}
+                  </span>
+                </div>
+                {!(isPremium || isTrial) && (
                   <button
                     onClick={() => navigateTo('paywall')}
                     className="px-2 py-0.5 bg-gold/10 border border-gold/30 rounded-full text-[9px] font-medium text-gold hover:bg-gold/15 transition-colors"
                   >
-                    Unlock AI →
+                    Upgrade →
                   </button>
                 )}
               </div>
+              {/* AI analysis row */}
+              <div className="flex items-center justify-between py-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-gold" />
+                  <span className="text-[11px] text-muted-foreground">AI Photo Analysis</span>
+                </div>
+                <span className={`text-[11px] font-semibold ${
+                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                }`}>
+                  {isPremium || isTrial
+                    ? featureConfig && !featureConfig.hasOpenAI
+                      ? '10/day (AI key needed)'
+                      : `${DAILY_USAGE_LIMITS.analyses}/day`
+                    : featureConfig && !featureConfig.hasOpenAI
+                    ? '0 (AI key not configured)'
+                    : state.scanCountToday === 0
+                    ? '1 free analysis left'
+                    : '0 — upgrade for AI'
+                  }
+                </span>
+              </div>
+              {/* Preview row */}
+              <div className="flex items-center justify-between py-1.5 border-t border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3 h-3 text-gold" />
+                  <span className="text-[11px] text-muted-foreground">Style Previews</span>
+                </div>
+                <span className={`text-[11px] font-semibold ${
+                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                }`}>
+                  {isPremium || isTrial ? `${DAILY_USAGE_LIMITS.previews}/day` : '0 — upgrade for previews'}
+                </span>
+              </div>
+              {/* Chat row */}
+              <div className="flex items-center justify-between py-1.5 border-t border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <MessageSquare className="w-3 h-3 text-gold" />
+                  <span className="text-[11px] text-muted-foreground">AI Chat Messages</span>
+                </div>
+                <span className={`text-[11px] font-semibold ${
+                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                }`}>
+                  {isPremium || isTrial ? `${DAILY_USAGE_LIMITS.chatMessages}/day` : '0 — upgrade for chat'}
+                </span>
+              </div>
+              {/* Scans row */}
+              <div className="flex items-center justify-between py-1.5 border-t border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <BarChart3 className="w-3 h-3 text-gold" />
+                  <span className="text-[11px] text-muted-foreground">Scans Today</span>
+                </div>
+                <span className={`text-[11px] font-semibold ${
+                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                }`}>
+                  {isPremium || isTrial
+                    ? `${state.scanCountToday} used`
+                    : `${state.scanCountToday}/${SCAN_LIMITS[state.userSession]} used`
+                  }
+                </span>
+              </div>
+              {/* AI key warning for non-premium */}
+              {!(isPremium || isTrial) && (
+                <div className="mt-2 pt-2 border-t border-border/50">
+                  <p className="text-[10px] text-muted-foreground/70 italic">
+                    Free tier: 1 AI analysis included, then questionnaire-based suggestions. Upgrade for real AI on every scan.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Stats */}
@@ -285,10 +352,10 @@ export function DashboardScreen() {
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {isPremium || isTrial
-                    ? 'Unlimited scans with real AI'
+                    ? `Unlimited scans · ${DAILY_USAGE_LIMITS.analyses} AI analyses/day`
                     : isFirstTime
-                    ? 'Free AI analysis included'
-                    : 'Unlimited scans · Free analysis included'}
+                    ? '1 free AI analysis included'
+                    : '3 scans/day · 1 free AI analysis'}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -632,7 +699,7 @@ export function DashboardScreen() {
               </p>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Real AI photo analysis, 10 scans/day, enhanced barber cards, and AI chat.
+              10 real AI analyses/day · 5 previews · 30 chat messages · PDF export — all with GPT-4o Vision.
             </p>
             <button
               onClick={() => navigateTo('paywall')}
