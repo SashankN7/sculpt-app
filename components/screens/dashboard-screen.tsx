@@ -111,7 +111,8 @@ export function DashboardScreen() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 px-4 md:px-6 lg:px-8 pb-4 overflow-y-auto space-y-5 mx-auto w-full max-w-3xl">
+      <div className="flex-1 pb-4 overflow-y-auto mx-auto w-full max-w-3xl">
+        <div className="px-4 md:px-6 lg:px-8 space-y-5">
         {/* Welcome banner for first-time users */}
         {isFirstTime && (
           <motion.div
@@ -705,6 +706,7 @@ export function DashboardScreen() {
         >
           <p className="text-[10px] text-muted-foreground/50">Sculpt v1.0.0 · {isPremium ? 'Premium' : isTrial ? 'Trial' : 'Free'}</p>
         </motion.div>
+        </div>
       </div>
     </div>
   )

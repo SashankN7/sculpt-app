@@ -85,6 +85,7 @@ export function RecommendationFullScreen() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto mx-auto w-full max-w-3xl">
+        <div className="px-4">
         {/* Hero Image Area */}
         <div className="relative h-48 bg-background flex items-center justify-center mx-4 rounded-xl overflow-hidden">
           {recommendation.imageUrl ? (
@@ -245,6 +246,7 @@ export function RecommendationFullScreen() {
               </div>
             </motion.div>
           )}
+        </div>
         </div>
       </div>
 

@@ -122,7 +122,8 @@ export function PaywallScreen() {
         </button>
       </div>
 
-      <div className="flex-1 px-6 md:px-8 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto mx-auto w-full max-w-lg">
+      <div className="flex-1 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto mx-auto w-full max-w-lg">
+        <div className="px-6 md:px-8 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -374,6 +375,7 @@ export function PaywallScreen() {
             </button>
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -150,7 +150,8 @@ Note: We may retain some anonymized analytics data for service improvement, but 
         </button>
       </div>
 
-      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-2xl">
+      <div className="flex-1 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-2xl">
+        <div className="px-6 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -268,6 +269,7 @@ Note: We may retain some anonymized analytics data for service improvement, but 
             Sculpt v1.0.0 • Last updated: January 2024
           </p>
         </motion.div>
+        </div>
       </div>
     </div>
   )

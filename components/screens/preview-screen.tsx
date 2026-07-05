@@ -148,7 +148,8 @@ export function PreviewScreen() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-lg">
+      <div className="flex-1 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-lg">
+        <div className="px-6 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -274,6 +275,7 @@ export function PreviewScreen() {
             </div>
           )}
         </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -68,7 +68,8 @@ export function MenuScreen() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 md:px-8 pt-4 pb-6 mx-auto w-full max-w-2xl">
+      <div className="flex-1 overflow-y-auto pt-4 pb-6 mx-auto w-full max-w-2xl">
+        <div className="px-6 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -153,6 +154,7 @@ export function MenuScreen() {
             />
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   )

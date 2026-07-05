@@ -174,7 +174,8 @@ export function ChatAssistantScreen() {
       )}
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-3 mx-auto w-full max-w-3xl">
+      <div className="flex-1 overflow-y-auto py-4 mx-auto w-full max-w-3xl">
+        <div className="px-4 md:px-6 space-y-3">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
@@ -221,6 +222,7 @@ export function ChatAssistantScreen() {
         )}
 
         <div ref={chatEndRef} />
+        </div>
       </div>
 
       {/* Quick Reply Chips */}
