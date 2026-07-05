@@ -219,19 +219,28 @@ Return ONLY the JSON object, no other text.`
       imageContent.push({ type: 'image_url', image_url: { url: hairlineImage } })
     }
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'user',
-          content: imageContent,
-        },
-      ],
-      max_tokens: 1000,
-      temperature: 0.3,
-    })
+    let content: string | undefined
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'user',
+            content: imageContent,
+          },
+        ],
+        max_tokens: 1000,
+        temperature: 0.3,
+      })
+      content = completion.choices[0]?.message?.content
+    } catch (aiError: unknown) {
+      // OpenAI call failed (quota, network, etc.) — fall back to questionnaire inference
+      console.warn('OpenAI analysis failed, falling back to questionnaire inference:', aiError)
+      const analysis = inferAnalysisFromQuestionnaire(questionnaireAnswers || {})
+      analysis.warnings.push('AI photo analysis unavailable — used questionnaire inference instead.')
+      return NextResponse.json({ success: true, analysis })
+    }
 
-    const content = completion.choices[0]?.message?.content
     if (!content) {
       return NextResponse.json(
         { error: 'No analysis returned from AI' },
