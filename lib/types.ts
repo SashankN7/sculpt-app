@@ -52,6 +52,37 @@ export const PREVIEW_PACK_PRICING = {
   label: '$2.99 for 5 Previews',
 } as const
 
+// Trait-specific metadata colors: high professionalism/trendiness = green (good), high maintenance/styling = red (bad)
+export type TraitKey = 'maintenance' | 'stylingEffort' | 'professionalism' | 'trendiness'
+
+export const TRAIT_COLOR_MAP: Record<TraitKey, { high: string; mid: string; low: string }> = {
+  professionalism: { high: 'bg-success', mid: 'bg-warning', low: 'bg-error' },
+  trendiness:     { high: 'bg-success', mid: 'bg-warning', low: 'bg-error' },
+  maintenance:    { high: 'bg-error',   mid: 'bg-warning', low: 'bg-success' },
+  stylingEffort:  { high: 'bg-error',   mid: 'bg-warning', low: 'bg-success' },
+}
+
+export const TRAIT_TEXT_COLOR_MAP: Record<TraitKey, { high: string; mid: string; low: string }> = {
+  professionalism: { high: 'text-success', mid: 'text-warning', low: 'text-error' },
+  trendiness:     { high: 'text-success', mid: 'text-warning', low: 'text-error' },
+  maintenance:    { high: 'text-error',   mid: 'text-warning', low: 'text-success' },
+  stylingEffort:  { high: 'text-error',   mid: 'text-warning', low: 'text-success' },
+}
+
+export function getTraitBgColor(value: number, traitKey: TraitKey): string {
+  const map = TRAIT_COLOR_MAP[traitKey]
+  if (value <= 40) return map.low
+  if (value <= 70) return map.mid
+  return map.high
+}
+
+export function getTraitTextColor(value: number, traitKey: TraitKey): string {
+  const map = TRAIT_TEXT_COLOR_MAP[traitKey]
+  if (value <= 40) return map.low
+  if (value <= 70) return map.mid
+  return map.high
+}
+
 // Daily usage limits for premium/trial users (cost protection)
 // Trial users get identical limits to premium users
 // Previews are a SEPARATE purchase ($2.99 / 5-pack) — not included in any tier

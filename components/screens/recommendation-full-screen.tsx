@@ -3,7 +3,8 @@
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { ChevronLeft, Star, MessageCircle, User, AlertTriangle } from "lucide-react"
-import type { HairstyleRecommendation } from "@/lib/types"
+import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
+import { getTraitBgColor, getTraitTextColor } from "@/lib/types"
 
 const TRAIT_KEYS = ['maintenance', 'stylingEffort', 'professionalism', 'trendiness'] as const
 const TRAIT_LABELS: Record<string, string> = {
@@ -13,16 +14,12 @@ const TRAIT_LABELS: Record<string, string> = {
   trendiness: 'Trendiness',
 }
 
-function getBarColor(value: number): string {
-  if (value <= 40) return 'bg-success'
-  if (value <= 70) return 'bg-warning'
-  return 'bg-error'
+function getBarColor(value: number, traitKey: string): string {
+  return getTraitBgColor(value, traitKey as TraitKey)
 }
 
-function getScoreColor(value: number): string {
-  if (value <= 40) return 'text-success'
-  if (value <= 70) return 'text-warning'
-  return 'text-error'
+function getScoreColor(value: number, traitKey: string): string {
+  return getTraitTextColor(value, traitKey as TraitKey)
 }
 
 export function RecommendationFullScreen() {
@@ -106,7 +103,7 @@ export function RecommendationFullScreen() {
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
           {/* Name + Score overlay */}
           <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-            <h1 className="text-xl font-semibold text-foreground">
+            <h1 className="text-xl font-semibold text-foreground truncate flex-1 min-w-0">
               {recommendation.name}
             </h1>
             <div className="flex items-center gap-1 px-2.5 py-1 bg-background/80 backdrop-blur-sm border border-gold/30 rounded-full">
@@ -212,14 +209,14 @@ export function RecommendationFullScreen() {
                   <div key={key}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-muted-foreground">{TRAIT_LABELS[key]}</span>
-                      <span className={`text-xs font-semibold ${getScoreColor(value)}`}>{value}</span>
+                      <span className={`text-xs font-semibold ${getScoreColor(value, key)}`}>{value}</span>
                     </div>
                     <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${value}%` }}
                         transition={{ duration: 0.6, delay: 0.4 }}
-                        className={`h-full rounded-full ${getBarColor(value)}`}
+                        className={`h-full rounded-full ${getBarColor(value, key)}`}
                       />
                     </div>
                   </div>

@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { processUploadedImage } from "@/lib/image-utils"
-import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, Crown, AlertTriangle } from "lucide-react"
+import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, AlertTriangle } from "lucide-react"
 
 interface UploadCardProps {
   label: string
@@ -124,14 +124,12 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
 }
 
 export function UploadScreen() {
-  const { state, navigateTo, setUploadedImage, goBack, canScan, scansRemaining, incrementScanCount } = useApp()
+  const { state, navigateTo, setUploadedImage, goBack, incrementScanCount } = useApp()
   const { uploadedImages, userSession } = state
   const isPremium = userSession === 'premium'
 
   const hasFrontPhoto = !!uploadedImages.front
-  const scanAvailable = canScan()
-  const remaining = scansRemaining()
-  const canProceed = hasFrontPhoto && scanAvailable
+  const canProceed = hasFrontPhoto
 
   const handleAnalyze = () => {
     if (canProceed) {
@@ -151,23 +149,12 @@ export function UploadScreen() {
           <ChevronLeft className="w-5 h-5" />
           BACK
         </button>
-        <div className="flex items-center gap-2">
-          {/* Scan Counter */}
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium ${
-            isPremium
-              ? 'bg-gold/10 border border-gold/30 text-gold'
-              : 'bg-secondary border border-border text-muted-foreground'
-          }`}>
-            {isPremium && <Crown className="w-3 h-3" />}
-            <span>{remaining} scan{remaining !== 1 ? 's' : ''} left</span>
-          </div>
-          <button
-            onClick={() => navigateTo('menu')}
-            className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <Settings className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </div>
+        <button
+          onClick={() => navigateTo('menu')}
+          className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors"
+        >
+          <Settings className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
       <div className="flex-1 px-6 md:px-8 pt-4 pb-6 overflow-y-auto mx-auto w-full max-w-lg">
@@ -275,29 +262,13 @@ export function UploadScreen() {
             )}
           </motion.button>
 
-          {!scanAvailable && !isPremium && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-error text-center">
-                Daily scan limit reached. Resets tomorrow.
-              </p>
-              <button
-                onClick={() => navigateTo('paywall')}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gold/10 border border-gold/30 rounded-xl text-xs font-medium text-gold hover:bg-gold/15 transition-colors"
-              >
-                <Crown className="w-3.5 h-3.5" />
-                Upgrade to Premium — 10 scans/day
-              </button>
-            </div>
-          )}
-
-          {!hasFrontPhoto && scanAvailable && (
+          {!hasFrontPhoto && (
             <p className="text-xs text-muted-foreground text-center mt-3">
               Please upload a front photo to unlock analysis
             </p>
           )}
 
-          {/* Tier info */}
-          {!isPremium && scanAvailable && (
+          {!isPremium && (
             <p className="text-[10px] text-muted-foreground/50 text-center mt-4">
               Unlimited scans · Premium unlocks AI-powered analysis
             </p>

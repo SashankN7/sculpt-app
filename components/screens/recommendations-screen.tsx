@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { Star, FileText, User, Settings, List, LayoutGrid, TrendingUp } from "lucide-react"
-import type { HairstyleRecommendation } from "@/lib/types"
+import { Star, FileText, User, Settings, List, LayoutGrid, TrendingUp, ExternalLink } from "lucide-react"
+import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
+import { getTraitBgColor } from "@/lib/types"
 
 interface SwipeCardProps {
   recommendation: HairstyleRecommendation
@@ -43,7 +44,7 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
     >
       {/* Opaque layer — covers card behind completely so nothing bleeds through */}
       <div className="absolute inset-0 bg-background rounded-2xl" />
-      {/* Card content on top of the opaque layer */}
+      {/* Card content on top of the opaque layer — flex-col so button always sits at bottom */}
       <div className={`relative h-full rounded-2xl flex flex-col border-2 pointer-events-none ${isSculptPick ? 'border-gold ring-2 ring-gold/20 bg-gold/5' : 'border-border bg-secondary'}`}>
         {/* Sculpt Pick Badge */}
         {isSculptPick && (
@@ -69,8 +70,8 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
           )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 p-4 flex flex-col">
+        {/* Content — flex-1 + min-h-0 so it shrinks to fit, leaving room for the button */}
+        <div className="flex-1 min-h-0 p-4 flex flex-col overflow-y-auto">
           <h3 className="text-base font-semibold text-foreground mb-1 truncate">
             {recommendation.name}
           </h3>
@@ -91,27 +92,38 @@ function SwipeCard({ recommendation, onSwipeLeft, onSwipeRight, isTop }: SwipeCa
 
           {/* Metadata Scores */}
           <div className="grid grid-cols-2 gap-2 mt-4">
-            <MetadataItem label="Maintenance" value={recommendation.metadata.maintenance} />
-            <MetadataItem label="Styling" value={recommendation.metadata.stylingEffort} />
-            <MetadataItem label="Professional" value={recommendation.metadata.professionalism} />
-            <MetadataItem label="Trendy" value={recommendation.metadata.trendiness} />
+            <MetadataItem label="Maintenance" value={recommendation.metadata.maintenance} traitKey="maintenance" />
+            <MetadataItem label="Styling" value={recommendation.metadata.stylingEffort} traitKey="stylingEffort" />
+            <MetadataItem label="Professional" value={recommendation.metadata.professionalism} traitKey="professionalism" />
+            <MetadataItem label="Trendy" value={recommendation.metadata.trendiness} traitKey="trendiness" />
           </div>
+        </div>
+
+        {/* View Hairstyle Button — positioned outside pointer-events-none so it's always clickable and visible */}
+        <div className="px-4 pb-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              window.open(
+                `https://www.google.com/search?q=${encodeURIComponent(recommendation.name + ' hairstyle')}&tbm=isch`,
+                '_blank'
+              )
+            }}
+            className="pointer-events-auto z-20 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border bg-secondary/80 backdrop-blur-sm text-sm font-medium text-muted-foreground hover:text-foreground hover:border-gold/40 hover:bg-gold/5 active:scale-[0.98] transition-all"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            View Hairstyle
+          </button>
         </div>
       </div>
     </motion.div>
   )
 }
 
-function MetadataItem({ label, value }: { label: string; value: number }) {
-  const getColor = (v: number) => {
-    if (v <= 40) return 'bg-success'
-    if (v <= 70) return 'bg-warning'
-    return 'bg-error'
-  }
-
+function MetadataItem({ label, value, traitKey }: { label: string; value: number; traitKey: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-2 h-2 rounded-full ${getColor(value)}`} />
+      <div className={`w-2 h-2 rounded-full ${getTraitBgColor(value, traitKey as TraitKey)}`} />
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-xs text-foreground ml-auto">{value}</span>
     </div>

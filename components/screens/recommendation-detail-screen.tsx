@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Sparkles, Crown, Scissors, Eye, TrendingUp } from "lucide-react"
-import type { HairstyleRecommendation } from "@/lib/types"
+import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
+import { getTraitBgColor } from "@/lib/types"
 
 const TRAIT_LABELS = {
   maintenance: 'Maintenance',
@@ -15,10 +16,8 @@ const TRAIT_LABELS = {
 
 const TRAIT_KEYS = ['maintenance', 'stylingEffort', 'professionalism', 'trendiness'] as const
 
-function getTraitColor(value: number): string {
-  if (value <= 40) return 'bg-success'
-  if (value <= 70) return 'bg-warning'
-  return 'bg-error'
+function getTraitColor(value: number, traitKey: string): string {
+  return getTraitBgColor(value, traitKey as TraitKey)
 }
 
 function TraitDots({ recommendation }: { recommendation: HairstyleRecommendation }) {
@@ -28,7 +27,7 @@ function TraitDots({ recommendation }: { recommendation: HairstyleRecommendation
         const value = recommendation.metadata[key]
         return (
           <div key={key} className="flex flex-col items-center gap-0.5">
-            <div className={`w-2 h-2 rounded-full ${getTraitColor(value)}`} />
+            <div className={`w-2 h-2 rounded-full ${getTraitColor(value, key)}`} />
             <span className="text-[9px] text-muted-foreground leading-none">
               {TRAIT_LABELS[key]}
             </span>
