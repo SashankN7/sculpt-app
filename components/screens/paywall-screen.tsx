@@ -10,12 +10,14 @@ export function PaywallScreen() {
   const { state, navigateTo, setUserSession, startTrial, goBack } = useApp()
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [processingAction, setProcessingAction] = useState<'trial' | 'subscribe' | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
   const [successType, setSuccessType] = useState<'trial' | 'subscribe'>('trial')
   const [error, setError] = useState<string | null>(null)
 
   const handleStartTrial = async () => {
     setIsProcessing(true)
+    setProcessingAction('trial')
     setError(null)
 
     try {
@@ -57,6 +59,7 @@ export function PaywallScreen() {
 
   const handleSubscribe = async () => {
     setIsProcessing(true)
+    setProcessingAction('subscribe')
     setError(null)
 
     try {
@@ -264,7 +267,7 @@ export function PaywallScreen() {
                 <Check className="w-5 h-5" />
                 {successType === 'trial' ? 'Your trial has started!' : 'Welcome to Premium!'}
               </motion.div>
-            ) : isProcessing ? (
+            ) : isProcessing && processingAction === 'trial' ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Starting your trial...
@@ -288,9 +291,18 @@ export function PaywallScreen() {
           <button
             onClick={handleSubscribe}
             disabled={isProcessing}
-            className="w-full py-3 px-6 border border-border text-muted-foreground text-sm font-medium rounded-xl hover:bg-secondary transition-colors mb-3"
+            className="w-full py-3 px-6 border border-border text-sm font-medium rounded-xl hover:bg-secondary transition-colors mb-3 flex items-center justify-center gap-2 disabled:opacity-70"
           >
-            Subscribe without trial — {billingCycle === 'annual' ? PRICING.annual.label : PRICING.monthly.label}
+            {isProcessing && processingAction === 'subscribe' ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-muted-foreground">Processing...</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">
+                Subscribe without trial — {billingCycle === 'annual' ? PRICING.annual.label : PRICING.monthly.label}
+              </span>
+            )}
           </button>
 
           {/* Preview Pack Upsell */}
