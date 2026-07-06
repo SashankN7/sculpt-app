@@ -122,8 +122,8 @@ export function PaywallScreen() {
         </button>
       </div>
 
-      <div className="flex-1 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto mx-auto w-full max-w-lg">
-        <div className="px-6 md:px-8 w-full">
+      <div className="flex-1 pt-6 pb-6 flex flex-col items-center text-center overflow-y-auto">
+        <div className="px-6 md:px-8 w-full mx-auto max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -347,7 +347,10 @@ export function PaywallScreen() {
           </button>
 
           {/* Preview Pack Upsell */}
-          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
+          <button
+            onClick={() => navigateTo('preview')}
+            className="w-full bg-secondary border border-border rounded-xl p-4 mb-5 text-left hover:bg-secondary/80 hover:border-gold/30 transition-all cursor-pointer"
+          >
             <div className="flex items-center gap-2 mb-2">
               <Eye className="w-4 h-4 text-gold" />
               <p className="text-sm font-medium text-foreground">Style Previews — for everyone</p>
@@ -358,7 +361,7 @@ export function PaywallScreen() {
             <p className="text-xs font-semibold text-foreground">
               $2.99 for 5 previews · available to all tiers
             </p>
-          </div>
+          </button>
 
           {/* Footer Links */}
           <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">

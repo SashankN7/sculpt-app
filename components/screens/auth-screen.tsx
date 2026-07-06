@@ -181,8 +181,8 @@ export function AuthScreen() {
         </button>
       </div>
 
-      <div className="flex-1 pt-4 overflow-y-auto mx-auto w-full max-w-lg">
-        <div className="px-6 md:px-8">
+      <div className="flex-1 pt-4 overflow-y-auto">
+        <div className="px-6 md:px-8 mx-auto w-full max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

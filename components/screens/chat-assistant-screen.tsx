@@ -174,8 +174,8 @@ export function ChatAssistantScreen() {
       )}
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto py-4 mx-auto w-full max-w-3xl">
-        <div className="px-4 md:px-6 space-y-3">
+      <div className="flex-1 overflow-y-auto py-4">
+        <div className="px-4 md:px-6 space-y-3 mx-auto w-full max-w-3xl">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div

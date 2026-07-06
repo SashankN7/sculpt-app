@@ -84,8 +84,8 @@ export function RecommendationFullScreen() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto mx-auto w-full max-w-3xl">
-        <div className="px-4">
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 mx-auto w-full max-w-3xl">
         {/* Hero Image Area */}
         <div className="relative h-48 bg-background flex items-center justify-center mx-4 rounded-xl overflow-hidden">
           {recommendation.imageUrl ? (

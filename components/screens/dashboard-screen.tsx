@@ -111,8 +111,8 @@ export function DashboardScreen() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 pb-4 overflow-y-auto mx-auto w-full max-w-3xl">
-        <div className="px-4 md:px-6 lg:px-8 space-y-5">
+      <div className="flex-1 pb-4 overflow-y-auto w-full">
+        <div className="px-4 md:px-6 lg:px-8 space-y-5 max-w-3xl mx-auto">
         {/* Welcome banner for first-time users */}
         {isFirstTime && (
           <motion.div
