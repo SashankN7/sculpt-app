@@ -34,7 +34,7 @@ export function LandingScreen() {
       >
         {/* Logo */}
         <motion.h1 
-          className="text-5xl md:text-7xl font-bold tracking-[0.3em] text-foreground mb-2"
+          className="text-5xl md:text-7xl font-bold tracking-[0.3em] pl-[0.15em] text-foreground mb-2"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
