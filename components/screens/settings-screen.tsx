@@ -221,6 +221,32 @@ export function SettingsScreen() {
           <div className="mb-8">
             <p className="text-xs font-medium text-gold tracking-wider uppercase mb-3">Account</p>
             <div className="bg-secondary border border-border rounded-xl px-4">
+              {/* Guest Upgrade Banner */}
+              {userSession === 'guest' && (
+                <div className="py-4 border-b border-border">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Guest Session</p>
+                      <p className="text-xs text-muted-foreground">Your data is stored locally only</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigateTo('auth')}
+                    className="w-full py-3 px-4 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+                  >
+                    Create Account to Save Results
+                  </button>
+                  <p className="text-[10px] text-muted-foreground/70 text-center mt-2">
+                    Keep your analysis results and access them across devices
+                  </p>
+                </div>
+              )}
+
               {/* Account Type */}
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-foreground">Account Type</span>
@@ -228,10 +254,12 @@ export function SettingsScreen() {
                   className={`px-3 py-1 text-xs font-medium rounded-full ${
                     isPremium
                       ? 'bg-gold/20 text-gold'
+                      : userSession === 'guest'
+                      ? 'bg-blue-400/20 text-blue-400'
                       : 'bg-muted-foreground/20 text-muted-foreground'
                   }`}
                 >
-                  {isPremium ? 'Premium' : 'Free Tier'}
+                  {isPremium ? 'Premium' : userSession === 'guest' ? 'Guest' : 'Free Tier'}
                 </span>
               </div>
 

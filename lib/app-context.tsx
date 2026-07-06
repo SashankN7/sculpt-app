@@ -63,6 +63,7 @@ interface AppContextType {
   removeProgressPhoto: (id: string) => void
   setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
   setProfile: (profile: Partial<AppState['profile']>) => void
+  migrateGuestData: () => Promise<boolean>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -223,6 +224,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (state.userSession === 'guest') return
 
     async function loadCloudData() {
+      // Check if we need to migrate guest data first
+      const pendingMigration = sessionStorage.getItem('pendingGuestMigration') === 'true'
+      if (pendingMigration) {
+        sessionStorage.removeItem('pendingGuestMigration')
+        // Migrate the current localStorage state to Supabase
+        await saveToSupabase(state)
+      }
+
       const cloudData = await loadFromSupabase()
       if (cloudData) {
         setState(prev => ({
@@ -245,6 +254,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const hasReturnTo = url.searchParams.get('returnTo')
       const hasUpgraded = url.searchParams.get('upgraded') === 'true'
       const hasCancelled = url.searchParams.get('cancelled') === 'true'
+      const isGuestUpgrade = url.searchParams.get('upgrade') === 'true'
 
       // Clean up any URL params
       if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
@@ -275,6 +285,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (session) {
           // Set session — triggers getUserInfo effect which handles profile + routing
           setUserSession('authenticated')
+
+          // If upgrading from guest, mark for migration after state loads
+          if (isGuestUpgrade) {
+            sessionStorage.setItem('pendingGuestMigration', 'true')
+          }
 
           // If returnTo param is present, navigate there after auth (e.g. from analysis flow)
           if (hasReturnTo === 'upload') {
@@ -603,6 +618,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
+  // Migrate guest localStorage data to Supabase after account creation
+  const migrateGuestData = useCallback(async (): Promise<boolean> => {
+    try {
+      // Get current state (which has all the guest data)
+      const currentState = state
+      await saveToSupabase(currentState)
+      return true
+    } catch (err) {
+      console.error('Failed to migrate guest data:', err)
+      return false
+    }
+  }, [state])
+
   const setSettingsScrollTo = useCallback((section: string | null) => {
     setState(prev => ({ ...prev, settingsScrollTo: section }))
   }, [])
@@ -723,6 +751,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     removeProgressPhoto,
     setPushPermission,
     setProfile,
+    migrateGuestData,
   }), [
     state,
     featureConfig,
@@ -771,6 +800,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     removeProgressPhoto,
     setPushPermission,
     setProfile,
+    migrateGuestData,
   ])
 
   return (

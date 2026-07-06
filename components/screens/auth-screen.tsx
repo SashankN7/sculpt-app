@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { createClient, saveRememberedEmail, getRememberedEmail, clearRememberedEmail } from "@/lib/supabase"
-import { ChevronLeft, Mail, Loader2, Lock } from "lucide-react"
+import { ChevronLeft, Mail, Loader2, Lock, ArrowLeft } from "lucide-react"
 
 export function AuthScreen() {
-  const { navigateTo, setUserSession, setEmail, goBack } = useApp()
+  const { state, navigateTo, setUserSession, setEmail, goBack, migrateGuestData } = useApp()
+  const isUpgradeMode = state.userSession === 'guest'
   const [emailInput, setEmailInput] = useState("")
   const [password, setPassword] = useState("")
   const [isSignUp, setIsSignUp] = useState(true)
@@ -76,16 +77,23 @@ export function AuthScreen() {
           setUserSession('authenticated')
           setShowSuccess(true)
           await new Promise(resolve => setTimeout(resolve, 600))
-          // Check if profile is already complete — skip setup for returning users
-          const { data: profileData } = await supabase
-            .from('user_profiles')
-            .select('profile_complete')
-            .eq('user_id', session.user.id)
-            .single()
-          if (profileData?.profile_complete) {
+          
+          // Migrate guest data to cloud if upgrading from guest
+          if (isUpgradeMode) {
+            await migrateGuestData()
             navigateTo('dashboard')
           } else {
-            navigateTo('profile-setup')
+            // Check if profile is already complete — skip setup for returning users
+            const { data: profileData } = await supabase
+              .from('user_profiles')
+              .select('profile_complete')
+              .eq('user_id', session.user.id)
+              .single()
+            if (profileData?.profile_complete) {
+              navigateTo('dashboard')
+            } else {
+              navigateTo('profile-setup')
+            }
           }
         } else {
           // Email confirmation required
@@ -114,21 +122,28 @@ export function AuthScreen() {
         setUserSession('authenticated')
         setShowSuccess(true)
         await new Promise(resolve => setTimeout(resolve, 600))
-        // Check if profile is already complete — skip setup for returning users
-        const { data: { user: currentUser } } = await supabase.auth.getUser()
-        if (currentUser) {
-          const { data: profileData } = await supabase
-            .from('user_profiles')
-            .select('profile_complete')
-            .eq('user_id', currentUser.id)
-            .single()
-          if (profileData?.profile_complete) {
-            navigateTo('dashboard')
+        
+        // Migrate guest data to cloud if upgrading from guest
+        if (isUpgradeMode) {
+          await migrateGuestData()
+          navigateTo('dashboard')
+        } else {
+          // Check if profile is already complete — skip setup for returning users
+          const { data: { user: currentUser } } = await supabase.auth.getUser()
+          if (currentUser) {
+            const { data: profileData } = await supabase
+              .from('user_profiles')
+              .select('profile_complete')
+              .eq('user_id', currentUser.id)
+              .single()
+            if (profileData?.profile_complete) {
+              navigateTo('dashboard')
+            } else {
+              navigateTo('profile-setup')
+            }
           } else {
             navigateTo('profile-setup')
           }
-        } else {
-          navigateTo('profile-setup')
         }
       }
     } catch {
@@ -146,7 +161,9 @@ export function AuthScreen() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/?profile_setup=true&returnTo=upload`,
+          redirectTo: isUpgradeMode
+            ? `${window.location.origin}/?profile_setup=true&upgrade=true`
+            : `${window.location.origin}/?profile_setup=true&returnTo=upload`,
         },
       })
 
@@ -165,6 +182,9 @@ export function AuthScreen() {
     setUserSession('guest')
     navigateTo('upload')
   }
+
+  // Don't show guest option in upgrade mode
+  const showGuestOption = !isUpgradeMode
 
   const canSubmit = isValidEmail && password.length >= 6
 
@@ -190,10 +210,12 @@ export function AuthScreen() {
         >
           {/* Title */}
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            {isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
+            {isUpgradeMode ? 'SAVE YOUR RESULTS' : isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
           </h2>
           <p className="text-sm text-muted-foreground mb-8">
-            {isSignUp
+            {isUpgradeMode
+              ? 'Create an account to keep your analysis results and access them across devices.'
+              : isSignUp
               ? 'Save your haircut evolution profile over time.'
               : 'Sign in to access your saved recommendations.'
             }
@@ -282,15 +304,19 @@ export function AuthScreen() {
           </p>
 
           {/* Guest Option */}
-          <button
-            onClick={handleGuestBypass}
-            className="w-full py-3 px-6 border border-gold/40 text-gold font-medium rounded-xl hover:bg-gold/5 transition-colors mb-4"
-          >
-            Continue as Guest
-          </button>
-          <p className="text-[10px] text-muted-foreground/50 text-center mb-6">
-            Guest sessions are temporary. Create an account to save your results.
-          </p>
+          {showGuestOption && (
+            <>
+              <button
+                onClick={handleGuestBypass}
+                className="w-full py-3 px-6 border border-gold/40 text-gold font-medium rounded-xl hover:bg-gold/5 transition-colors mb-4"
+              >
+                Continue as Guest
+              </button>
+              <p className="text-[10px] text-muted-foreground/50 text-center mb-6">
+                Guest sessions are temporary. Create an account to save your results.
+              </p>
+            </>
+          )}
 
           {/* Continue with Email Button */}
           <motion.button
@@ -325,7 +351,7 @@ export function AuthScreen() {
               </motion.div>
             ) : (
               <span className="flex items-center justify-center gap-2">
-                {isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
+                {isUpgradeMode ? 'SAVE MY RESULTS' : isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
                 <ChevronLeft className="w-4 h-4 rotate-180" />
               </span>
             )}

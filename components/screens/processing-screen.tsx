@@ -263,13 +263,13 @@ export function ProcessingScreen() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-blue-400">Using questionnaire-based analysis</p>
-              <p className="text-[10px] text-muted-foreground">Sign in for AI-powered photo analysis</p>
+              <p className="text-[10px] text-muted-foreground">Create an account to save results & get AI-powered analysis</p>
             </div>
             <button
               onClick={() => navigateTo('auth')}
               className="flex-shrink-0 px-3 py-1.5 bg-blue-400 text-white text-[10px] font-semibold rounded-lg hover:bg-blue-400/90 transition-colors"
             >
-              Sign In
+              Create Account
             </button>
           </motion.div>
         )}
