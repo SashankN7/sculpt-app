@@ -20,7 +20,7 @@ const GROOMING_TIPS = [
 ]
 
 export function DashboardScreen() {
-  const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, logHaircut } = useApp()
+  const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex } = useApp()
   const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos, currentScanIds } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
@@ -552,8 +552,7 @@ export function DashboardScreen() {
             <button
               onClick={() => {
                 if (!haircutCooldown.allowed) return
-                const lastSaved = currentSavedCards[currentSavedCards.length - 1]
-                logHaircut(lastSaved.name)
+                navigateTo('log-cut')
               }}
               disabled={!haircutCooldown.allowed}
               className={`w-full flex items-center gap-3 p-3.5 rounded-xl transition-colors ${

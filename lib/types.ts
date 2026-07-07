@@ -26,6 +26,7 @@ export type Screen =
   | 'help-support'
   | 'privacy-legal'
   | 'profile-setup'
+  | 'log-cut'
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
@@ -203,6 +204,15 @@ export interface HaircutHistory {
   isCurrent: boolean
 }
 
+// ── Logged Cut — photo captured when user logs a haircut ──
+export interface LoggedCut {
+  id: string
+  date: string
+  hairstyleName: string
+  photoUrl: string | null
+  notes: string
+}
+
 // ── Gamification ──
 export interface Badge {
   id: string
@@ -302,6 +312,8 @@ export interface AppState {
   currentScanIds: string[]
   // Scan history — archived saved/rejected from previous scans
   scanHistory: ScanHistoryEntry[]
+  // Logged cuts — photos captured when user logs a haircut
+  loggedCuts: LoggedCut[]
   // Navigation helpers
   settingsScrollTo: string | null
 }
@@ -382,6 +394,7 @@ export const initialAppState: AppState = {
   previewCredits: 0,
   currentScanIds: [],
   scanHistory: [],
+  loggedCuts: [],
   profile: {
     firstName: '',
     lastName: '',

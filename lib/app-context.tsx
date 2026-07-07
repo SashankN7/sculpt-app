@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from "react"
-import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, type ScanHistoryEntry, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
+import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, type ScanHistoryEntry, type LoggedCut, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
 import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
@@ -60,6 +60,7 @@ interface AppContextType {
   previewRecommendation: HairstyleRecommendation | null
   setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
   logHaircut: (hairstyleName: string) => boolean
+  addLoggedCut: (cut: LoggedCut) => void
   addProgressPhoto: (photo: ProgressPhoto) => void
   removeProgressPhoto: (id: string) => void
   setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
@@ -633,6 +634,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true
   }, [state.gamification.lastCutLoggedDate])
 
+  // ── Logged Cuts ──
+  const addLoggedCut = useCallback((cut: LoggedCut) => {
+    setState(prev => ({ ...prev, loggedCuts: [cut, ...prev.loggedCuts].slice(0, 50) }))
+  }, [])
+
   // ── Progress Photos ──
   const addProgressPhoto = useCallback((photo: ProgressPhoto) => {
     setState(prev => {
@@ -789,6 +795,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     previewRecommendation,
     setPreviewRecommendation,
     logHaircut,
+    addLoggedCut,
     addProgressPhoto,
     removeProgressPhoto,
     setPushPermission,
@@ -838,6 +845,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     previewRecommendation,
     setPreviewRecommendation,
     logHaircut,
+    addLoggedCut,
     addProgressPhoto,
     removeProgressPhoto,
     setPushPermission,
