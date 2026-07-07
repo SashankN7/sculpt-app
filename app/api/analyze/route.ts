@@ -173,6 +173,22 @@ export async function POST(request: NextRequest) {
     // Real AI analysis with GPT-4o Vision
     const { openai } = await import('@/lib/openai')
 
+    // Build user context block from questionnaire answers
+    const qa = questionnaireAnswers || {}
+    const userContextParts: string[] = []
+    if (qa['maintenance']) userContextParts.push(`Maintenance preference: ${qa['maintenance']}`)
+    if (qa['workContext']) userContextParts.push(`Work context: ${qa['workContext']} (needs professional-appropriate styles)`) 
+    if (qa['boldness'] !== undefined) userContextParts.push(`Boldness preference: ${qa['boldness']}/5 (${(qa['boldness'] as number) >= 4 ? 'open to trendy/bold styles' : 'prefers classic/safe styles'})`)
+    if (Array.isArray(qa['activity']) && qa['activity'].length > 0) userContextParts.push(`Lifestyle: ${qa['activity'].join(', ')}`)
+    if (Array.isArray(qa['hairConcerns']) && qa['hairConcerns'].length > 0) userContextParts.push(`Hair concerns: ${qa['hairConcerns'].join(', ')}`)
+    if (Array.isArray(qa['hairGoals']) && qa['hairGoals'].length > 0) userContextParts.push(`Hair goals: ${qa['hairGoals'].join(', ')}`)
+    if (qa['socialSignals']) userContextParts.push(`Social signals: ${qa['socialSignals']}`)
+    if (qa['customNotes'] && typeof qa['customNotes'] === 'string' && qa['customNotes'].trim()) userContextParts.push(`User notes: "${qa['customNotes'].trim()}"`)
+
+    const contextBlock = userContextParts.length > 0
+      ? `\n\nUSER PROFILE CONTEXT (factor this into your analysis — especially density warnings and face shape confidence):\n${userContextParts.map(p => '- ' + p).join('\n')}`
+      : ''
+
     let promptText = `You are a professional facial analysis AI for a grooming recommendation app called Sculpt. Analyze this person's face and hair from the uploaded photo.
 
 Please provide a JSON analysis with exactly these fields:
@@ -189,11 +205,12 @@ Please provide a JSON analysis with exactly these fields:
 }
 
 Guidelines:
-- For densityScore: Consider visible hair volume, scalp visibility, and overall thickness
+- For densityScore: Consider visible hair volume, scalp visibility, and overall thickness. If the user reports thinning concerns, pay extra attention to scalp visibility.
 - For textureProfile: The three values should roughly sum to 1.0
-- For faceShape: Look at jawline, cheekbones, forehead width, and overall proportions
+- For faceShape: Look at jawline, cheekbones, forehead width, and overall proportions. Consider the user's work context — corporate users benefit from professional-appropriate face shape analysis.
 - Be honest about confidence — low lighting or bad angles should reduce confidence
 - Include warnings for any issues (poor lighting, obstructed view, etc.)
+- If the user has specific concerns (receding hairline, thinning, etc.), add a warning noting the concern so the recommendation engine can account for it.${contextBlock}
 
 Return ONLY the JSON object, no other text.`
 

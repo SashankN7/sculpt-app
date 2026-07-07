@@ -137,6 +137,18 @@ export function ProcessingScreen() {
             analysis,
             answers: state.questionnaireData,
             includeTrends: state.settings.aiPersonalization.includeTrends,
+            history: {
+              savedStyleNames: state.savedRecommendations.map(r => r.name),
+              rejectedStyleNames: state.rejectedRecommendations.map(r => r.name),
+              allPastStyleNames: [
+                ...state.savedRecommendations.map(r => r.name),
+                ...state.rejectedRecommendations.map(r => r.name),
+                ...state.scanHistory.flatMap(s => [
+                  ...s.savedRecommendations.map(r => r.name),
+                  ...s.rejectedRecommendations.map(r => r.name),
+                ]),
+              ],
+            },
           }),
         })
 

@@ -43,10 +43,17 @@ function getTrendWeight(answers: QuestionnaireAnswersMap): number {
   return 1.0
 }
 
+interface UserHistory {
+  savedStyleNames: string[]   // styles the user saved (liked)
+  rejectedStyleNames: string[] // styles the user rejected
+  allPastStyleNames: string[]  // every style they've seen before
+}
+
 function calculateCompatibilityScore(
   entry: HairstyleEntry,
   analysis: AnalysisResult,
-  answers: QuestionnaireAnswersMap
+  answers: QuestionnaireAnswersMap,
+  history?: UserHistory
 ): number {
   // Base physical compatibility (40% weight)
   const densityFit = 1 - Math.abs(analysis.densityScore - entry.idealDensityScore) / 50
@@ -74,13 +81,39 @@ function calculateCompatibilityScore(
   const trendScore = (entry.trendiness / 100) * trendWeight
 
   // Weighted final score
-  const raw = (
+  let raw = (
     physicalScore * 0.40 +
     Math.max(0, maintFit) * 0.15 +
     Math.max(0, boldFit) * 0.15 +
     Math.min(1, profScore) * 0.25 +
     Math.min(1, trendScore) * 0.05
   )
+
+  // History adjustments — learn from past saved/rejected styles
+  if (history) {
+    const nameLower = entry.name.toLowerCase()
+
+    // Penalize styles the user has already seen (avoid repeats)
+    if (history.allPastStyleNames.some(n => n.toLowerCase() === nameLower)) {
+      raw *= 0.85 // 15% penalty for previously seen styles
+    }
+
+    // Boost styles similar to what the user saved (liked)
+    if (history.savedStyleNames.some(n => n.toLowerCase() === nameLower)) {
+      raw = Math.min(1, raw * 1.15) // 15% boost for previously saved styles
+    }
+
+    // Penalize styles the user explicitly rejected
+    if (history.rejectedStyleNames.some(n => n.toLowerCase() === nameLower)) {
+      raw *= 0.3 // 70% penalty for rejected styles — strongly avoid
+    }
+
+    // If user has saved styles, look at their metadata patterns and boost similar styles
+    if (history.savedStyleNames.length > 0) {
+      // This is handled by the saved style name check above
+      // but we could also analyze metadata patterns in the future
+    }
+  }
 
   // Scale to 0-100, with slight randomness for variety (±3 points)
   const jitter = (Math.random() - 0.5) * 6
@@ -124,7 +157,8 @@ export async function generateRecommendations(
   analysis: AnalysisResult,
   answers: QuestionnaireAnswersMap,
   count?: number,
-  includeTrends?: boolean
+  includeTrends?: boolean,
+  history?: UserHistory
 ): Promise<HairstyleRecommendation[]> {
   const compatible = getCompatibleHairstyles(
     analysis.faceShape,
@@ -136,7 +170,7 @@ export async function generateRecommendations(
   
   const scored: ScoredHairstyle[] = await Promise.all(
     compatible.map(async entry => {
-      let compatibilityScore = calculateCompatibilityScore(entry, analysis, answers)
+      let compatibilityScore = calculateCompatibilityScore(entry, analysis, answers, history)
       
       // Apply trend boost if enabled
       if (includeTrends) {

@@ -5,11 +5,12 @@ import type { AnalysisResult, QuestionnaireAnswersMap } from '@/lib/types'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { analysis, answers, count, includeTrends } = body as {
+    const { analysis, answers, count, includeTrends, history } = body as {
       analysis: AnalysisResult
       answers: QuestionnaireAnswersMap
       count?: number
       includeTrends?: boolean
+      history?: { savedStyleNames: string[]; rejectedStyleNames: string[]; allPastStyleNames: string[] }
     }
 
     if (!analysis) {
@@ -24,7 +25,8 @@ export async function POST(request: NextRequest) {
       analysis,
       answers || {},
       count || 5,
-      includeTrends
+      includeTrends,
+      history
     )
 
     return NextResponse.json({
