@@ -246,61 +246,76 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state.userSession])
 
   // Detect OAuth callback, Stripe upgrade/cancel on mount — clean URL and set session
-  // Profile loading and screen routing is handled by the getUserInfo effect below
+  // Uses onAuthStateChange for reliable post-OAuth navigation (getSession may not
+  // return the session immediately after redirect because Supabase needs to exchange
+  // the auth code first)
   useEffect(() => {
-    async function handleUrlCallbacks() {
-      const url = new URL(window.location.href)
-      const hasAuthCode = url.searchParams.has('code')
-      const hasProfileSetup = url.searchParams.get('profile_setup') === 'true'
-      const hasReturnTo = url.searchParams.get('returnTo')
-      const hasUpgraded = url.searchParams.get('upgraded') === 'true'
-      const hasCancelled = url.searchParams.get('cancelled') === 'true'
-      const isGuestUpgrade = url.searchParams.get('upgrade') === 'true'
+    const url = new URL(window.location.href)
+    const hasAuthCode = url.searchParams.has('code')
+    const hasProfileSetup = url.searchParams.get('profile_setup') === 'true'
+    const hasReturnTo = url.searchParams.get('returnTo')
+    const hasUpgraded = url.searchParams.get('upgraded') === 'true'
+    const hasCancelled = url.searchParams.get('cancelled') === 'true'
+    const isGuestUpgrade = url.searchParams.get('upgrade') === 'true'
+    const hasOAuthParams = hasAuthCode || hasProfileSetup
 
-      // Clean up any URL params
-      if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
-        const cleanUrl = new URL(window.location.origin + window.location.pathname)
-        window.history.replaceState({}, '', cleanUrl.toString())
-      }
+    // Clean up URL params immediately
+    if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
+      const cleanUrl = new URL(window.location.origin + window.location.pathname)
+      window.history.replaceState({}, '', cleanUrl.toString())
+    }
 
-      // Handle Stripe checkout success — verify session first, then set premium
-      if (hasUpgraded) {
-        const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
+    // Handle Stripe checkout success
+    if (hasUpgraded) {
+      const supabase = createClient()
+      supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           setState(prev => ({ ...prev, userSession: 'premium', currentScreen: 'dashboard' }))
         }
-        return
-      }
-
-      // Handle Stripe checkout cancellation — just stay where they are
-      if (hasCancelled) {
-        return
-      }
-
-      // Handle OAuth callback (Google login)
-      if (hasAuthCode || hasProfileSetup) {
-        const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-
-        if (session) {
-          // Set session — triggers getUserInfo effect which handles profile + routing
-          setUserSession('authenticated')
-
-          // If upgrading from guest, mark for migration after state loads
-          if (isGuestUpgrade) {
-            sessionStorage.setItem('pendingGuestMigration', 'true')
-          }
-
-          // If returnTo param is present, navigate there after auth (e.g. from analysis flow)
-          if (hasReturnTo === 'upload') {
-            setState(prev => ({ ...prev, currentScreen: 'upload' }))
-          }
-        }
-      }
+      })
+      return
     }
 
-    handleUrlCallbacks()
+    // Handle Stripe checkout cancellation — stay where they are
+    if (hasCancelled) return
+
+    // Handle OAuth callback — use onAuthStateChange for reliable session detection
+    if (hasOAuthParams) {
+      const supabase = createClient()
+      let handled = false
+
+      const handleOAuthSession = () => {
+        if (handled) return
+        handled = true
+        setUserSession('authenticated')
+        if (isGuestUpgrade) sessionStorage.setItem('pendingGuestMigration', 'true')
+        if (hasReturnTo === 'upload') {
+          setState(prev => ({ ...prev, currentScreen: 'upload' }))
+        }
+      }
+
+      // First, try getSession immediately (works for most cases)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) handleOAuthSession()
+      })
+
+      // Fallback: if session wasn't available yet, listen for the SIGNED_IN event
+      // This handles the race condition where Supabase hasn't finished exchanging
+      // the auth code when getSession() is called
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          handleOAuthSession()
+          subscription.unsubscribe()
+        }
+      })
+
+      // Cleanup subscription after 10s if it hasn't fired (prevents memory leak)
+      const timeout = setTimeout(() => subscription.unsubscribe(), 10000)
+      return () => {
+        subscription.unsubscribe()
+        clearTimeout(timeout)
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

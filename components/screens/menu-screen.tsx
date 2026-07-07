@@ -107,13 +107,15 @@ export function MenuScreen() {
               label="Profile"
               onClick={() => navigateTo('profile')}
             />
-            <MenuItem
-              icon={<Crown className="w-4 h-4 text-gold" />}
-              label="Subscription"
-              value={isPremium ? 'Active' : 'Free'}
-              badge={!isPremium ? 'Upgrade' : undefined}
-              onClick={() => navigateTo('paywall')}
-            />
+            {!isPremium && (
+              <MenuItem
+                icon={<Crown className="w-4 h-4 text-gold" />}
+                label="Subscription"
+                value="Free"
+                badge="Upgrade"
+                onClick={() => navigateTo('paywall')}
+              />
+            )}
             <MenuItem
               icon={<Settings className="w-4 h-4 text-gold" />}
               label="Settings"

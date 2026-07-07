@@ -11,9 +11,9 @@ export function ProfileScreen() {
   const isTrial = userSession === 'trial'
   const daysLeft = isTrial ? trialDaysLeft() : 0
 
-  const totalScans = recommendations.length
-  const totalSaved = savedRecommendations.length
-  const totalRejected = rejectedRecommendations.length
+  const totalScans = state.scanHistory.length + (recommendations.length > 0 ? 1 : 0)
+  const totalSaved = savedRecommendations.length + state.scanHistory.reduce((sum, s) => sum + s.savedRecommendations.length, 0)
+  const totalRejected = rejectedRecommendations.length + state.scanHistory.reduce((sum, s) => sum + s.rejectedRecommendations.length, 0)
 
   return (
     <div className="flex flex-col h-full">
@@ -117,12 +117,14 @@ export function ProfileScreen() {
                   <span className="text-xs text-success font-medium">Active</span>
                 </div>
               )}
-              <button
-                onClick={() => navigateTo('paywall')}
-                className="w-full py-2.5 bg-gold/10 border border-gold/30 text-gold text-xs font-semibold rounded-lg hover:bg-gold/15 transition-colors"
-              >
-                {isPremium ? 'Manage Subscription' : 'Upgrade to Premium'}
-              </button>
+              {!isPremium && (
+                <button
+                  onClick={() => navigateTo('paywall')}
+                  className="w-full py-2.5 bg-gold/10 border border-gold/30 text-gold text-xs font-semibold rounded-lg hover:bg-gold/15 transition-colors"
+                >
+                  Upgrade to Premium
+                </button>
+              )}
             </div>
           </div>
 
