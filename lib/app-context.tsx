@@ -284,13 +284,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const supabase = createClient()
       let handled = false
 
-      const handleOAuthSession = () => {
+      const handleOAuthSession = async () => {
         if (handled) return
         handled = true
         setUserSession('authenticated')
         if (isGuestUpgrade) sessionStorage.setItem('pendingGuestMigration', 'true')
-        if (hasReturnTo === 'upload') {
-          setState(prev => ({ ...prev, currentScreen: 'upload' }))
+        
+        // Check if profile is complete — new users must complete profile setup
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profileData } = await supabase
+            .from('user_profiles')
+            .select('profile_complete')
+            .eq('user_id', user.id)
+            .single()
+          
+          if (profileData?.profile_complete) {
+            // Existing user with complete profile — go to requested screen
+            if (hasReturnTo === 'upload') {
+              setState(prev => ({ ...prev, currentScreen: 'upload' }))
+            } else {
+              setState(prev => ({ ...prev, currentScreen: 'dashboard' }))
+            }
+          } else {
+            // New user — must complete profile setup
+            setState(prev => ({ ...prev, currentScreen: 'profile-setup' }))
+          }
+        } else {
+          // Fallback if user not available yet
+          setState(prev => ({ ...prev, currentScreen: 'profile-setup' }))
         }
       }
 

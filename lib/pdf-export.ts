@@ -198,7 +198,7 @@ export async function exportBarberCardToPDF(
     doc.setTextColor(200, 200, 200)
     doc.setFont('helvetica', 'normal')
     for (const warning of recommendation.barberCard.warnings) {
-      const warnLines = doc.splitTextToSize(`⚠ ${warning}`, contentWidth - 5)
+      const warnLines = doc.splitTextToSize(`- ${warning}`, contentWidth - 5)
       doc.text(warnLines, margin + 2, y)
       y += warnLines.length * 4.5 + 1.5
     }

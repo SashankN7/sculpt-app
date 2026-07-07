@@ -78,13 +78,7 @@ export function ProfileSetupScreen() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center px-4 md:px-6 py-2">
-        <button
-          onClick={() => navigateTo('dashboard')}
-          className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          SKIP
-        </button>
+        <div className="w-5" /> {/* Spacer for alignment */}
       </div>
 
       <div className="flex-1 pt-4 pb-6 overflow-y-auto">
