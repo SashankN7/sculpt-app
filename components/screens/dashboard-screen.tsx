@@ -21,7 +21,6 @@ const GROOMING_TIPS = [
 
 export function DashboardScreen() {
   const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex } = useApp()
-  const { loggedCuts } = state
   const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos, currentScanIds } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
@@ -407,25 +406,6 @@ export function DashboardScreen() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            {/* Logged Cuts Quick Action */}
-            <button
-              onClick={() => navigateTo('logged-cuts')}
-              className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
-            >
-              <div className="w-9 h-9 rounded-lg bg-orange-400/10 flex items-center justify-center">
-                <Scissors className="w-5 h-5 text-orange-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-foreground">Logged Cuts</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {loggedCuts.length > 0
-                    ? `${loggedCuts.length} cut${loggedCuts.length !== 1 ? 's' : ''} in your history`
-                    : 'Start logging your haircuts'}
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-
             {/* Achievements Quick Action */}
             <button
               onClick={() => navigateTo('gamification')}
@@ -627,7 +607,7 @@ export function DashboardScreen() {
                 </div>
               </div>
               <button
-                onClick={() => navigateTo('logged-cuts')}
+                onClick={() => navigateTo('progress-tracker')}
                 className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
               >
                 View Cuts →

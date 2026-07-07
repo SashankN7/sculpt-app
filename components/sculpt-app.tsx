@@ -24,14 +24,13 @@ import { HistoryScreen } from "@/components/screens/history-screen"
 import { DashboardScreen } from "@/components/screens/dashboard-screen"
 import { MenuScreen } from "@/components/screens/menu-screen"
 import { PreviewScreen } from "@/components/screens/preview-screen"
-import { ProgressTrackerScreen } from "@/components/screens/progress-tracker-screen"
+import { HairJourneyScreen } from "@/components/screens/hair-journey-screen"
 import { GamificationScreen } from "@/components/screens/gamification-screen"
 import { ProfileScreen } from "@/components/screens/profile-screen"
 import { HelpSupportScreen } from "@/components/screens/help-support-screen"
 import { PrivacyLegalScreen } from "@/components/screens/privacy-legal-screen"
 import { ProfileSetupScreen } from "@/components/screens/profile-setup-screen"
 import { LogCutScreen } from "@/components/screens/log-cut-screen"
-import { LoggedCutsScreen } from "@/components/screens/logged-cuts-screen"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function SculptApp() {
@@ -111,7 +110,7 @@ export function SculptApp() {
       case 'preview':
         return <PreviewScreen />
       case 'progress-tracker':
-        return <ProgressTrackerScreen />
+        return <HairJourneyScreen />
       case 'gamification':
         return <GamificationScreen />
       case 'profile':
@@ -124,8 +123,6 @@ export function SculptApp() {
         return <ProfileSetupScreen />
       case 'log-cut':
         return <LogCutScreen />
-      case 'logged-cuts':
-        return <LoggedCutsScreen />
       default:
         return <LandingScreen />
     }
