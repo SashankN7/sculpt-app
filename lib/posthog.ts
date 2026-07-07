@@ -14,6 +14,18 @@ if (typeof window !== "undefined" && POSTHOG_KEY && !posthog.__loaded) {
     autocapture: true, // Auto-track clicks, inputs, etc.
     persistence: "localStorage",
     person_profiles: "identified_only", // Only create profiles for identified users
+    session_recording: {
+      // Mask all sensitive inputs so their values are never recorded
+      maskInputOptions: {
+        password: true,
+        email: true,
+        tel: true,
+      },
+      // Block entire elements from being recorded (add .ph-block class to any element)
+      blockSelector: '.ph-block',
+      // Mask text content of elements (add .ph-mask-text class to any element)
+      maskTextClass: '.ph-mask-text',
+    },
   })
 }
 
