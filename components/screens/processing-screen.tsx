@@ -265,8 +265,8 @@ export function ProcessingScreen() {
               <LogIn className="w-4 h-4 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-blue-400">Using questionnaire-based analysis</p>
-              <p className="text-[10px] text-muted-foreground">Create an account to save results & get AI-powered analysis</p>
+              <p className="text-xs font-semibold text-blue-400">Questionnaire-based recommendations</p>
+              <p className="text-[10px] text-muted-foreground">Free tier uses questionnaire responses only. Upgrade for AI photo analysis of your actual face & hair.</p>
             </div>
             <button
               onClick={() => navigateTo('auth')}
@@ -277,13 +277,26 @@ export function ProcessingScreen() {
           </motion.div>
         )}
 
-        {/* Title */}
-        <h2 className="text-lg font-semibold text-foreground mb-2">
-          SCULPT AI ENGINE ACTIVE
-        </h2>
-        <p className="text-sm text-muted-foreground mb-10">
-          Analyzing facial architecture & hair traits...
-        </p>
+        {/* Title — different for free vs premium users */}
+        {(state.userSession === 'guest' || state.userSession === 'authenticated') ? (
+          <>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              FINDING YOUR BEST STYLES
+            </h2>
+            <p className="text-sm text-muted-foreground mb-10">
+              Matching your preferences to compatible haircuts...
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              SCULPT AI ENGINE ACTIVE
+            </h2>
+            <p className="text-sm text-muted-foreground mb-10">
+              Analyzing facial architecture & hair traits...
+            </p>
+          </>
+        )}
 
         {/* Spinner */}
         <div className="relative w-24 h-24 mx-auto mb-10">

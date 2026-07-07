@@ -218,7 +218,7 @@ Return ONLY the JSON object, no other text.`
       imageContent.push({ type: 'image_url', image_url: { url: hairlineImage } })
     }
 
-    let content: string | undefined
+    let content: string | null | undefined
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o',

@@ -289,13 +289,13 @@ export function UploadScreen() {
 
           {!isPremium && !isTrial && scansLeft > 0 && (
             <p className="text-[10px] text-muted-foreground/50 text-center mt-4">
-              {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Premium unlocks AI-powered analysis
+              {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Free tier uses questionnaire-based recommendations only. Upgrade for AI photo analysis.
             </p>
           )}
 
           {(isPremium || isTrial) && (
             <p className="text-[10px] text-gold/50 text-center mt-4">
-              Unlimited scans · AI-powered analysis with GPT-4o Vision
+              AI-powered analysis with GPT-4o Vision · Unlimited scans
             </p>
           )}
         </motion.div>
