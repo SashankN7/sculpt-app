@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: 'SCULPT - AI-Powered Haircut Recommendations',
   description: 'Find the haircut that actually fits you. AI-powered grooming intelligence that analyzes your face and hair to deliver personalized hairstyle recommendations.',
   generator: 'v0.app',
+  other: {
+    'google-site-verification': 'pg-8XnhesocOH7hgHtUgsKVS95WJu4VemBBGDBpOeiI',
+  },
   icons: {
     icon: [
       {
