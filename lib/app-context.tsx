@@ -61,6 +61,7 @@ interface AppContextType {
   setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
   logHaircut: (hairstyleName: string) => boolean
   addLoggedCut: (cut: LoggedCut) => void
+  removeLoggedCut: (id: string) => void
   addProgressPhoto: (photo: ProgressPhoto) => void
   removeProgressPhoto: (id: string) => void
   setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
@@ -639,6 +640,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, loggedCuts: [cut, ...prev.loggedCuts].slice(0, 50) }))
   }, [])
 
+  const removeLoggedCut = useCallback((id: string) => {
+    setState(prev => ({ ...prev, loggedCuts: prev.loggedCuts.filter(c => c.id !== id) }))
+  }, [])
+
   // ── Progress Photos ──
   const addProgressPhoto = useCallback((photo: ProgressPhoto) => {
     setState(prev => {
@@ -796,6 +801,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPreviewRecommendation,
     logHaircut,
     addLoggedCut,
+    removeLoggedCut,
     addProgressPhoto,
     removeProgressPhoto,
     setPushPermission,
@@ -846,6 +852,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPreviewRecommendation,
     logHaircut,
     addLoggedCut,
+    removeLoggedCut,
     addProgressPhoto,
     removeProgressPhoto,
     setPushPermission,

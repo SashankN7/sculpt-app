@@ -31,6 +31,7 @@ import { HelpSupportScreen } from "@/components/screens/help-support-screen"
 import { PrivacyLegalScreen } from "@/components/screens/privacy-legal-screen"
 import { ProfileSetupScreen } from "@/components/screens/profile-setup-screen"
 import { LogCutScreen } from "@/components/screens/log-cut-screen"
+import { LoggedCutsScreen } from "@/components/screens/logged-cuts-screen"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function SculptApp() {
@@ -123,6 +124,8 @@ export function SculptApp() {
         return <ProfileSetupScreen />
       case 'log-cut':
         return <LogCutScreen />
+      case 'logged-cuts':
+        return <LoggedCutsScreen />
       default:
         return <LandingScreen />
     }

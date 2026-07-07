@@ -27,6 +27,7 @@ export type Screen =
   | 'privacy-legal'
   | 'profile-setup'
   | 'log-cut'
+  | 'logged-cuts'
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
