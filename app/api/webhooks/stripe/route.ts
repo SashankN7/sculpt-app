@@ -4,6 +4,35 @@ import { validateEnv, features } from '@/lib/env'
 validateEnv()
 const HAS_STRIPE = features.hasStripe
 
+// Server-side PostHog — initialized once at module level
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let posthogClient: any = null
+function getPosthogClient() {
+  if (posthogClient) return posthogClient
+  const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
+  if (!posthogKey) return null
+  try {
+    // Dynamic import to avoid bundling posthog-node in client builds
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const PostHogModule = require('posthog-node') as { PostHog: typeof import('posthog-node').PostHog }
+    posthogClient = new PostHogModule.PostHog(posthogKey, { host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com' })
+    return posthogClient
+  } catch {
+    return null
+  }
+}
+
+function trackServerEvent(event: string, properties?: Record<string, unknown>, distinctId?: string) {
+  try {
+    const client = getPosthogClient()
+    if (!client) return
+    client.capture({ event, distinctId: distinctId || 'server', properties })
+    client.flush()
+  } catch {
+    // Don't break webhook if analytics fails
+  }
+}
+
 export async function POST(request: NextRequest) {
   if (!HAS_STRIPE) {
     return NextResponse.json({ received: true, simulated: true })
@@ -55,6 +84,16 @@ export async function POST(request: NextRequest) {
         const status = subscription.status
         const trialEnd = subscription.trial_end as number | null
         const plan = subscription.metadata?.plan || 'annual'
+        const userId = subscription.metadata?.user_id as string | undefined
+
+        // Track subscription events
+        trackServerEvent(`subscription_${event.type === 'customer.subscription.created' ? 'created' : 'updated'}`, {
+          subscription_id: subscriptionId,
+          customer_id: customerId,
+          status,
+          plan,
+          event_type: event.type,
+        }, userId)
 
         // Determine tier from status
         let tier = 'free'
@@ -95,6 +134,13 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object
         const customerId = subscription.customer as string
+        const deletedUserId = subscription.metadata?.user_id as string | undefined
+
+        // Track subscription cancellation
+        trackServerEvent('subscription_cancelled', {
+          subscription_id: subscription.id,
+          customer_id: customerId,
+        }, deletedUserId)
 
         // Set user back to free tier
         const { error } = await supabase
@@ -119,12 +165,32 @@ export async function POST(request: NextRequest) {
         break
       }
       case 'checkout.session.completed': {
-        const session = event.data.object as { metadata?: { type?: string; user_id?: string; credits?: string }; customer?: string }
+        const session = event.data.object as {
+          metadata?: { type?: string; user_id?: string; credits?: string; product?: string; plan?: string }
+          customer?: string
+          amount_total?: number | null
+          currency?: string | null
+          payment_status?: string | null
+          subscription?: string | null
+        }
+        const userId = session.metadata?.user_id
+        const revenue = session.amount_total ? session.amount_total / 100 : 0 // cents to dollars
+
+        // Track checkout completed with revenue
+        trackServerEvent('checkout_completed', {
+          type: session.metadata?.type || 'subscription',
+          product: session.metadata?.product || 'sculpt-premium',
+          plan: session.metadata?.plan || 'annual',
+          revenue,
+          currency: session.currency || 'usd',
+          payment_status: session.payment_status || 'unknown',
+          has_subscription: !!session.subscription,
+        }, userId)
+
+        // Handle preview pack purchases
         if (session.metadata?.type === 'preview-pack' && session.metadata?.credits) {
-          const userId = session.metadata.user_id
           const credits = parseInt(session.metadata.credits, 10)
           if (userId && credits) {
-            // Add preview credits to user data
             const { data: userData } = await supabase
               .from('user_data')
               .select('preview_credits')
@@ -152,12 +218,25 @@ export async function POST(request: NextRequest) {
         break
       }
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object
+        const invoice = event.data.object as { id?: string; amount_paid?: number; currency?: string; customer?: string; subscription?: string }
+        trackServerEvent('payment_succeeded', {
+          invoice_id: invoice.id,
+          amount: invoice.amount_paid ? invoice.amount_paid / 100 : 0,
+          currency: invoice.currency || 'usd',
+          customer_id: invoice.customer,
+          is_subscription: !!invoice.subscription,
+        })
         console.log(`Payment succeeded: ${invoice.id}`)
         break
       }
       case 'invoice.payment_failed': {
-        const invoice = event.data.object
+        const invoice = event.data.object as { id?: string; amount_due?: number; currency?: string; customer?: string }
+        trackServerEvent('payment_failed', {
+          invoice_id: invoice.id,
+          amount: invoice.amount_due ? invoice.amount_due / 100 : 0,
+          currency: invoice.currency || 'usd',
+          customer_id: invoice.customer,
+        })
         console.log(`Payment failed: ${invoice.id}`)
         break
       }
