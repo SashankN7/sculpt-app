@@ -63,6 +63,17 @@ const KEYWORD_PATTERNS: Array<{ keywords: string[]; response: string }> = [
   { keywords: ['summer', 'winter', 'hot', 'cold', 'weather'], response: 'In summer, keep it shorter for comfort. In winter, slightly longer hair provides warmth. This style works year-round with minor length adjustments.' },
   { keywords: ['age', 'young', 'old', 'mature'], response: 'This style is age-appropriate for most adults. It can be adapted — younger users might wear it messier, while a cleaner version works for a more mature look.' },
   { keywords: ['compliment', 'impress', 'attract', 'date'], response: 'A well-executed haircut that suits your face shape is one of the most effective ways to improve your overall appearance. Confidence in your look goes a long way.' },
+  { keywords: ['barber', 'barbershop', 'salon', 'find'], response: 'Look for barbers with strong portfolios of your desired style. Check Google reviews and Instagram for their work. A consultation before the cut helps ensure they understand your vision.' },
+  { keywords: ['grow', 'grow out', 'growing', 'length'], response: 'Growing out a style takes patience — typically 3–6 months for a noticeable change. Regular trims every 6–8 weeks keep it looking intentional rather than messy.' },
+  { keywords: ['afraid', 'nervous', 'scared', 'risk'], response: 'It\'s normal to feel nervous about a new style. Start with a subtle change rather than a dramatic one. Your barber can always adjust — communication is key.' },
+  { keywords: ['photo', 'reference', 'picture', 'show barber'], response: 'Reference photos are the best way to communicate with your barber. Save 2–3 photos from different angles. Your Sculpt barber card has all the technical details they need.' },
+  { keywords: ['daily', 'every day', 'routine', 'morning routine'], response: 'A good daily routine: wash every 2–3 days, apply product to damp hair, style with fingers. Takes 3–5 minutes. The right product makes all the difference.' },
+  { keywords: ['scalp', 'dandruff', 'flaky', 'dry scalp'], response: 'For scalp concerns, try a gentle exfoliating shampoo 2x per week. Avoid hot water — lukewarm is better. If it persists, consult a dermatologist for personalized advice.' },
+  { keywords: ['bald', 'balding', 'shave', 'buzz'], response: 'If you\'re considering going shorter, a buzz cut or clean shave can be a confident choice. It works well with most face shapes and requires zero maintenance.' },
+  { keywords: ['fade', 'taper fade', 'skin fade', 'high fade', 'low fade'], response: 'A fade transitions from very short at the bottom to longer on top. High fades start blending higher up, low fades start lower. Ask your barber which suits your head shape best.' },
+  { keywords: ['bangs', 'fringe', 'forehead', 'cover forehead'], response: 'Bangs or fringe styles work well for covering a larger forehead or receding hairline. A textured fringe is trendy and low-maintenance — just sweep it forward with light product.' },
+  { keywords: ['compare', 'difference', 'versus', 'vs', 'better'], response: 'Hard to compare without knowing the specific styles. Both options likely score differently based on your maintenance preference and hair texture. Check the trait scores on each recommendation.' },
+  { keywords: ['rating', 'score', 'compatibility', 'percent'], response: 'The compatibility score (0–100) reflects how well a style matches your face shape, hair density, texture, and personal preferences. Higher scores mean a better overall fit.' },
 ]
 
 function findKeywordMatch(message: string): string | null {

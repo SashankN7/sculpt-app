@@ -109,6 +109,10 @@ export async function POST(request: NextRequest) {
   })
   if (rlResponse) return rlResponse
 
+  // Capture fallback context for catch block
+  let fallbackMessage = ''
+  let fallbackRecommendation: HairstyleRecommendation | undefined
+
   try {
     const body = await request.json()
     const { message, recommendation, analysisResult, chatHistory, userSession, userId } = body as {
@@ -124,6 +128,10 @@ export async function POST(request: NextRequest) {
       userId?: string
     }
 
+    // Store for catch block fallback
+    fallbackMessage = message
+    fallbackRecommendation = recommendation
+
     if (!message) {
       return NextResponse.json(
         { error: 'Message is required' },
@@ -134,7 +142,7 @@ export async function POST(request: NextRequest) {
     // If no OpenAI key, use fallback responses (free — no limit needed)
     if (!HAS_OPENAI) {
       const response = getFallbackResponse(message, recommendation)
-      return NextResponse.json({ success: true, response })
+      return NextResponse.json({ success: true, response, fallbackMode: true })
     }
 
     // ── Server-side daily limit enforcement ──
@@ -221,10 +229,9 @@ export async function POST(request: NextRequest) {
     const responseContent = completion.choices[0]?.message?.content
 
     if (!responseContent) {
-      return NextResponse.json(
-        { error: 'No response generated' },
-        { status: 500 }
-      )
+      // Empty content — fall back to fallback responses
+      const fallbackResponse = getFallbackResponse(message, recommendation)
+      return NextResponse.json({ success: true, response: fallbackResponse, fallbackMode: true })
     }
 
     // ── Increment server-side counter AFTER successful AI call ──
@@ -248,9 +255,15 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: unknown) {
     console.error('Chat error:', error)
-    const message = error instanceof Error ? error.message : 'Unknown error'
+    const errMessage = error instanceof Error ? error.message : 'Unknown error'
+    // If OpenAI call fails (quota, network, etc.), fall back to fallback responses
+    const isQuotaError = errMessage.includes('quota') || errMessage.includes('429') || errMessage.includes('rate_limit') || errMessage.includes('insufficient')
+    if (isQuotaError && fallbackMessage) {
+      const fallbackResponse = getFallbackResponse(fallbackMessage, fallbackRecommendation)
+      return NextResponse.json({ success: true, response: fallbackResponse, fallbackMode: true })
+    }
     return NextResponse.json(
-      { error: `Chat failed: ${message}` },
+      { error: `Chat failed: ${errMessage}` },
       { status: 500 }
     )
   }

@@ -51,6 +51,7 @@ export function ChatAssistantScreen() {
   ])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [fallbackMode, setFallbackMode] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -84,6 +85,11 @@ export function ChatAssistantScreen() {
       })
 
       const data = await res.json()
+
+      // If server returned fallbackMode, we're in degraded mode
+      if (data.fallbackMode) {
+        setFallbackMode(true)
+      }
 
       if (!res.ok) {
         const errorMsg = data.error || 'Chat request failed'
@@ -225,7 +231,7 @@ export function ChatAssistantScreen() {
         </div>
       </div>
 
-      {/* Quick Reply Chips */}
+      {/* Quick Reply Chips — always shown */}
       <div className="mx-auto w-full max-w-3xl px-4 pb-2">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
           {QUICK_REPLIES.map((reply) => (
@@ -240,30 +246,42 @@ export function ChatAssistantScreen() {
         </div>
       </div>
 
-      {/* Input Bar */}
-      <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-2 border-t border-border">
-        <div className="flex items-center gap-2 bg-background border border-border rounded-full px-4 py-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about your hairstyle..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isTyping}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              input.trim() && !isTyping
-                ? 'bg-gold text-background'
-                : 'bg-secondary text-muted-foreground'
-            }`}
-          >
-            <Send className="w-4 h-4" />
-          </button>
+      {/* Fallback mode banner */}
+      {fallbackMode && (
+        <div className="mx-auto w-full max-w-3xl px-4 pb-2">
+          <div className="p-2.5 bg-warning/10 border border-warning/30 rounded-xl text-center">
+            <p className="text-[11px] text-warning font-medium">Real-time AI responses are temporarily unavailable</p>
+            <p className="text-[10px] text-muted-foreground">Tap a prompt above to get answers from our knowledge base. Try again later for AI responses.</p>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Input Bar — hidden in fallback mode */}
+      {!fallbackMode && (
+        <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-2 border-t border-border">
+          <div className="flex items-center gap-2 bg-background border border-border rounded-full px-4 py-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about your hairstyle..."
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+            <button
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isTyping}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                input.trim() && !isTyping
+                  ? 'bg-gold text-background'
+                  : 'bg-secondary text-muted-foreground'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
