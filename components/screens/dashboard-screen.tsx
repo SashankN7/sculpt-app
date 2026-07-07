@@ -267,11 +267,7 @@ export function DashboardScreen() {
                     ? featureConfig && !featureConfig.hasOpenAI
                       ? '10/day (AI key needed)'
                       : `${DAILY_USAGE_LIMITS.analyses}/day`
-                    : featureConfig && !featureConfig.hasOpenAI
-                    ? '1 free, then suggestions'
-                    : state.scanCountToday === 0
-                    ? '1 free analysis left'
-                    : '1 free used — upgrade for AI'
+                    : 'Questionnaire-based'
                   }
                 </span>
               </div>
@@ -301,7 +297,7 @@ export function DashboardScreen() {
               {!(isPremium || isTrial) && (
                 <div className="mt-2 pt-2 border-t border-border/50">
                   <p className="text-[10px] text-muted-foreground/70 italic">
-                    Free: 1 AI analysis, then questionnaire-based suggestions. Upgrade for real AI on every scan.
+                    Free: 2 scans/day with questionnaire-based suggestions. Upgrade for AI photo analysis, chat, and more.
                   </p>
                 </div>
               )}
@@ -368,8 +364,8 @@ export function DashboardScreen() {
                   {isPremium || isTrial
                     ? `${DAILY_USAGE_LIMITS.analyses} AI analyses · ${DAILY_USAGE_LIMITS.chatMessages} chat messages/day`
                     : isFirstTime
-                    ? '1 free AI analysis included'
-                    : 'Unlimited scans · 1 free AI analysis'}
+                    ? '2 free scans/day · AI-powered analysis'
+                    : '2 scans/day · Upgrade for AI analysis'}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />

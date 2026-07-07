@@ -29,13 +29,14 @@ export type Screen =
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
-// Scan limits — ALL tiers get unlimited scans
-// The difference between tiers is the AI features (analyses, chat, barber cards)
+// Scan limits — free users get 2/day, premium/trial get unlimited
+// Free users get questionnaire-based inference only (no AI photo analysis)
+// Premium users get AI-powered analysis + unlimited scans
 export const SCAN_LIMITS: Record<UserSession, number> = {
-  guest: 9999,       // unlimited scans
-  authenticated: 9999, // unlimited scans
-  trial: 9999,       // unlimited scans
-  premium: 9999,     // unlimited scans
+  guest: 2,          // 2 scans/day — questionnaire-based recs only
+  authenticated: 2,   // 2 scans/day — questionnaire-based recs only
+  trial: 9999,       // unlimited scans — full AI analysis
+  premium: 9999,     // unlimited scans — full AI analysis
 }
 
 // Pricing

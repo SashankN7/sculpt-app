@@ -125,12 +125,15 @@ function UploadCard({ label, description, isRequired, imageUrl, onUpload, onClea
 }
 
 export function UploadScreen() {
-  const { state, navigateTo, setUploadedImage, goBack, incrementScanCount } = useApp()
+  const { state, navigateTo, setUploadedImage, goBack, incrementScanCount, canScan, scansRemaining } = useApp()
   const { uploadedImages, userSession } = state
   const isPremium = userSession === 'premium'
+  const isTrial = userSession === 'trial'
+  const scansLeft = scansRemaining()
+  const userCanScan = canScan()
 
   const hasFrontPhoto = !!uploadedImages.front
-  const canProceed = hasFrontPhoto
+  const canProceed = hasFrontPhoto && userCanScan
 
   const handleAnalyze = () => {
     if (canProceed) {
@@ -271,15 +274,28 @@ export function UploadScreen() {
             </p>
           )}
 
-          {!isPremium && (
+          {!isPremium && !isTrial && scansLeft <= 0 && (
+            <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-xl text-center">
+              <p className="text-xs font-medium text-gold mb-1">Daily scan limit reached</p>
+              <p className="text-[10px] text-muted-foreground mb-2">Upgrade to Premium for unlimited scans and AI-powered analysis.</p>
+              <button
+                onClick={() => navigateTo('paywall')}
+                className="px-3 py-1.5 bg-gold text-gold-foreground text-[11px] font-medium rounded-lg hover:bg-gold/90 transition-colors"
+              >
+                Upgrade to Premium
+              </button>
+            </div>
+          )}
+
+          {!isPremium && !isTrial && scansLeft > 0 && (
             <p className="text-[10px] text-muted-foreground/50 text-center mt-4">
-              Unlimited scans · Premium unlocks AI-powered analysis
+              {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Premium unlocks AI-powered analysis
             </p>
           )}
 
-          {isPremium && (
+          {(isPremium || isTrial) && (
             <p className="text-[10px] text-gold/50 text-center mt-4">
-              Premium tier: AI-powered analysis with GPT-4o Vision
+              Unlimited scans · AI-powered analysis with GPT-4o Vision
             </p>
           )}
         </motion.div>
