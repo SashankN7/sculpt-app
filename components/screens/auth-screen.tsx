@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { createClient, saveRememberedEmail, getRememberedEmail, clearRememberedEmail } from "@/lib/supabase"
+import { track } from "@/lib/posthog"
 import { ChevronLeft, Mail, Loader2, Lock, ArrowLeft } from "lucide-react"
 
 export function AuthScreen() {
@@ -76,6 +77,7 @@ export function AuthScreen() {
           }
           setUserSession('authenticated')
           setShowSuccess(true)
+          track('user_signed_up', { method: 'email', upgraded_from_guest: isUpgradeMode })
           await new Promise(resolve => setTimeout(resolve, 600))
           
           // Migrate guest data to cloud if upgrading from guest
@@ -121,6 +123,7 @@ export function AuthScreen() {
         }
         setUserSession('authenticated')
         setShowSuccess(true)
+        track('user_signed_in', { method: 'email', upgraded_from_guest: isUpgradeMode })
         await new Promise(resolve => setTimeout(resolve, 600))
         
         // Migrate guest data to cloud if upgrading from guest
@@ -158,6 +161,7 @@ export function AuthScreen() {
 
     try {
       const supabase = createClient()
+      track('oauth_started', { provider, upgraded_from_guest: isUpgradeMode })
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -179,6 +183,7 @@ export function AuthScreen() {
   }
 
   const handleGuestBypass = () => {
+    track('guest_bypass_clicked', { source: 'auth_screen' })
     setUserSession('guest')
     navigateTo('upload')
   }

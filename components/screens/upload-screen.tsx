@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { processUploadedImage } from "@/lib/image-utils"
+import { track } from "@/lib/posthog"
 import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, AlertTriangle } from "lucide-react"
 
 interface UploadCardProps {
@@ -133,6 +134,7 @@ export function UploadScreen() {
 
   const handleAnalyze = () => {
     if (canProceed) {
+      track('analysis_started', { has_front: !!uploadedImages.front, has_side: !!uploadedImages.side, has_hairline: !!uploadedImages.hairline })
       incrementScanCount()
       navigateTo('questionnaire-1')
     }

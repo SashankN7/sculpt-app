@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
+import { track } from "@/lib/posthog"
 import { Settings, Check, Loader2, AlertTriangle, LogIn } from "lucide-react"
 
 // Use a module-level flag to prevent double execution across strict mode remounts
@@ -152,6 +153,7 @@ export function ProcessingScreen() {
 
         setRecommendations(recommendations)
         setStepStatuses(['done', 'done', 'done'])
+        track('analysis_completed', { confidence: analysis.confidenceScore, num_recommendations: recommendations.length, user_session: state.userSession })
 
         // Set maintenance tracking data from questionnaire
         setLastCutDate(new Date().toISOString().split('T')[0])
@@ -173,6 +175,7 @@ export function ProcessingScreen() {
       } catch (err: unknown) {
         processingStarted = false
         const message = err instanceof Error ? err.message : 'Unknown error occurred'
+        track('analysis_failed', { error: message })
         setError(message)
         setStepStatuses(prev => prev.map((s) => s === 'reading' ? 'error' : s))
       }

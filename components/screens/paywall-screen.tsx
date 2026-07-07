@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { PRICING } from "@/lib/types"
+import { track } from "@/lib/posthog"
 import { X, Crown, Check, Loader2, Sparkles, Zap, Calendar, ArrowRight, Eye } from "lucide-react"
 
 export function PaywallScreen() {
@@ -16,6 +17,7 @@ export function PaywallScreen() {
   const [error, setError] = useState<string | null>(null)
 
   const handleStartTrial = async () => {
+    track('trial_started', { plan: billingCycle })
     setIsProcessing(true)
     setProcessingAction('trial')
     setError(null)
@@ -58,6 +60,7 @@ export function PaywallScreen() {
   }
 
   const handleSubscribe = async () => {
+    track('checkout_initiated', { plan: billingCycle, trial: false })
     setIsProcessing(true)
     setProcessingAction('subscribe')
     setError(null)

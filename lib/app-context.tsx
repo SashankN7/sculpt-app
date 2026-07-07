@@ -5,6 +5,7 @@ import { type AppState, type Screen, initialAppState, type HairstyleRecommendati
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
 import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
+import { identify, resetIdentity } from "@/lib/posthog"
 
 interface FeatureConfig {
   hasOpenAI: boolean
@@ -311,6 +312,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (user?.email) {
         setState(prev => ({ ...prev, email: user.email! }))
 
+        // Identify user in PostHog
+        identify(user.id, { email: user.email })
+
         // Load profile data from user_profiles
         const { data: profileData } = await supabase
           .from('user_profiles')
@@ -559,6 +563,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Sign out error:', err)
     }
+    resetIdentity()
     clearRememberedEmail()
     setState(initialAppState)
     screenHistoryRef.current = []

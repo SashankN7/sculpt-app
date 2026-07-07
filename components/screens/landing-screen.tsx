@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
+import { track } from "@/lib/posthog"
 import { Zap } from "lucide-react"
 import { resetProcessingState } from "@/components/screens/processing-screen"
 
@@ -16,10 +17,12 @@ export function LandingScreen() {
   }, [resetUpload])
 
   const handleStartAnalysis = () => {
+    track('landing_cta_clicked')
     navigateTo('auth')
   }
 
   const handleGuestBypass = () => {
+    track('guest_bypass_clicked')
     setUserSession('guest')
     navigateTo('upload')
   }

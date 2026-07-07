@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
+import { track } from "@/lib/posthog"
 import { Star, Settings, ExternalLink } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
@@ -131,6 +132,7 @@ export function RecommendationsScreen() {
 
   const handleSwipeLeft = () => {
     if (currentRecommendation) {
+      track('recommendation_rejected', { name: currentRecommendation.name, compatibility: currentRecommendation.compatibilityScore })
       rejectRecommendation(currentRecommendation)
     }
     setTimeout(() => {
@@ -145,6 +147,7 @@ export function RecommendationsScreen() {
 
   const handleSwipeRight = () => {
     if (currentRecommendation) {
+      track('recommendation_saved', { name: currentRecommendation.name, compatibility: currentRecommendation.compatibilityScore })
       saveRecommendation(currentRecommendation)
     }
     if (savedRecommendations.length === 0) {

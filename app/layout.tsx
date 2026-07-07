@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { PostHogProvider } from '@/components/posthog-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -52,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
-        {children}
+        <PostHogProvider>{children}</PostHogProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
