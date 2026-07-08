@@ -259,11 +259,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const hasReturnTo = url.searchParams.get('returnTo')
     const hasUpgraded = url.searchParams.get('upgraded') === 'true'
     const hasCancelled = url.searchParams.get('cancelled') === 'true'
+    const hasPreviewPurchase = url.searchParams.get('preview_purchase') === 'success'
+    const hasPreviewCancelled = url.searchParams.get('preview_purchase') === 'cancelled'
     const isGuestUpgrade = url.searchParams.get('upgrade') === 'true'
     const hasOAuthParams = hasAuthCode || hasProfileSetup
 
     // Clean up URL params immediately
-    if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
+    if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled || hasPreviewPurchase || hasPreviewCancelled) {
       const cleanUrl = new URL(window.location.origin + window.location.pathname)
       window.history.replaceState({}, '', cleanUrl.toString())
     }
@@ -281,6 +283,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Handle Stripe checkout cancellation — stay where they are
     if (hasCancelled) return
+
+    // Handle preview pack purchase success — go to preview screen
+    if (hasPreviewPurchase) {
+      setState(prev => ({ ...prev, currentScreen: 'preview' }))
+      return
+    }
+
+    // Handle preview pack purchase cancelled — stay where they are
+    if (hasPreviewCancelled) return
 
     // Handle OAuth callback — use onAuthStateChange for reliable session detection
     if (hasOAuthParams) {

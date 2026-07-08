@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
-import { PREVIEW_PACK_PRICING } from "@/lib/types"
+import { PREVIEW_PACK_PRICING, type HairstyleRecommendation } from "@/lib/types"
 import { ChevronLeft, Sparkles, Loader2, Eye, AlertTriangle, ShoppingBag, Check, Camera } from "lucide-react"
 
 export function PreviewScreen() {
-  const { state, navigateTo, goBack, addPreviewCredits, previewRecommendation, setUploadedImage } = useApp()
+  const { state, navigateTo, goBack, addPreviewCredits, previewRecommendation, setPreviewRecommendation, setUploadedImage } = useApp()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,6 +29,27 @@ export function PreviewScreen() {
       }
     }
     getUserId()
+  }, [])
+
+  // Restore recommendation from sessionStorage if returning from Stripe purchase
+  useEffect(() => {
+    if (!previewRecommendation) {
+      try {
+        const stored = sessionStorage.getItem('previewRecommendation')
+        if (stored) {
+          const rec = JSON.parse(stored) as HairstyleRecommendation
+          setPreviewRecommendation(rec)
+          sessionStorage.removeItem('previewRecommendation')
+        }
+      } catch {}
+    }
+    // Show success state if returning from Stripe purchase
+    if (sessionStorage.getItem('previewPurchaseSuccess') === 'true') {
+      setShowPurchaseSuccess(true)
+      sessionStorage.removeItem('previewPurchaseSuccess')
+      setTimeout(() => setShowPurchaseSuccess(false), 3000)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const recommendation = previewRecommendation
@@ -99,6 +120,12 @@ export function PreviewScreen() {
 
   const handlePurchasePack = async () => {
     try {
+      // Persist recommendation and success flag so they survive the Stripe redirect
+      if (recommendation) {
+        sessionStorage.setItem('previewRecommendation', JSON.stringify(recommendation))
+      }
+      sessionStorage.setItem('previewPurchaseSuccess', 'true')
+
       const res = await fetch('/api/preview-purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
