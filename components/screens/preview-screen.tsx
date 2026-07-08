@@ -145,7 +145,7 @@ export function PreviewScreen() {
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-2">No Style Selected</h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-[280px]">
-            Save at least one hairstyle from your recommendations to preview it on your photo.
+            Save at least one hairstyle from your recommendations to preview it on your photo. You can do this by completing an analysis first.
           </p>
           <button
             onClick={() => navigateTo('recommendation-detail')}
