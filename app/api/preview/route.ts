@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       const file = new File([blob], 'photo.jpg', { type: mimeType })
 
       const output = await replicate.run(
-        'black-forest-labs/flux-kontext-pro:0f1178f5a27e9aa2d2d39c8a43c110f7fa7cbf64062ff04a04cd40899e546065',
+        'black-forest-labs/flux-kontext-dev',
         {
           input: {
             input_image: file,
