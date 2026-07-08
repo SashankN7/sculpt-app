@@ -165,20 +165,28 @@ export async function POST(request: NextRequest) {
         const refBlob = await refRes.blob()
         const hairstyleRef = new File([refBlob], 'reference.jpg', { type: refBlob.type || 'image/jpeg' })
 
-        // Upload both files via Replicate Files API — model expects FileObject refs, not strings
+        // Upload both files via Replicate Files API, then pass URL strings
         const [userUpload, refUpload] = await Promise.all([
           replicate.files.create(userPhoto),
           replicate.files.create(hairstyleRef),
         ])
-        console.log('[Preview] Uploaded files:', userUpload.id, refUpload.id)
 
-        // Pass FileObject instances to input_images (not URL strings)
+        // urls is {get: string} — .get is a string property, not a method
+        const userImageUrl = (userUpload as unknown as {urls: {get: string}}).urls.get
+        const refImageUrl = (refUpload as unknown as {urls: {get: string}}).urls.get
+        if (!userImageUrl || !refImageUrl) {
+          throw new Error('Failed to upload images to Replicate')
+        }
+        console.log('[Preview] Uploaded user:', userImageUrl.substring(0, 60))
+        console.log('[Preview] Uploaded ref:', refImageUrl.substring(0, 60))
+
+        // flux-2-pro expects URL strings in input_images
         const output = await replicate.run(
           'black-forest-labs/flux-2-pro',
           {
             input: {
               prompt: promptParts,
-              input_images: [userUpload, refUpload],
+              input_images: [userImageUrl, refImageUrl],
             },
           }
         )
@@ -294,7 +302,7 @@ export async function POST(request: NextRequest) {
       )
     }
     return NextResponse.json(
-      { error: 'Preview generation is temporarily unavailable. Your credit has been refunded. Please try again in a few minutes.' },
+      { error: `Preview generation failed: ${message}` },
       { status: 500 }
     )
   }
