@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     let previewUrl: string
 
     if (HAS_OPENAI) {
-      // Use OpenAI gpt-image-1 for high-quality hairstyle preview
+      // Two-step approach: (1) analyze face with gpt-4o, (2) generate preview with gpt-image-1
       const { default: OpenAI } = await import('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -134,9 +134,41 @@ export async function POST(request: NextRequest) {
         recommendation.barberCard.cuttingMetrics.sides,
       ].join('. ')
 
+      // Step 1: Analyze the user's photo with gpt-4o to get a detailed face description
+      const faceAnalysis = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        max_tokens: 300,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Describe this person\'s face in extreme detail for image generation. Include: approximate age, skin tone (specific shade), face shape, eye color and shape, nose shape, jawline, facial hair (if any), hair texture and current style, expression, neck width, ear position, lighting direction, and background. Be very specific and concise. Format as a comma-separated list.',
+              },
+              {
+                type: 'image_url',
+                image_url: { url: frontImage, detail: 'high' },
+              },
+            ],
+          },
+        ],
+      })
+
+      const faceDescription = faceAnalysis.choices[0]?.message?.content || ''
+
+      if (!faceDescription) {
+        await refundCredit(userId)
+        return NextResponse.json(
+          { error: 'Could not analyze your photo. Please try again with a clearer front-facing photo.' },
+          { status: 500 }
+        )
+      }
+
+      // Step 2: Generate the preview image using the face description + hairstyle
       const response = await openai.images.generate({
         model: 'gpt-image-1',
-        prompt: `A photorealistic portrait of a man with the same face and facial features as the reference photo, but with this specific haircut: ${styleDescription}. The hairstyle should look natural, well-groomed, and professionally styled. Maintain the same lighting, angle, and background as the original photo. High quality, professional photography style.`,
+        prompt: `A photorealistic portrait photo of this person: ${faceDescription}. They now have this specific haircut: ${styleDescription}. The hairstyle should look natural, well-groomed, and professionally styled. Keep the same face, skin, features, lighting, angle, and background. High quality professional photography.`,
         n: 1,
         size: '1024x1024',
         quality: 'medium',

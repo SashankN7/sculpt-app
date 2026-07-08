@@ -8,8 +8,7 @@ import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/l
 import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
 import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Eye } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
-import { DAILY_USAGE_LIMITS } from "@/lib/types"
-import type { HairstyleRecommendation } from "@/lib/types"
+import { DAILY_USAGE_LIMITS, type HairstyleRecommendation } from "@/lib/types"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -417,7 +416,7 @@ export function DashboardScreen() {
             </button>
 
             {/* Preview a Saved Style */}
-            {currentSavedCards.length > 0 && state.previewCredits > 0 && (
+            {currentSavedCards.length > 0 && (
               <button
                 onClick={() => setShowPreviewPicker(true)}
                 className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-gold/30 rounded-xl hover:bg-gold/5 transition-colors"
