@@ -129,15 +129,17 @@ export async function POST(request: NextRequest) {
       recommendation.barberCard.cuttingMetrics.sides,
     ].join('. ')
 
-    // Build a direct, imperative prompt for flux-kontext — short and action-focused
+    // Build a forceful, imperative prompt for flux-kontext
     const cuttingMetrics = recommendation.barberCard.cuttingMetrics
     const promptParts = [
-      `Change this man's hair to a ${recommendation.name} haircut.`,
-      `${cuttingMetrics.top} on top.`,
-      `${cuttingMetrics.sides} on the sides.`,
-      cuttingMetrics.boundary ? `Fade line: ${cuttingMetrics.boundary}.` : '',
-      'Well-groomed, professional barber quality. Photorealistic.',
+      `Give this man a ${recommendation.name} haircut.`,
+      `Top: ${cuttingMetrics.top}.`,
+      `Sides: ${cuttingMetrics.sides}.`,
+      cuttingMetrics.boundary ? `Hairline/fade: ${cuttingMetrics.boundary}.` : '',
+      'Keep the face, skin, features, background, lighting, and angle exactly the same.',
+      'Only the hairstyle changes. Photorealistic, professional grooming photo.',
     ].filter(Boolean).join(' ')
+    console.log('[Preview] Replicate prompt:', promptParts)
 
     let provider = 'replicate'
 
@@ -158,12 +160,11 @@ export async function POST(request: NextRequest) {
         const file = new File([blob], 'photo.jpg', { type: mimeType })
 
         const output = await replicate.run(
-          'black-forest-labs/flux-kontext-dev',
+          'black-forest-labs/flux-kontext-pro',
           {
             input: {
               input_image: file,
               prompt: promptParts,
-              aspect_ratio: 'match_input_image',
             },
           }
         )
