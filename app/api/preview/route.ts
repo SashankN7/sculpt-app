@@ -121,70 +121,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let previewUrl: string
+    let previewUrl: string | undefined
 
-    if (HAS_OPENAI) {
-      // Two-step approach: (1) analyze face with gpt-4o, (2) generate preview with gpt-image-1
-      const { default: OpenAI } = await import('openai')
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-      const styleDescription = [
-        recommendation.name,
-        recommendation.barberCard.cuttingMetrics.top,
-        recommendation.barberCard.cuttingMetrics.sides,
-      ].join('. ')
-
-      // Step 1: Analyze the user's photo with gpt-4o to get a detailed face description
-      const faceAnalysis = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        max_tokens: 300,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Describe this person\'s face in extreme detail for image generation. Include: approximate age, skin tone (specific shade), face shape, eye color and shape, nose shape, jawline, facial hair (if any), hair texture and current style, expression, neck width, ear position, lighting direction, and background. Be very specific and concise. Format as a comma-separated list.',
-              },
-              {
-                type: 'image_url',
-                image_url: { url: frontImage, detail: 'high' },
-              },
-            ],
-          },
-        ],
-      })
-
-      const faceDescription = faceAnalysis.choices[0]?.message?.content || ''
-
-      if (!faceDescription) {
-        await refundCredit(userId)
-        return NextResponse.json(
-          { error: 'Could not analyze your photo. Please try again with a clearer front-facing photo.' },
-          { status: 500 }
-        )
-      }
-
-      // Step 2: Generate the preview image using the face description + hairstyle
-      const response = await openai.images.generate({
-        model: 'gpt-image-1',
-        prompt: `A photorealistic portrait photo of this person: ${faceDescription}. They now have this specific haircut: ${styleDescription}. The hairstyle should look natural, well-groomed, and professionally styled. Keep the same face, skin, features, lighting, angle, and background. High quality professional photography.`,
-        n: 1,
-        size: '1024x1024',
-        quality: 'medium',
-      })
-
-      if (!response.data || response.data.length === 0 || !response.data[0].url) {
-        await refundCredit(userId)
-        return NextResponse.json(
-          { error: 'Preview generation failed — no output returned' },
-          { status: 500 }
-        )
-      }
-
-      previewUrl = response.data[0].url
-    } else {
-      // Use Replicate with wty-ustc/hairclip for virtual try-on
+    if (HAS_REPLICATE) {
+      // PRIMARY: Replicate hairclip — takes the user's actual photo and generates the hairstyle on their face
       const Replicate = (await import('replicate')).default
       const replicate = new Replicate({
         auth: process.env.REPLICATE_API_TOKEN,
@@ -224,6 +164,64 @@ export async function POST(request: NextRequest) {
       }
 
       previewUrl = output[0]
+    } else if (HAS_OPENAI) {
+      // FALLBACK: OpenAI two-step — analyze face with gpt-4o, generate with gpt-image-1
+      const { default: OpenAI } = await import('openai')
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+      const styleDescription = [
+        recommendation.name,
+        recommendation.barberCard.cuttingMetrics.top,
+        recommendation.barberCard.cuttingMetrics.sides,
+      ].join('. ')
+
+      const faceAnalysis = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        max_tokens: 300,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Describe this person\'s face in extreme detail for image generation. Include: approximate age, skin tone (specific shade), face shape, eye color and shape, nose shape, jawline, facial hair (if any), hair texture and current style, expression, neck width, ear position, lighting direction, and background. Be very specific and concise. Format as a comma-separated list.',
+              },
+              {
+                type: 'image_url',
+                image_url: { url: frontImage, detail: 'high' },
+              },
+            ],
+          },
+        ],
+      })
+
+      const faceDescription = faceAnalysis.choices[0]?.message?.content || ''
+
+      if (!faceDescription) {
+        await refundCredit(userId)
+        return NextResponse.json(
+          { error: 'Could not analyze your photo. Please try again with a clearer front-facing photo.' },
+          { status: 500 }
+        )
+      }
+
+      const response = await openai.images.generate({
+        model: 'gpt-image-1',
+        prompt: `A photorealistic portrait photo of this person: ${faceDescription}. They now have this specific haircut: ${styleDescription}. The hairstyle should look natural, well-groomed, and professionally styled. Keep the same face, skin, features, lighting, angle, and background. High quality professional photography.`,
+        n: 1,
+        size: '1024x1024',
+        quality: 'medium',
+      })
+
+      if (!response.data || response.data.length === 0 || !response.data[0].url) {
+        await refundCredit(userId)
+        return NextResponse.json(
+          { error: 'Preview generation failed — no output returned' },
+          { status: 500 }
+        )
+      }
+
+      previewUrl = response.data[0].url
     }
 
     // Return the new credit count so client can sync without double-decrementing
