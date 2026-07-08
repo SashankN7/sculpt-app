@@ -151,17 +151,34 @@ export async function POST(request: NextRequest) {
           auth: process.env.REPLICATE_API_TOKEN,
         })
 
-        // input_images accepts base64 data URIs or URLs directly — no file upload needed
-        // User's photo is already a base64 data URL from the camera/upload
-        // Reference image is a public URL from the hairstyle database
-        console.log('[Preview] Calling Flux 2 Pro with', promptParts.length, 'char prompt')
+        // Convert user's base64 photo to a File object
+        const base64Data = frontImage.split(',')[1] || frontImage
+        const mimeMatch = frontImage.match(/data:([^;]+);/)
+        const mimeType = mimeMatch?.[1] || 'image/jpeg'
+        const buffer = Buffer.from(base64Data, 'base64')
+        const blob = new Blob([buffer], { type: mimeType })
+        const userPhoto = new File([blob], 'photo.jpg', { type: mimeType })
 
+        // Download the hairstyle reference image and convert to File
+        const refRes = await fetch(recommendation.imageUrl)
+        if (!refRes.ok) throw new Error(`Failed to fetch reference image: ${refRes.status}`)
+        const refBlob = await refRes.blob()
+        const hairstyleRef = new File([refBlob], 'reference.jpg', { type: refBlob.type || 'image/jpeg' })
+
+        // Upload both files via Replicate Files API — model expects FileObject refs, not strings
+        const [userUpload, refUpload] = await Promise.all([
+          replicate.files.create(userPhoto),
+          replicate.files.create(hairstyleRef),
+        ])
+        console.log('[Preview] Uploaded files:', userUpload.id, refUpload.id)
+
+        // Pass FileObject instances to input_images (not URL strings)
         const output = await replicate.run(
           'black-forest-labs/flux-2-pro',
           {
             input: {
               prompt: promptParts,
-              input_images: [frontImage, recommendation.imageUrl],
+              input_images: [userUpload, refUpload],
             },
           }
         )
