@@ -129,6 +129,16 @@ export async function POST(request: NextRequest) {
       recommendation.barberCard.cuttingMetrics.sides,
     ].join('. ')
 
+    // Build a direct, imperative prompt for flux-kontext — short and action-focused
+    const cuttingMetrics = recommendation.barberCard.cuttingMetrics
+    const promptParts = [
+      `Change this man's hair to a ${recommendation.name} haircut.`,
+      `${cuttingMetrics.top} on top.`,
+      `${cuttingMetrics.sides} on the sides.`,
+      cuttingMetrics.boundary ? `Fade line: ${cuttingMetrics.boundary}.` : '',
+      'Well-groomed, professional barber quality. Photorealistic.',
+    ].filter(Boolean).join(' ')
+
     let provider = 'replicate'
 
     // --- Provider 1: Try Replicate first (uses user's actual photo) ---
@@ -152,7 +162,8 @@ export async function POST(request: NextRequest) {
           {
             input: {
               input_image: file,
-              prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
+              prompt: promptParts,
+              aspect_ratio: 'match_input_image',
             },
           }
         )
