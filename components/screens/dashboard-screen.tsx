@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
@@ -9,6 +9,7 @@ import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
 import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Eye } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
 import { DAILY_USAGE_LIMITS } from "@/lib/types"
+import type { HairstyleRecommendation } from "@/lib/types"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -20,7 +21,7 @@ const GROOMING_TIPS = [
 ]
 
 export function DashboardScreen() {
-  const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex } = useApp()
+  const { state, featureConfig, navigateTo, trialDaysLeft, setCurrentSavedIndex, syncRecommendationIndex, setDetailViewMode, setPreviewRecommendation } = useApp()
   const { userSession, savedRecommendations, email, recommendations, gamification, progressPhotos, currentScanIds } = state
   const isPremium = userSession === 'premium'
   const isTrial = userSession === 'trial'
@@ -57,6 +58,8 @@ export function DashboardScreen() {
   // Haircut cooldown check
   const haircutCooldown = useMemo(() => canLogHaircut(state.gamification.lastCutLoggedDate), [state.gamification.lastCutLoggedDate])
 
+  const [showPreviewPicker, setShowPreviewPicker] = useState(false)
+
   const handleViewSavedCard = (savedIndex: number) => {
     setCurrentSavedIndex(savedIndex)
     const rec = currentSavedCards[savedIndex]
@@ -64,7 +67,14 @@ export function DashboardScreen() {
       const recIndex = recommendations.findIndex(r => r.id === rec.id)
       if (recIndex !== -1) syncRecommendationIndex(recIndex)
     }
+    setDetailViewMode('savedOnly')
     navigateTo('recommendation-detail')
+  }
+
+  const handlePreviewSavedStyle = (rec: HairstyleRecommendation) => {
+    setPreviewRecommendation(rec)
+    setShowPreviewPicker(false)
+    navigateTo('preview')
   }
 
   return (
@@ -297,7 +307,7 @@ export function DashboardScreen() {
               {!(isPremium || isTrial) && (
                 <div className="mt-2 pt-2 border-t border-border/50">
                   <p className="text-[10px] text-muted-foreground/70 italic">
-                    Free: 2 scans/day with questionnaire-based suggestions. Upgrade for AI photo analysis, chat, and more.
+                    Free: 1 scan/day with questionnaire-based suggestions. Upgrade for AI photo analysis, chat, and more.
                   </p>
                 </div>
               )}
@@ -364,8 +374,8 @@ export function DashboardScreen() {
                   {isPremium || isTrial
                     ? `${DAILY_USAGE_LIMITS.analyses} AI analyses · ${DAILY_USAGE_LIMITS.chatMessages} chat messages/day`
                     : isFirstTime
-                    ? '2 free scans/day · AI-powered analysis'
-                    : '2 scans/day · Upgrade for AI analysis'}
+                    ? '1 free scan/day · AI-powered analysis'
+                    : '1 scan/day · Upgrade for AI analysis'}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -405,6 +415,23 @@ export function DashboardScreen() {
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
+
+            {/* Preview a Saved Style */}
+            {currentSavedCards.length > 0 && state.previewCredits > 0 && (
+              <button
+                onClick={() => setShowPreviewPicker(true)}
+                className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-gold/30 rounded-xl hover:bg-gold/5 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-gold" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-foreground">Preview a Saved Style</p>
+                  <p className="text-[10px] text-muted-foreground">See how a saved haircut looks on you · {state.previewCredits} credits</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
 
             {/* Achievements Quick Action */}
             <button
@@ -715,6 +742,57 @@ export function DashboardScreen() {
               Start Free 30-Day Trial →
             </button>
           </motion.div>
+        )}
+
+        {/* Preview Style Picker Modal */}
+        {showPreviewPicker && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setShowPreviewPicker(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed bottom-0 left-0 right-0 bg-secondary border-t border-border rounded-t-2xl p-6 z-50 max-w-md mx-auto"
+            >
+              <div className="w-12 h-1 bg-border rounded-full mx-auto mb-4" />
+              <h3 className="text-base font-semibold text-foreground mb-1">Choose a Style to Preview</h3>
+              <p className="text-sm text-muted-foreground mb-4">Pick one of your saved styles to see how it looks on you.</p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {currentSavedCards.map((rec) => (
+                  <button
+                    key={rec.id}
+                    onClick={() => handlePreviewSavedStyle(rec)}
+                    className="w-full flex items-center gap-3 p-3 bg-background border border-border rounded-xl hover:border-gold/40 hover:bg-gold/5 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {rec.imageUrl ? (
+                        <img src={rec.imageUrl} alt={rec.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-5 h-5 text-gold" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{rec.name}</p>
+                      <p className="text-[10px] text-gold font-semibold">{rec.compatibilityScore}% match</p>
+                    </div>
+                    <Eye className="w-4 h-4 text-gold flex-shrink-0" />
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowPreviewPicker(false)}
+                className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </>
         )}
 
         {/* App Version */}

@@ -90,7 +90,7 @@ export function SculptApp() {
       case 'recommendations':
         return <RecommendationsScreen />
       case 'recommendation-detail':
-        return <RecommendationDetailScreen />
+        return <RecommendationDetailScreen savedOnly={state.detailViewMode === 'savedOnly'} />
       case 'recommendation-full':
         return <RecommendationFullScreen />
       case 'chat-assistant':

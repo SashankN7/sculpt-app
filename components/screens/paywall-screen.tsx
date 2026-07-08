@@ -164,7 +164,7 @@ export function PaywallScreen() {
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                  2 scans/day with questionnaire-based suggestions only
+                  1 scan/day with questionnaire-based suggestions only
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />

@@ -30,12 +30,12 @@ export type Screen =
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
-// Scan limits — free users get 2/day, premium/trial get unlimited
+// Scan limits — free users get 1/day, premium/trial get unlimited
 // Free users get questionnaire-based inference only (no AI photo analysis)
 // Premium users get AI-powered analysis + unlimited scans
 export const SCAN_LIMITS: Record<UserSession, number> = {
-  guest: 2,          // 2 scans/day — questionnaire-based recs only
-  authenticated: 2,   // 2 scans/day — questionnaire-based recs only
+  guest: 1,          // 1 scan/day — questionnaire-based recs only
+  authenticated: 1,   // 1 scan/day — questionnaire-based recs only
   trial: 9999,       // unlimited scans — full AI analysis
   premium: 9999,     // unlimited scans — full AI analysis
 }
@@ -316,6 +316,7 @@ export interface AppState {
   loggedCuts: LoggedCut[]
   // Navigation helpers
   settingsScrollTo: string | null
+  detailViewMode: 'full' | 'savedOnly'
 }
 
 export const defaultSettingsState: SettingsState = {
@@ -403,4 +404,5 @@ export const initialAppState: AppState = {
     profileComplete: false,
   },
   settingsScrollTo: null,
+  detailViewMode: 'full',
 }

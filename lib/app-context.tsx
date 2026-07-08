@@ -56,6 +56,7 @@ interface AppContextType {
   signOut: () => Promise<void>
   setSettingsScrollTo: (section: string | null) => void
   clearSettingsScrollTo: () => void
+  setDetailViewMode: (mode: 'full' | 'savedOnly') => void
   addPreviewCredits: (count: number) => void
   previewRecommendation: HairstyleRecommendation | null
   setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
@@ -178,7 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         hasOpenAI: false,
         hasStripe: false,
         limits: {
-          free: { scansPerDay: 3, aiAnalyses: 1, previews: 0, chatMessages: 0 },
+          free: { scansPerDay: 1, aiAnalyses: 1, previews: 0, chatMessages: 0 },
           premium: { scansPerDay: 999, aiAnalyses: 10, previews: 5, chatMessages: 30, barberCards: 10 },
         },
       }))
@@ -386,7 +387,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const navigateTo = useCallback((screen: Screen) => {
     setState(prev => {
       screenHistoryRef.current.push(prev.currentScreen)
-      return { ...prev, currentScreen: screen }
+      // Reset savedOnly mode when leaving recommendation-detail
+      const resetDetail = prev.currentScreen === 'recommendation-detail' && screen !== 'recommendation-detail'
+        ? { detailViewMode: 'full' as const }
+        : {}
+      return { ...prev, ...resetDetail, currentScreen: screen }
     })
   }, [])
 
@@ -692,6 +697,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, settingsScrollTo: null }))
   }, [])
 
+  const setDetailViewMode = useCallback((mode: 'full' | 'savedOnly') => {
+    setState(prev => ({ ...prev, detailViewMode: mode }))
+  }, [])
+
   // Trial management
   const startTrial = useCallback(() => {
     const now = new Date().toISOString()
@@ -796,6 +805,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     signOut,
     setSettingsScrollTo,
     clearSettingsScrollTo,
+    setDetailViewMode,
     addPreviewCredits,
     previewRecommendation,
     setPreviewRecommendation,
@@ -847,6 +857,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     signOut,
     setSettingsScrollTo,
     clearSettingsScrollTo,
+    setDetailViewMode,
     addPreviewCredits,
     previewRecommendation,
     setPreviewRecommendation,

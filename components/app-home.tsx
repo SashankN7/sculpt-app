@@ -7,9 +7,9 @@ import { ErrorBoundary } from "@/components/error-boundary"
 export function AppHome() {
   return (
     <ErrorBoundary>
-      {/* Static SEO content — visible to Google crawlers, hidden visually when app loads */}
-      <noscript>
-        <div style={{ padding: '2rem', fontFamily: 'sans-serif', color: '#e0e0e0', background: '#1a1a1f' }}>
+      {/* SEO content — visually hidden but present in DOM for crawlers */}
+      <div className="sr-only">
+        <div style={{ padding: "2rem", fontFamily: "sans-serif", color: "#e0e0e0", background: "#1a1a1f" }}>
           <h1>SCULPT — AI-Powered Haircut Recommendations</h1>
           <p>
             Sculpt helps you find the perfect haircut. Upload your photo and our AI analyzes your face shape,
@@ -31,9 +31,19 @@ export function AppHome() {
             <li>Progress tracking between haircuts</li>
             <li>Grooming streak and badge system</li>
           </ul>
-          <p>Visit <a href="https://v0-sculpt-app.vercel.app" style={{ color: '#C8982D' }}>Sculpt</a> to get started.</p>
+          <h2>Data Collection</h2>
+          <p>
+            Sculpt collects face and hair photos solely to generate your personalized hairstyle recommendations.
+            Photos are processed by our AI and are not shared with third parties. You can delete your data at any time.
+            We do not sell or share personal information with advertisers or data brokers.
+          </p>
+          <ul>
+            <li><a href="/privacy" style={{ color: "#C8982D" }}>Privacy Policy</a></li>
+            <li><a href="/terms" style={{ color: "#C8982D" }}>Terms of Service</a></li>
+          </ul>
+          <p>Visit <a href="https://v0-sculpt-app.vercel.app" style={{ color: "#C8982D" }}>Sculpt</a> to get started.</p>
         </div>
-      </noscript>
+      </div>
 
       {/* Interactive app — rendered for real users */}
       <AppProvider>
