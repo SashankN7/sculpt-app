@@ -187,34 +187,6 @@ export async function POST(request: NextRequest) {
           has_subscription: !!session.subscription,
         }, userId)
 
-        // Handle preview pack purchases
-        if (session.metadata?.type === 'preview-pack' && session.metadata?.credits) {
-          const credits = parseInt(session.metadata.credits, 10)
-          if (userId && credits) {
-            const { data: userData } = await supabase
-              .from('user_data')
-              .select('preview_credits')
-              .eq('user_id', userId)
-              .single()
-
-            const currentCredits = userData?.preview_credits ?? 0
-            const { error } = await supabase
-              .from('user_data')
-              .upsert({
-                user_id: userId,
-                preview_credits: currentCredits + credits,
-                updated_at: new Date().toISOString(),
-              }, {
-                onConflict: 'user_id',
-              })
-
-            if (error) {
-              console.error('Failed to add preview credits:', error)
-            } else {
-              console.log(`Preview pack purchased: ${credits} credits for user ${userId}`)
-            }
-          }
-        }
         break
       }
       case 'invoice.payment_succeeded': {

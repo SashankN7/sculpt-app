@@ -11,8 +11,8 @@ interface FeatureConfig {
   hasOpenAI: boolean
   hasStripe: boolean
   limits: {
-    free: { scansPerDay: number; aiAnalyses: number; previews: number; chatMessages: number }
-    premium: { scansPerDay: number; aiAnalyses: number; previews: number; chatMessages: number; barberCards: number }
+    free: { scansPerDay: number; aiAnalyses: number; chatMessages: number }
+    premium: { scansPerDay: number; aiAnalyses: number; chatMessages: number; barberCards: number }
   }
 }
 
@@ -57,9 +57,6 @@ interface AppContextType {
   setSettingsScrollTo: (section: string | null) => void
   clearSettingsScrollTo: () => void
   setDetailViewMode: (mode: 'full' | 'savedOnly') => void
-  addPreviewCredits: (count: number) => void
-  previewRecommendation: HairstyleRecommendation | null
-  setPreviewRecommendation: (rec: HairstyleRecommendation | null) => void
   logHaircut: (hairstyleName: string) => boolean
   addLoggedCut: (cut: LoggedCut) => void
   removeLoggedCut: (id: string) => void
@@ -115,7 +112,7 @@ async function saveToSupabase(state: AppState) {
         last_cut_date: state.lastCutDate,
         cut_frequency: state.cutFrequency,
         grooming_streak: state.gamification.currentStreak,
-        preview_credits: state.previewCredits,
+
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id',
@@ -156,7 +153,7 @@ async function loadFromSupabase(): Promise<Partial<AppState> | null> {
         currentStreak: data.grooming_streak ?? 0,
         longestStreak: data.grooming_streak ?? 0,
       },
-      previewCredits: data.preview_credits ?? 0,
+
     }
   } catch (err) {
     console.error('Failed to load from Supabase:', err)
@@ -179,8 +176,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         hasOpenAI: false,
         hasStripe: false,
         limits: {
-          free: { scansPerDay: 1, aiAnalyses: 1, previews: 0, chatMessages: 0 },
-          premium: { scansPerDay: 999, aiAnalyses: 10, previews: 5, chatMessages: 30, barberCards: 10 },
+          free: { scansPerDay: 1, aiAnalyses: 1, chatMessages: 0 },
+          premium: { scansPerDay: 999, aiAnalyses: 10, chatMessages: 30, barberCards: 10 },
         },
       }))
   }, [])
@@ -259,13 +256,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const hasReturnTo = url.searchParams.get('returnTo')
     const hasUpgraded = url.searchParams.get('upgraded') === 'true'
     const hasCancelled = url.searchParams.get('cancelled') === 'true'
-    const hasPreviewPurchase = url.searchParams.get('preview_purchase') === 'success'
-    const hasPreviewCancelled = url.searchParams.get('preview_purchase') === 'cancelled'
+
     const isGuestUpgrade = url.searchParams.get('upgrade') === 'true'
     const hasOAuthParams = hasAuthCode || hasProfileSetup
 
     // Clean up URL params immediately
-    if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled || hasPreviewPurchase || hasPreviewCancelled) {
+    if (hasAuthCode || hasProfileSetup || hasUpgraded || hasCancelled) {
       const cleanUrl = new URL(window.location.origin + window.location.pathname)
       window.history.replaceState({}, '', cleanUrl.toString())
     }
@@ -283,15 +279,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Handle Stripe checkout cancellation — stay where they are
     if (hasCancelled) return
-
-    // Handle preview pack purchase success — go to preview screen
-    if (hasPreviewPurchase) {
-      setState(prev => ({ ...prev, currentScreen: 'preview' }))
-      return
-    }
-
-    // Handle preview pack purchase cancelled — stay where they are
-    if (hasPreviewCancelled) return
 
     // Handle OAuth callback — use onAuthStateChange for reliable session detection
     if (hasOAuthParams) {
@@ -624,16 +611,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     screenHistoryRef.current = []
   }, [])
 
-  const addPreviewCredits = useCallback((count: number) => {
-    setState(prev => ({ ...prev, previewCredits: prev.previewCredits + count }))
-  }, [])
-
-  const [previewRecommendation, setPreviewRecommendationState] = useState<HairstyleRecommendation | null>(null)
-
-  const setPreviewRecommendation = useCallback((rec: HairstyleRecommendation | null) => {
-    setPreviewRecommendationState(rec)
-  }, [])
-
   // ── Gamification ──
   const logHaircut = useCallback((hairstyleName: string) => {
     // Check cooldown — only allow logging every 2 weeks
@@ -817,9 +794,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSettingsScrollTo,
     clearSettingsScrollTo,
     setDetailViewMode,
-    addPreviewCredits,
-    previewRecommendation,
-    setPreviewRecommendation,
     logHaircut,
     addLoggedCut,
     removeLoggedCut,
@@ -869,9 +843,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSettingsScrollTo,
     clearSettingsScrollTo,
     setDetailViewMode,
-    addPreviewCredits,
-    previewRecommendation,
-    setPreviewRecommendation,
     logHaircut,
     addLoggedCut,
     removeLoggedCut,

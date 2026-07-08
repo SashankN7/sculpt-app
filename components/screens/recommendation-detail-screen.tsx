@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
-import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Sparkles, Crown, Scissors, Eye, TrendingUp } from "lucide-react"
+import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Crown, Scissors, Eye, TrendingUp } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
 
@@ -47,7 +47,6 @@ function RecommendationCard({
   onSelect,
   onViewDetail,
   onViewBarberCard,
-  onPreview,
   onShare,
   onViewReferencePhoto,
   onMoveToRejected,
@@ -61,7 +60,6 @@ function RecommendationCard({
   onSelect: () => void
   onViewDetail: () => void
   onViewBarberCard?: () => void
-  onPreview?: () => void
   onShare?: () => void
   onViewReferencePhoto?: () => void
   onMoveToRejected?: () => void
@@ -159,13 +157,6 @@ function RecommendationCard({
               VIEW BARBER CARD
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); onPreview?.() }}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-background border border-gold/40 text-gold text-xs font-semibold rounded-lg hover:bg-gold/5 transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              SEE PREVIEW
-            </button>
-            <button
               onClick={(e) => { e.stopPropagation(); onViewReferencePhoto?.() }}
               className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-background border border-blue-400/40 text-blue-400 text-xs font-semibold rounded-lg hover:bg-blue-400/5 transition-colors"
             >
@@ -209,7 +200,7 @@ function RecommendationCard({
 const FREE_RECOMMENDATION_LIMIT = 3
 
 export function RecommendationDetailScreen({ savedOnly = false }: { savedOnly?: boolean }) {
-  const { state, navigateTo, resetAll, syncRecommendationIndex, unsaveRecommendation, unrejectRecommendation, setPreviewRecommendation } = useApp()
+  const { state, navigateTo, resetAll, syncRecommendationIndex, unsaveRecommendation, unrejectRecommendation } = useApp()
   const { userSession } = state
   const { savedRecommendations, rejectedRecommendations, recommendations, currentScanIds } = state
   const isPremium = userSession === 'premium' || userSession === 'trial'
@@ -428,7 +419,6 @@ Tap a style to expand options.
                     onSelect={() => handleSelectSaved(index)}
                     onViewDetail={() => handleViewDetail(rec)}
                     onViewBarberCard={() => { syncRecommendationIndex(rec.id ? recommendations.findIndex(r => r.id === rec.id) : -1); navigateTo('barber-card') }}
-                    onPreview={() => { setPreviewRecommendation(rec); navigateTo('preview') }}
                     onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
                     onShare={() => handleShareCard(rec)}
                     onMoveToRejected={() => handleMoveToRejected(rec)}
@@ -486,8 +476,7 @@ Tap a style to expand options.
                       onSelect={() => handleSelectRejected(index)}
                       onViewDetail={() => handleViewDetail(rec)}
                       onViewBarberCard={() => { syncRecommendationIndex(rec.id ? recommendations.findIndex(r => r.id === rec.id) : -1); navigateTo('barber-card') }}
-                      onPreview={() => { setPreviewRecommendation(rec); navigateTo('preview') }}
-                      onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
+                    onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
                       onShare={() => handleShareCard(rec)}
                     onMoveToSaved={() => handleMoveToSaved(rec)}
                       animDelay={index * 0.05}

@@ -97,10 +97,6 @@ export function HelpSupportScreen() {
           answer: "Progress photos help you track how your haircut grows out over time. The AI analyzes your growth stage and can suggest optimal timing for your next trim. You'll also earn badges for consistent tracking!"
         },
         {
-          question: "How do I use the preview feature?",
-          answer: "The preview feature lets you see how a recommended style would look on you before committing. It uses AI to generate a realistic preview based on your face shape and the recommended style."
-        },
-        {
           question: "Can I share my recommendations?",
           answer: "Absolutely! You can share your saved styles, barber cards, or recommendations via social media, messaging apps, or directly with your barber. Use the Share button on any recommendation."
         }

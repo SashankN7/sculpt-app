@@ -201,7 +201,7 @@ export function PaywallScreen() {
                   PDF barber card export
                 </li>
               </ul>
-              <p className="text-[10px] text-gold/60 mt-2 italic">Style previews are a separate purchase ($2.99 / 5-pack) for all users.</p>
+
             </div>
           </div>
 
@@ -347,23 +347,6 @@ export function PaywallScreen() {
                 Subscribe without trial — {billingCycle === 'annual' ? PRICING.annual.label : PRICING.monthly.label}
               </span>
             )}
-          </button>
-
-          {/* Preview Pack Upsell */}
-          <button
-            onClick={() => navigateTo('preview')}
-            className="w-full bg-secondary border border-border rounded-xl p-4 mb-5 text-left hover:bg-secondary/80 hover:border-gold/30 transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Eye className="w-4 h-4 text-gold" />
-              <p className="text-sm font-medium text-foreground">Style Previews — for everyone</p>
-            </div>
-            <p className="text-xs text-muted-foreground mb-1">
-              See how each style looks on you before your appointment.
-            </p>
-            <p className="text-xs font-semibold text-foreground">
-              $2.99 for 5 previews · available to all tiers
-            </p>
           </button>
 
           {/* Footer Links */}

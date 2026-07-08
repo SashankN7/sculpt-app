@@ -23,7 +23,6 @@ import { FeedbackScreen } from "@/components/screens/feedback-screen"
 import { HistoryScreen } from "@/components/screens/history-screen"
 import { DashboardScreen } from "@/components/screens/dashboard-screen"
 import { MenuScreen } from "@/components/screens/menu-screen"
-import { PreviewScreen } from "@/components/screens/preview-screen"
 import { HairJourneyScreen } from "@/components/screens/hair-journey-screen"
 import { GamificationScreen } from "@/components/screens/gamification-screen"
 import { ProfileScreen } from "@/components/screens/profile-screen"
@@ -107,8 +106,6 @@ export function SculptApp() {
         return <DashboardScreen />
       case 'menu':
         return <MenuScreen />
-      case 'preview':
-        return <PreviewScreen />
       case 'progress-tracker':
         return <HairJourneyScreen />
       case 'gamification':

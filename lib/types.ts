@@ -19,7 +19,6 @@ export type Screen =
   | 'settings'
   | 'dashboard'
   | 'menu'
-  | 'preview'
   | 'progress-tracker'
   | 'gamification'
   | 'profile'
@@ -45,13 +44,6 @@ export const PRICING = {
   monthly: { price: 14.99, label: '$14.99/mo', period: 'Monthly' },
   annual: { price: 89.99, label: '$89.99/yr', period: 'Annual', monthlyEquivalent: 7.50 },
   trialDays: 30,
-} as const
-
-// Preview pack pricing
-export const PREVIEW_PACK_PRICING = {
-  price: 2.99,
-  credits: 5,
-  label: '$2.99 for 5 Previews',
 } as const
 
 // Trait-specific metadata colors: high professionalism/trendiness = green (good), high maintenance/styling = red (bad)
@@ -90,7 +82,6 @@ export function getTraitTextColor(value: number, traitKey: TraitKey): string {
 // Previews are a SEPARATE purchase ($2.99 / 5-pack) — not included in any tier
 export const DAILY_USAGE_LIMITS = {
   analyses: 10,    // GPT-4o Vision photo analyses per day
-  previews: 0,     // previews are purchased separately, not included in subscription
   chatMessages: 30, // GPT-4o-mini chat messages per day
   barberCards: 10,  // AI-enhanced barber card generations per day
 } as const
@@ -298,8 +289,6 @@ export interface AppState {
   // Push notifications
   pushPermission: 'default' | 'granted' | 'denied'
   pushSubscriptionEndpoint: string | null
-  // Preview
-  previewCredits: number
   // Profile
   profile: {
     firstName: string
@@ -392,7 +381,6 @@ export const initialAppState: AppState = {
   progressPhotos: [],
   pushPermission: 'default',
   pushSubscriptionEndpoint: null,
-  previewCredits: 0,
   currentScanIds: [],
   scanHistory: [],
   loggedCuts: [],
