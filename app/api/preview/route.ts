@@ -165,13 +165,28 @@ export async function POST(request: NextRequest) {
         const refBlob = await refRes.blob()
         const hairstyleRef = new File([refBlob], 'reference.jpg', { type: refBlob.type || 'image/jpeg' })
 
-        // Flux 2 Pro: pass user photo + hairstyle reference as input_images
+        // Upload both images to Replicate to get public URLs
+        // (flux-2-pro requires URL strings, not File objects)
+        const [userUpload, refUpload] = await Promise.all([
+          replicate.files.create(userPhoto),
+          replicate.files.create(hairstyleRef),
+        ])
+
+        const userImageUrl = userUpload.urls?.get
+        const refImageUrl = refUpload.urls?.get
+        if (!userImageUrl || !refImageUrl) {
+          throw new Error('Failed to upload images to Replicate')
+        }
+        console.log('[Preview] Uploaded user photo:', userImageUrl.substring(0, 80))
+        console.log('[Preview] Uploaded reference:', refImageUrl.substring(0, 80))
+
+        // Flux 2 Pro: pass URL strings as input_images
         const output = await replicate.run(
           'black-forest-labs/flux-2-pro:909bfef13678c8ca5fdcfd08b9a5f67c6ebd138ca803ef801e5e397e03ce9c8b',
           {
             input: {
               prompt: promptParts,
-              input_images: [userPhoto, hairstyleRef],
+              input_images: [userImageUrl, refImageUrl],
             },
           }
         )
