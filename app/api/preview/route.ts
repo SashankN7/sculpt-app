@@ -123,27 +123,27 @@ export async function POST(request: NextRequest) {
 
     let previewUrl: string | undefined
 
-    const styleDescription = [
-      recommendation.name,
-      recommendation.barberCard.cuttingMetrics.top,
-      recommendation.barberCard.cuttingMetrics.sides,
-    ].join('. ')
-
-    // Build a forceful, imperative prompt for flux-kontext
     const cuttingMetrics = recommendation.barberCard.cuttingMetrics
+    const description = recommendation.description || recommendation.name
+    const stylingNotes = recommendation.barberCard.stylingProtocols?.length
+      ? ` Style with: ${recommendation.barberCard.stylingProtocols.join(', ')}.`
+      : ''
+
+    // Build a detailed prompt including the full hairstyle description
     const promptParts = [
-      `Give this man a ${recommendation.name} haircut.`,
-      `Top: ${cuttingMetrics.top}.`,
-      `Sides: ${cuttingMetrics.sides}.`,
-      cuttingMetrics.boundary ? `Hairline/fade: ${cuttingMetrics.boundary}.` : '',
-      'Keep the face, skin, features, background, lighting, and angle exactly the same.',
-      'Only the hairstyle changes. Photorealistic, professional grooming photo.',
+      `Edit the first image: give this man the exact hairstyle shown in the second image.`,
+      `The hairstyle is a "${recommendation.name}": ${description}.`,
+      `Cutting details: top ${cuttingMetrics.top}, sides ${cuttingMetrics.sides}.${cuttingMetrics.boundary ? ` Hairline/fade: ${cuttingMetrics.boundary}.` : ''}`,
+      `Keep the man's face, skin, features, expression, clothing, background, lighting, and camera angle exactly the same as in the first image.`,
+      `Only the hairstyle changes to match the reference. Make it look natural, clean, and professionally cut.${stylingNotes}`,
+      `Photorealistic, high quality professional grooming photo.`,
     ].filter(Boolean).join(' ')
-    console.log('[Preview] Replicate prompt:', promptParts)
+    console.log('[Preview] Flux 2 Pro prompt:', promptParts)
+    console.log('[Preview] Reference image URL:', recommendation.imageUrl)
 
     let provider = 'replicate'
 
-    // --- Provider 1: Try Replicate first (uses user's actual photo) ---
+    // --- Provider 1: Try Replicate Flux 2 Pro (multi-reference image editing) ---
     if (HAS_REPLICATE) {
       try {
         const Replicate = (await import('replicate')).default
@@ -151,20 +151,27 @@ export async function POST(request: NextRequest) {
           auth: process.env.REPLICATE_API_TOKEN,
         })
 
-        // Convert base64 data URL to a File object for Replicate
+        // Convert user's base64 photo to a File object
         const base64Data = frontImage.split(',')[1] || frontImage
         const mimeMatch = frontImage.match(/data:([^;]+);/)
         const mimeType = mimeMatch?.[1] || 'image/jpeg'
         const buffer = Buffer.from(base64Data, 'base64')
         const blob = new Blob([buffer], { type: mimeType })
-        const file = new File([blob], 'photo.jpg', { type: mimeType })
+        const userPhoto = new File([blob], 'photo.jpg', { type: mimeType })
 
+        // Download the hairstyle reference image and convert to File
+        const refRes = await fetch(recommendation.imageUrl)
+        if (!refRes.ok) throw new Error(`Failed to fetch reference image: ${refRes.status}`)
+        const refBlob = await refRes.blob()
+        const hairstyleRef = new File([refBlob], 'reference.jpg', { type: refBlob.type || 'image/jpeg' })
+
+        // Flux 2 Pro: pass user photo + hairstyle reference as input_images
         const output = await replicate.run(
-          'black-forest-labs/flux-kontext-pro',
+          'black-forest-labs/flux-2-pro:909bfef13678c8ca5fdcfd08b9a5f67c6ebd138ca803ef801e5e397e03ce9c8b',
           {
             input: {
-              input_image: file,
               prompt: promptParts,
+              input_images: [userPhoto, hairstyleRef],
             },
           }
         )
@@ -224,7 +231,7 @@ export async function POST(request: NextRequest) {
 
       const response = await openai.images.generate({
         model: 'gpt-image-1',
-        prompt: `A photorealistic portrait photo of this person: ${faceDescription}. They now have this specific haircut: ${styleDescription}. The hairstyle should look natural, well-groomed, and professionally styled. Keep the same face, skin, features, lighting, angle, and background. High quality professional photography.`,
+        prompt: `A photorealistic portrait photo of this person: ${faceDescription}. They now have this specific haircut: ${description}. The hairstyle should look natural, well-groomed, and professionally styled. Keep the same face, skin, features, lighting, angle, and background. High quality professional photography.`,
         n: 1,
         size: '1024x1024',
         quality: 'medium',
