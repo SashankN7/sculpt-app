@@ -1,18 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { PREVIEW_PACK_PRICING } from "@/lib/types"
-import { ChevronLeft, Sparkles, Loader2, Eye, AlertTriangle, ShoppingBag, Check } from "lucide-react"
+import { ChevronLeft, Sparkles, Loader2, Eye, AlertTriangle, ShoppingBag, Check, Camera } from "lucide-react"
 
 export function PreviewScreen() {
-  const { state, navigateTo, goBack, addPreviewCredits, previewRecommendation } = useApp()
+  const { state, navigateTo, goBack, addPreviewCredits, previewRecommendation, setUploadedImage } = useApp()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPurchaseSuccess, setShowPurchaseSuccess] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   // Get user ID from Supabase auth on mount
   useEffect(() => {
@@ -31,10 +33,30 @@ export function PreviewScreen() {
 
   const recommendation = previewRecommendation
   const hasCredits = state.previewCredits > 0
+  const hasPhoto = !!state.uploadedImages.front
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const url = ev.target?.result as string
+      setUploadedImage('front', url)
+      setError(null)
+    }
+    reader.readAsDataURL(file)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
+  }
 
   const handleGeneratePreview = async () => {
-    if (!recommendation || !state.uploadedImages.front) {
-      setError('No photo available. Please upload a photo first.')
+    if (!recommendation) {
+      setError('No style selected. Please save a hairstyle first, then try previewing it.')
+      return
+    }
+
+    if (!hasPhoto) {
+      setError('Please take or upload a front-facing photo before generating a preview.')
       return
     }
 
@@ -47,7 +69,6 @@ export function PreviewScreen() {
     setPreviewUrl(null)
 
     try {
-      // Server handles credit validation and deduction (source of truth)
       const res = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,7 +85,6 @@ export function PreviewScreen() {
         throw new Error(data.error || 'Preview generation failed')
       }
 
-      // Server already decremented — sync local state to match
       if (typeof data.creditsRemaining === 'number') {
         addPreviewCredits(data.creditsRemaining - state.previewCredits)
       }
@@ -88,7 +108,6 @@ export function PreviewScreen() {
       const data = await res.json()
 
       if (data.simulated) {
-        // Local dev — add credits directly
         addPreviewCredits(data.creditsAdded)
         setShowPurchaseSuccess(true)
         setTimeout(() => setShowPurchaseSuccess(false), 2000)
@@ -105,6 +124,44 @@ export function PreviewScreen() {
       const message = err instanceof Error ? err.message : 'Purchase failed'
       setError(message)
     }
+  }
+
+  // No saved style selected
+  if (!recommendation) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between px-4 md:px-6 py-2">
+          <button
+            onClick={goBack}
+            className="flex items-center gap-1 text-sm text-foreground hover:text-gold transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            BACK
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center mb-4">
+            <Sparkles className="w-8 h-8 text-gold" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-2">No Style Selected</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-[280px]">
+            Save at least one hairstyle from your recommendations to preview it on your photo.
+          </p>
+          <button
+            onClick={() => navigateTo('recommendation-detail')}
+            className="w-full py-3 px-6 bg-gold text-gold-foreground font-semibold rounded-xl hover:bg-gold/90 transition-colors"
+          >
+            View My Recommendations
+          </button>
+          <button
+            onClick={goBack}
+            className="w-full mt-2 py-3 px-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    )
   }
 
   // Purchase success state
@@ -132,6 +189,23 @@ export function PreviewScreen() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handlePhotoCapture}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="hidden"
+        onChange={handlePhotoCapture}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between px-4 md:px-6 py-2">
         <button
@@ -160,20 +234,44 @@ export function PreviewScreen() {
             HAIRCUT PREVIEW
           </h2>
           <p className="text-sm text-muted-foreground mb-6 text-center">
-            See how <span className="text-gold font-medium">{recommendation?.name || 'this style'}</span> looks on you.
+            See how <span className="text-gold font-medium">{recommendation.name}</span> looks on you.
           </p>
 
           {/* Preview area */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            {/* Original photo */}
+            {/* Original photo — with camera/upload controls */}
             <div className="text-center">
-              <div className="relative h-48 bg-secondary border border-border rounded-xl overflow-hidden flex items-center justify-center">
-                {state.uploadedImages.front ? (
-                  <img src={state.uploadedImages.front} alt="Your photo" className="w-full h-full object-cover" />
+              <div className="relative h-48 bg-secondary border border-border rounded-xl overflow-hidden flex items-center justify-center group">
+                {hasPhoto ? (
+                  <>
+                    <img src={state.uploadedImages.front!} alt="Your photo" className="w-full h-full object-cover" />
+                    {/* Always-visible camera button for mobile */}
+                    <button
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="absolute bottom-2 right-2 p-1.5 bg-gold rounded-lg text-gold-foreground hover:bg-gold/90 transition-colors shadow-lg"
+                      title="Change photo"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                    </button>
+                  </>
                 ) : (
-                  <div className="text-muted-foreground text-center px-2">
-                    <Eye className="w-8 h-8 mx-auto mb-1 opacity-30" />
-                    <span className="text-[10px]">No photo</span>
+                  <div className="flex flex-col items-center gap-2 px-2">
+                    <Camera className="w-8 h-8 text-muted-foreground opacity-30" />
+                    <span className="text-[10px] text-muted-foreground mb-1">No photo yet</span>
+                    <button
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-lg text-[10px] font-medium text-gold hover:bg-gold/15 transition-colors"
+                    >
+                      <Camera className="w-3 h-3" />
+                      Take Photo
+                    </button>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary border border-border rounded-lg text-[10px] font-medium text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors"
+                    >
+                      <Eye className="w-3 h-3" />
+                      Upload
+                    </button>
                   </div>
                 )}
               </div>
@@ -204,7 +302,7 @@ export function PreviewScreen() {
                 )}
               </div>
               <span className="text-[10px] text-gold tracking-wider uppercase mt-1.5 block font-medium">
-                With {recommendation?.name || 'Style'}
+                With {recommendation.name}
               </span>
             </div>
           </div>
@@ -217,11 +315,19 @@ export function PreviewScreen() {
             </div>
           )}
 
+          {/* Missing photo warning */}
+          {!hasPhoto && hasCredits && (
+            <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/30 rounded-xl mb-4">
+              <Camera className="w-4 h-4 text-warning flex-shrink-0" />
+              <p className="text-xs text-warning">Take or upload a front-facing photo to generate a preview.</p>
+            </div>
+          )}
+
           {/* Generate button or Purchase button */}
           {hasCredits ? (
             <button
               onClick={handleGeneratePreview}
-              disabled={isGenerating || !state.uploadedImages.front}
+              disabled={isGenerating || !hasPhoto}
               className="w-full py-4 px-6 bg-gold text-gold-foreground font-semibold rounded-xl transition-all hover:bg-gold/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isGenerating ? (
