@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       ].join('. ')
 
       const output = await replicate.run(
-        'black-forest-labs/flux-kontext-pro',
+        'black-forest-labs/flux-kontext-dev',
         {
           input: {
             input_image: file,
