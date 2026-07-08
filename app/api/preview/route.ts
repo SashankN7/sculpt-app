@@ -152,9 +152,11 @@ export async function POST(request: NextRequest) {
             prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
           },
         }
-      ) as string[]
+      )
 
-      if (!output || output.length === 0) {
+      // Replicate SDK returns FileOutput objects — extract the URL string
+      const firstOutput = Array.isArray(output) ? output[0] : output
+      if (!firstOutput) {
         await refundCredit(userId)
         return NextResponse.json(
           { error: 'Preview generation failed — no output returned' },
@@ -162,7 +164,14 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      previewUrl = output[0]
+      // Handle FileOutput object (has .url() method) or plain string URL
+      if (typeof firstOutput === 'string') {
+        previewUrl = firstOutput
+      } else if (typeof firstOutput === 'object' && firstOutput !== null && 'url' in firstOutput) {
+        previewUrl = typeof firstOutput.url === 'function' ? await firstOutput.url() : String(firstOutput.url)
+      } else {
+        previewUrl = String(firstOutput)
+      }
     } else if (HAS_OPENAI) {
       // FALLBACK: OpenAI two-step — analyze face with gpt-4o, generate with gpt-image-1
       const { default: OpenAI } = await import('openai')
