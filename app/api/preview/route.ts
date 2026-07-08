@@ -192,8 +192,16 @@ export async function POST(request: NextRequest) {
         }
       } catch (replicateError) {
         console.error('Replicate failed, attempting OpenAI fallback:', replicateError)
-        // Fall through to OpenAI below
+        // Fall through to OpenAI below — but refund the credit if BOTH will fail
         provider = 'openai-fallback'
+        // If OpenAI is also unavailable, refund now instead of after OpenAI also fails
+        if (!HAS_OPENAI) {
+          await refundCredit(userId)
+          return NextResponse.json(
+            { error: 'Preview generation is temporarily unavailable. Your credit has been refunded. Please try again in a few minutes.' },
+            { status: 503 }
+          )
+        }
       }
     }
 
@@ -248,8 +256,8 @@ export async function POST(request: NextRequest) {
     if (!previewUrl) {
       await refundCredit(userId)
       return NextResponse.json(
-        { error: 'Preview generation failed — both AI providers are unavailable. Your credit has been refunded.' },
-        { status: 500 }
+        { error: 'Preview generation is temporarily unavailable. Your credit has been refunded. Please try again in a few minutes.' },
+        { status: 503 }
       )
     }
 
@@ -270,9 +278,16 @@ export async function POST(request: NextRequest) {
     console.error('Preview generation error:', error)
     // Refund credit on any failure
     await refundCredit(userId)
+    // Friendly messages for common errors
     const message = error instanceof Error ? error.message : 'Unknown error'
+    if (message.includes('quota') || message.includes('exceeded') || message.includes('insufficient')) {
+      return NextResponse.json(
+        { error: 'Our AI service is temporarily at capacity. Your credit has been refunded. Please try again in a few minutes.' },
+        { status: 503 }
+      )
+    }
     return NextResponse.json(
-      { error: `Preview generation failed: ${message}` },
+      { error: 'Preview generation is temporarily unavailable. Your credit has been refunded. Please try again in a few minutes.' },
       { status: 500 }
     )
   }

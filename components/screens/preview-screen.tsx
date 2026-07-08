@@ -216,6 +216,62 @@ export function PreviewScreen() {
     )
   }
 
+  // Full-screen loading overlay during generation
+  if (isGenerating) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center"
+          >
+            <div className="relative mb-6">
+              <div className="w-20 h-20 rounded-full border-4 border-gold/20 border-t-gold animate-spin" />
+              <Sparkles className="w-8 h-8 text-gold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Generating Your Preview
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4 max-w-[280px]">
+              Our AI is analyzing your photo and applying the <span className="text-gold font-medium">{recommendation.name}</span> hairstyle. This usually takes 15-30 seconds.
+            </p>
+            <div className="space-y-2 text-left w-full max-w-[260px]">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="w-4 h-4 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                </div>
+                Downloading hairstyle reference...
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="w-4 h-4 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" style={{ animationDelay: '0.3s' }} />
+                </div>
+                Analyzing your face and features...
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="w-4 h-4 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" style={{ animationDelay: '0.6s' }} />
+                </div>
+                Applying the hairstyle...
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setIsGenerating(false)
+                setError('Preview generation was cancelled.')
+              }}
+              className="mt-6 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Hidden file inputs */}
