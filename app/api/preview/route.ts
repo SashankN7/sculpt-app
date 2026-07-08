@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     let previewUrl: string | undefined
 
     if (HAS_REPLICATE) {
-      // PRIMARY: Replicate hairclip — takes the user's actual photo and generates the hairstyle on their face
+      // PRIMARY: Replicate flux-kontext-pro — state-of-the-art text-guided image editing
       const Replicate = (await import('replicate')).default
       const replicate = new Replicate({
         auth: process.env.REPLICATE_API_TOKEN,
@@ -145,12 +145,11 @@ export async function POST(request: NextRequest) {
       ].join('. ')
 
       const output = await replicate.run(
-        'wty-ustc/hairclip:b95cb2a1',
+        'black-forest-labs/flux-kontext-pro',
         {
           input: {
             input_image: file,
-            text: `A professional men's haircut: ${styleDescription}. Clean, modern grooming style.`,
-            operation: 'hairstyle',
+            prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
           },
         }
       ) as string[]
