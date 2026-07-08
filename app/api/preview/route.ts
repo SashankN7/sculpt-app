@@ -4,6 +4,7 @@ import { checkRateLimit } from '@/lib/rate-limit'
 import type { HairstyleRecommendation } from '@/lib/types'
 
 validateEnv()
+const HAS_REPLICATE = features.hasReplicate
 const HAS_OPENAI = features.hasOpenAI
 
 // Helper to refund a preview credit on failure
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!HAS_OPENAI) {
+    if (!HAS_REPLICATE && !HAS_OPENAI) {
       return NextResponse.json(
         { error: 'Preview generation not available — no AI provider configured.' },
         { status: 503 }
@@ -122,16 +123,59 @@ export async function POST(request: NextRequest) {
 
     let previewUrl: string | undefined
 
-    if (HAS_OPENAI) {
-      // PRIMARY: OpenAI two-step — analyze face with gpt-4o, generate with gpt-image-1
+    const styleDescription = [
+      recommendation.name,
+      recommendation.barberCard.cuttingMetrics.top,
+      recommendation.barberCard.cuttingMetrics.sides,
+    ].join('. ')
+
+    if (HAS_REPLICATE) {
+      // PRIMARY: Replicate flux-kontext-pro — takes user's actual photo and edits the hair
+      const Replicate = (await import('replicate')).default
+      const replicate = new Replicate({
+        auth: process.env.REPLICATE_API_TOKEN,
+      })
+
+      // Convert base64 data URL to a File object for Replicate
+      const base64Data = frontImage.split(',')[1] || frontImage
+      const mimeMatch = frontImage.match(/data:([^;]+);/)
+      const mimeType = mimeMatch?.[1] || 'image/jpeg'
+      const buffer = Buffer.from(base64Data, 'base64')
+      const blob = new Blob([buffer], { type: mimeType })
+      const file = new File([blob], 'photo.jpg', { type: mimeType })
+
+      const output = await replicate.run(
+        'black-forest-labs/flux-kontext-pro:0f1178f5a27e9aa2d2d39c8a43c110f7fa7cbf64062ff04a04cd40899e546065',
+        {
+          input: {
+            input_image: file,
+            prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
+          },
+        }
+      )
+
+      // Replicate SDK returns FileOutput objects — extract the URL string
+      const firstOutput = Array.isArray(output) ? output[0] : output
+      if (!firstOutput) {
+        await refundCredit(userId)
+        return NextResponse.json(
+          { error: 'Preview generation failed — no output returned' },
+          { status: 500 }
+        )
+      }
+
+      // Handle FileOutput object (has .url() method) or plain string URL
+      if (typeof firstOutput === 'string') {
+        previewUrl = firstOutput
+      } else if (typeof firstOutput === 'object' && firstOutput !== null && 'url' in firstOutput) {
+        previewUrl = typeof firstOutput.url === 'function' ? await firstOutput.url() : String(firstOutput.url)
+      } else {
+        previewUrl = String(firstOutput)
+      }
+    } else if (HAS_OPENAI) {
+      // FALLBACK: OpenAI two-step — analyze face with gpt-4o, generate with gpt-image-1
       const { default: OpenAI } = await import('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-      const styleDescription = [
-        recommendation.name,
-        recommendation.barberCard.cuttingMetrics.top,
-        recommendation.barberCard.cuttingMetrics.sides,
-      ].join('. ')
 
       const faceAnalysis = await openai.chat.completions.create({
         model: 'gpt-4o',
