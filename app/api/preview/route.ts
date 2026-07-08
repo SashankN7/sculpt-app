@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     if (!HAS_REPLICATE && !HAS_OPENAI) {
       return NextResponse.json(
-        { error: 'Preview generation not available — no AI provider configured.' },
+        { error: 'Preview generation is not available right now. Our AI providers are being configured. Please try again later.' },
         { status: 503 }
       )
     }
@@ -129,51 +129,58 @@ export async function POST(request: NextRequest) {
       recommendation.barberCard.cuttingMetrics.sides,
     ].join('. ')
 
+    let provider = 'replicate'
+
+    // --- Provider 1: Try Replicate first (uses user's actual photo) ---
     if (HAS_REPLICATE) {
-      // PRIMARY: Replicate flux-kontext-pro — takes user's actual photo and edits the hair
-      const Replicate = (await import('replicate')).default
-      const replicate = new Replicate({
-        auth: process.env.REPLICATE_API_TOKEN,
-      })
+      try {
+        const Replicate = (await import('replicate')).default
+        const replicate = new Replicate({
+          auth: process.env.REPLICATE_API_TOKEN,
+        })
 
-      // Convert base64 data URL to a File object for Replicate
-      const base64Data = frontImage.split(',')[1] || frontImage
-      const mimeMatch = frontImage.match(/data:([^;]+);/)
-      const mimeType = mimeMatch?.[1] || 'image/jpeg'
-      const buffer = Buffer.from(base64Data, 'base64')
-      const blob = new Blob([buffer], { type: mimeType })
-      const file = new File([blob], 'photo.jpg', { type: mimeType })
+        // Convert base64 data URL to a File object for Replicate
+        const base64Data = frontImage.split(',')[1] || frontImage
+        const mimeMatch = frontImage.match(/data:([^;]+);/)
+        const mimeType = mimeMatch?.[1] || 'image/jpeg'
+        const buffer = Buffer.from(base64Data, 'base64')
+        const blob = new Blob([buffer], { type: mimeType })
+        const file = new File([blob], 'photo.jpg', { type: mimeType })
 
-      const output = await replicate.run(
-        'black-forest-labs/flux-kontext-dev',
-        {
-          input: {
-            input_image: file,
-            prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
-          },
-        }
-      )
-
-      // Replicate SDK returns FileOutput objects — extract the URL string
-      const firstOutput = Array.isArray(output) ? output[0] : output
-      if (!firstOutput) {
-        await refundCredit(userId)
-        return NextResponse.json(
-          { error: 'Preview generation failed — no output returned' },
-          { status: 500 }
+        const output = await replicate.run(
+          'black-forest-labs/flux-kontext-dev',
+          {
+            input: {
+              input_image: file,
+              prompt: `Give this person a professional men's haircut: ${styleDescription}. Keep their face, skin, features, lighting, angle, and background exactly the same. Only change the hairstyle. Clean, modern grooming style, natural and well-groomed.`,
+            },
+          }
         )
-      }
 
-      // Handle FileOutput object (has .url() method) or plain string URL
-      if (typeof firstOutput === 'string') {
-        previewUrl = firstOutput
-      } else if (typeof firstOutput === 'object' && firstOutput !== null && 'url' in firstOutput) {
-        previewUrl = typeof firstOutput.url === 'function' ? await firstOutput.url() : String(firstOutput.url)
-      } else {
-        previewUrl = String(firstOutput)
+        // Replicate SDK returns FileOutput objects — extract the URL string
+        const firstOutput = Array.isArray(output) ? output[0] : output
+        if (!firstOutput) {
+          throw new Error('No output returned from Replicate')
+        }
+
+        // Handle FileOutput object (has .url() method) or plain string URL
+        if (typeof firstOutput === 'string') {
+          previewUrl = firstOutput
+        } else if (typeof firstOutput === 'object' && firstOutput !== null && 'url' in firstOutput) {
+          previewUrl = typeof firstOutput.url === 'function' ? await firstOutput.url() : String(firstOutput.url)
+        } else {
+          previewUrl = String(firstOutput)
+        }
+      } catch (replicateError) {
+        console.error('Replicate failed, attempting OpenAI fallback:', replicateError)
+        // Fall through to OpenAI below
+        provider = 'openai-fallback'
       }
-    } else if (HAS_OPENAI) {
-      // FALLBACK: OpenAI two-step — analyze face with gpt-4o, generate with gpt-image-1
+    }
+
+    // --- Provider 2: OpenAI fallback (if Replicate failed or unavailable) ---
+    if (!previewUrl && HAS_OPENAI) {
+      provider = 'openai-fallback'
       const { default: OpenAI } = await import('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -200,11 +207,7 @@ export async function POST(request: NextRequest) {
       const faceDescription = faceAnalysis.choices[0]?.message?.content || ''
 
       if (!faceDescription) {
-        await refundCredit(userId)
-        return NextResponse.json(
-          { error: 'Could not analyze your photo. Please try again with a clearer front-facing photo.' },
-          { status: 500 }
-        )
+        throw new Error('Could not analyze your photo. Please try again with a clearer front-facing photo.')
       }
 
       const response = await openai.images.generate({
@@ -216,14 +219,19 @@ export async function POST(request: NextRequest) {
       })
 
       if (!response.data || response.data.length === 0 || !response.data[0].url) {
-        await refundCredit(userId)
-        return NextResponse.json(
-          { error: 'Preview generation failed — no output returned' },
-          { status: 500 }
-        )
+        throw new Error('Preview generation failed — no output returned from OpenAI')
       }
 
       previewUrl = response.data[0].url
+    }
+
+    // --- No provider succeeded ---
+    if (!previewUrl) {
+      await refundCredit(userId)
+      return NextResponse.json(
+        { error: 'Preview generation failed — both AI providers are unavailable. Your credit has been refunded.' },
+        { status: 500 }
+      )
     }
 
     // Return the new credit count so client can sync without double-decrementing
@@ -236,6 +244,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       previewUrl,
+      provider,
       creditsRemaining: updatedData?.preview_credits ?? 0,
     })
   } catch (error: unknown) {

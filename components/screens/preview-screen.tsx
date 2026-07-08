@@ -9,6 +9,7 @@ import { ChevronLeft, Sparkles, Loader2, Eye, AlertTriangle, ShoppingBag, Check,
 export function PreviewScreen() {
   const { state, navigateTo, goBack, addPreviewCredits, previewRecommendation, setPreviewRecommendation, setUploadedImage } = useApp()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewProvider, setPreviewProvider] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPurchaseSuccess, setShowPurchaseSuccess] = useState(false)
@@ -110,6 +111,7 @@ export function PreviewScreen() {
         addPreviewCredits(data.creditsRemaining - state.previewCredits)
       }
       setPreviewUrl(data.previewUrl)
+      setPreviewProvider(data.provider || null)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to generate preview'
       setError(message)
@@ -339,6 +341,16 @@ export function PreviewScreen() {
             <div className="flex items-center gap-2 p-3 bg-error/10 border border-error/30 rounded-xl mb-4">
               <AlertTriangle className="w-4 h-4 text-error flex-shrink-0" />
               <p className="text-xs text-error">{error}</p>
+            </div>
+          )}
+
+          {/* OpenAI fallback info banner */}
+          {previewUrl && previewProvider === 'openai-fallback' && (
+            <div className="flex items-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl mb-4">
+              <Eye className="w-4 h-4 text-blue-400 flex-shrink-0" />
+              <p className="text-xs text-blue-400">
+                <span className="font-medium">Note:</span> This preview was generated with our backup AI. It shows a portrait that resembles you with the hairstyle, but may not be an exact match. For photorealistic previews that edit your actual face, try generating again later when our primary provider is available.
+              </p>
             </div>
           )}
 
