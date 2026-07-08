@@ -431,7 +431,7 @@ Tap a style to expand options.
                     onPreview={() => { setPreviewRecommendation(rec); navigateTo('preview') }}
                     onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
                     onShare={() => handleShareCard(rec)}
-                    onMoveToRejected={savedOnly ? undefined : () => handleMoveToRejected(rec)}
+                    onMoveToRejected={() => handleMoveToRejected(rec)}
                     animDelay={index * 0.05}
                   />
                 ))}
