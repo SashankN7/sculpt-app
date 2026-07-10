@@ -268,33 +268,21 @@ export function ProcessingScreen() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        {/* Free user prominent limitation banner */}
+        {/* Free user banner — compact single-line style */}
         {(state.userSession === 'guest' || state.userSession === 'authenticated') && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="p-4 bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-full bg-orange-400/20 flex items-center justify-center">
-                  <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />
-                </div>
-                <p className="text-xs font-bold text-orange-400 uppercase tracking-wide">Free Tier — Questionnaire Only</p>
-              </div>
-              <p className="text-[11px] text-foreground leading-relaxed mb-1">
-                Your photos are <span className="font-bold text-orange-400">NOT being analyzed by AI</span>. Results are based purely on your questionnaire answers — no face shape, density, or texture detection from your photos.
+            <div className="flex items-center gap-2.5 p-2.5 px-3 bg-orange-400/10 border border-orange-400/30 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+              <p className="text-[11px] text-foreground leading-snug flex-1">
+                <span className="font-bold text-orange-400">Questionnaire only</span> — photos not analyzed.{' '}
+                <button onClick={() => navigateTo('paywall')} className="text-gold font-bold hover:underline">
+                  Upgrade for AI →
+                </button>
               </p>
-              <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">
-                Premium users get real GPT-4o Vision analysis of their actual face and hair from photos.
-              </p>
-              <button
-                onClick={() => navigateTo('paywall')}
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
-              >
-                <Crown className="w-3.5 h-3.5" />
-                UPGRADE FOR AI PHOTO ANALYSIS
-              </button>
             </div>
           </motion.div>
         )}
@@ -375,17 +363,7 @@ export function ProcessingScreen() {
           </motion.p>
         </div>
 
-        {/* Free tier upsell at bottom */}
-        {(state.userSession === 'guest' || state.userSession === 'authenticated') && (
-          <div className="mt-4 p-3 bg-gold/5 border border-gold/20 rounded-xl">
-            <p className="text-[10px] text-gold font-medium text-center">
-              <Sparkles className="w-3 h-3 inline mr-1" />
-              Upgrade to Premium for AI photo analysis — your face shape, density & texture detected from your actual photos.
-            </p>
-          </div>
-        )}
-
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="mt-6 text-xs text-muted-foreground">
           Please keep the app open. This takes ~5-15 seconds.
         </p>
       </motion.div>

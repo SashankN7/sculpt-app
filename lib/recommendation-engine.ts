@@ -72,21 +72,22 @@ function calculateCompatibilityScore(
   const trendVsClassic = entry.trendiness
   const boldFit = 1 - Math.abs(trendVsClassic - boldPref) / 100
 
-  // Professionalism (25% weight, adjusted by user context)
+  // Professionalism (15% weight — reduced from 25% to avoid bias toward short conservative styles)
   const profWeight = getProfessionalismWeight(answers)
   const profScore = (entry.professionalism / 100) * profWeight
 
-  // Trend alignment (5% weight, adjusted by lifestyle)
+  // Trend alignment (15% weight — increased from 5% to give trendy/longer styles a fair shot)
   const trendWeight = getTrendWeight(answers)
   const trendScore = (entry.trendiness / 100) * trendWeight
 
   // Weighted final score
+  // Reduced professionalism (25→15%), increased trendiness (5→15%) to reduce short-style bias
   let raw = (
     physicalScore * 0.40 +
     Math.max(0, maintFit) * 0.15 +
     Math.max(0, boldFit) * 0.15 +
-    Math.min(1, profScore) * 0.25 +
-    Math.min(1, trendScore) * 0.05
+    Math.min(1, profScore) * 0.15 +
+    Math.min(1, trendScore) * 0.15
   )
 
   // History adjustments — learn from past saved/rejected styles
@@ -115,9 +116,8 @@ function calculateCompatibilityScore(
     }
   }
 
-  // Scale to 0-100, with slight randomness for variety (±3 points)
-  const jitter = (Math.random() - 0.5) * 6
-  const score = Math.round(Math.min(98, Math.max(45, raw * 100 + jitter)))
+  // Scale to 0-100 — deterministic, no randomness
+  const score = Math.round(Math.min(98, Math.max(45, raw * 100)))
 
   return score
 }
@@ -188,8 +188,44 @@ export async function generateRecommendations(
   // Sort by score descending
   scored.sort((a, b) => b.compatibilityScore - a.compatibilityScore)
 
-  // Return all compatible styles (optionally cap with count if provided)
-  const top = count ? scored.slice(0, count) : scored
+  // ─── Diversity pass: ensure a mix of short / medium / long styles ───
+  // Classify each style by approximate length category
+  const getCategory = (e: HairstyleEntry): 'short' | 'medium' | 'long' => {
+    const cats = e.category
+    if (['Fade', 'Crop', 'Short', 'Quiff', 'Spiky'].includes(cats)) return 'short'
+    if (['Medium', 'Edgy'].includes(cats)) return 'medium'
+    if (cats === 'Long') return 'long'
+    // For Classic and Curly: check top length from barberCard to classify correctly
+    const topMetric = e.barberCard.cuttingMetrics.top.toLowerCase()
+    if (topMetric.includes('#') || topMetric.includes('guard') || topMetric.includes('1-1') || topMetric.includes('1.5-2')) return 'short'
+    if (topMetric.includes('8+') || topMetric.includes('8-12') || topMetric.includes('6-10')) return 'long'
+    return 'medium'
+  }
+
+  const desiredCount = count || scored.length
+  const picked: ScoredHairstyle[] = []
+
+  // First pass: pick top scoring style from each of the 3 length categories
+  // Only include if score >= 50 (reasonably compatible) — don't force bad matches
+  for (const cat of ['short', 'medium', 'long'] as const) {
+    const candidate = scored.find(s => getCategory(s.entry) === cat && !picked.includes(s) && s.compatibilityScore >= 50)
+    if (candidate) {
+      picked.push(candidate)
+    }
+  }
+
+  // Fill the rest from the top-scored pool (avoiding duplicates)
+  for (const s of scored) {
+    if (picked.length >= desiredCount) break
+    if (!picked.includes(s)) {
+      picked.push(s)
+    }
+  }
+
+  // Re-sort picked by original score so the best overall style is first
+  picked.sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+
+  const top = picked.slice(0, desiredCount)
 
   // Mark top 1 as Sculpt Pick, add trend badge for top trending styles
   return top.map((item, index) => ({

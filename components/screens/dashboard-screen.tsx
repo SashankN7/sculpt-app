@@ -291,20 +291,7 @@ export function DashboardScreen() {
                 </span>
               </div>
 
-              {/* Free tier prominent limitation note */}
-              {!(isPremium || isTrial) && (
-                <div className="mt-2.5 pt-2.5 border-t border-orange-400/20">
-                  <div className="flex items-start gap-2 p-2 bg-orange-400/10 border border-orange-400/30 rounded-lg">
-                    <AlertTriangle className="w-3.5 h-3.5 text-orange-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10px] font-bold text-orange-400 leading-tight mb-0.5">Your photos are NOT analyzed by AI</p>
-                      <p className="text-[9px] text-muted-foreground leading-relaxed">
-                        Free tier uses questionnaire answers only. No face shape, density, or texture detection from your photos. Upgrade for real AI analysis.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+
             </div>
 
             {/* Stats */}
