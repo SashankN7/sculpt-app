@@ -33,8 +33,8 @@ export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 // Free users get questionnaire-based inference only (no AI photo analysis)
 // Premium users get AI-powered analysis + unlimited scans
 export const SCAN_LIMITS: Record<UserSession, number> = {
-  guest: 1,          // 1 scan/day — questionnaire-based recs only
-  authenticated: 1,   // 1 scan/day — questionnaire-based recs only
+  guest: 10,          // 10 scans/day — TEMP FOR TESTING — questionnaire-based recs only
+  authenticated: 10,   // 10 scans/day — TEMP FOR TESTING — questionnaire-based recs only
   trial: 9999,       // unlimited scans — full AI analysis
   premium: 9999,     // unlimited scans — full AI analysis
 }

@@ -116,27 +116,31 @@ export function DashboardScreen() {
       {/* Scrollable Content */}
       <div className="flex-1 pb-4 overflow-y-auto w-full">
         <div className="px-4 md:px-6 lg:px-8 space-y-5 max-w-3xl mx-auto">
-        {/* Guest Upgrade Banner */}
-        {userSession === 'guest' && !isFirstTime && (
+        {/* Free Tier — Top-level prominent banner (guest OR authenticated free) */}
+        {!(isPremium || isTrial) && !isFirstTime && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-blue-400/10 to-blue-400/5 border border-blue-400/30 rounded-xl p-4 flex items-center gap-3"
+            className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl p-4"
           >
-            <div className="w-10 h-10 rounded-xl bg-blue-400/20 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-orange-400/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4 text-orange-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-orange-400 uppercase tracking-wide">Free Tier — Questionnaire Only</p>
+                <p className="text-[10px] text-muted-foreground">Your photos are not analyzed by AI</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">Save your results</p>
-              <p className="text-[11px] text-muted-foreground">Create an account to keep your analysis across devices</p>
-            </div>
+            <p className="text-[11px] text-foreground leading-relaxed mb-3">
+              On the free plan, <span className="font-bold text-orange-400">no face shape, hair density, or texture detection</span> happens from your photos. Results come from questionnaire answers only. Premium users get real GPT-4o Vision analysis.
+            </p>
             <button
-              onClick={() => navigateTo('auth')}
-              className="flex-shrink-0 px-3 py-1.5 bg-blue-400 text-white text-[11px] font-medium rounded-lg hover:bg-blue-400/90 transition-colors"
+              onClick={() => navigateTo('paywall')}
+              className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
             >
-              Create Account
+              <Crown className="w-3.5 h-3.5" />
+              UPGRADE FOR AI PHOTO ANALYSIS
             </button>
           </motion.div>
         )}
@@ -261,16 +265,16 @@ export function DashboardScreen() {
               <div className="flex items-center justify-between py-1.5">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3 text-gold" />
-                  <span className="text-[11px] text-muted-foreground">AI Photo Analysis</span>
+                  <span className="text-[11px] text-muted-foreground">Photo Analysis</span>
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                  isPremium || isTrial ? 'text-gold' : 'text-orange-400'
                 }`}>
                   {isPremium || isTrial
                     ? featureConfig && !featureConfig.hasOpenAI
                       ? '10/day (AI key needed)'
-                      : `${DAILY_USAGE_LIMITS.analyses}/day`
-                    : 'Questionnaire-based'
+                      : `AI · ${DAILY_USAGE_LIMITS.analyses}/day`
+                    : '⚠️ Questionnaire Only'
                   }
                 </span>
               </div>
@@ -281,18 +285,24 @@ export function DashboardScreen() {
                   <span className="text-[11px] text-muted-foreground">AI Chat Assistant</span>
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  isPremium || isTrial ? 'text-gold' : 'text-muted-foreground'
+                  isPremium || isTrial ? 'text-gold' : 'text-orange-400'
                 }`}>
-                  {isPremium || isTrial ? `${DAILY_USAGE_LIMITS.chatMessages}/day` : 'Not included'}
+                  {isPremium || isTrial ? `${DAILY_USAGE_LIMITS.chatMessages}/day` : '⚠️ Not included'}
                 </span>
               </div>
 
-              {/* Free tier note */}
+              {/* Free tier prominent limitation note */}
               {!(isPremium || isTrial) && (
-                <div className="mt-2 pt-2 border-t border-border/50">
-                  <p className="text-[10px] text-muted-foreground/70 italic">
-                    Free: 1 scan/day with questionnaire-based suggestions. Upgrade for AI photo analysis, chat, and more.
-                  </p>
+                <div className="mt-2.5 pt-2.5 border-t border-orange-400/20">
+                  <div className="flex items-start gap-2 p-2 bg-orange-400/10 border border-orange-400/30 rounded-lg">
+                    <AlertTriangle className="w-3.5 h-3.5 text-orange-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold text-orange-400 leading-tight mb-0.5">Your photos are NOT analyzed by AI</p>
+                      <p className="text-[9px] text-muted-foreground leading-relaxed">
+                        Free tier uses questionnaire answers only. No face shape, density, or texture detection from your photos. Upgrade for real AI analysis.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -358,8 +368,8 @@ export function DashboardScreen() {
                   {isPremium || isTrial
                     ? `${DAILY_USAGE_LIMITS.analyses} AI analyses · ${DAILY_USAGE_LIMITS.chatMessages} chat messages/day`
                     : isFirstTime
-                    ? '1 free scan/day · AI-powered analysis'
-                    : '1 scan/day · Upgrade for AI analysis'}
+                    ? '10 free scans/day · AI-powered analysis'
+                    : '10 scans/day · Upgrade for AI analysis'}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -660,7 +670,45 @@ export function DashboardScreen() {
           </p>
         </motion.div>
 
-        {/* How Sculpt Works */}
+        {/* Going to the barber? — time-sensitive urgency CTA */}
+        {currentSavedCards.length > 0 && !(isPremium || isTrial) && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-orange-400/20 flex items-center justify-center flex-shrink-0">
+                <Scissors className="w-4 h-4 text-orange-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-orange-400">Going to the barber?</p>
+                <p className="text-[10px] text-muted-foreground">Get the exact specs to hand your stylist</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-foreground leading-relaxed mb-3">
+              Your barber card has <span className="font-bold">exact cutting metrics</span> (top length, side fade, boundary) and <span className="font-bold">styling protocols</span> — but premium is needed to unlock them.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigateTo('paywall')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                UNLOCK BARBER CARD
+              </button>
+              <button
+                onClick={() => { syncRecommendationIndex(0); navigateTo('barber-card') }}
+                className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-secondary border border-orange-400/30 text-orange-400 text-[11px] font-bold rounded-lg hover:bg-orange-400/10 transition-colors"
+              >
+                Preview
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* How Sculpt Works — shows locked state for free users */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -670,43 +718,68 @@ export function DashboardScreen() {
           <p className="text-[10px] font-medium text-gold tracking-wider uppercase mb-3">HOW SCULPT WORKS</p>
           <div className="space-y-3">
             {[
-              { step: '01', icon: <Camera className="w-4 h-4" />, text: 'Upload your face photos' },
-              { step: '02', icon: <Sparkles className="w-4 h-4" />, text: 'AI analyzes your features' },
-              { step: '03', icon: <Scissors className="w-4 h-4" />, text: 'Get personalized barber cards' },
+              { step: '01', icon: <Camera className="w-4 h-4" />, text: 'Upload your face photos', locked: false },
+              { step: '02', icon: <Sparkles className="w-4 h-4" />, text: (isPremium || isTrial) ? 'AI analyzes your features' : 'AI analyzes your features (Premium only)', locked: !(isPremium || isTrial) },
+              { step: '03', icon: <Scissors className="w-4 h-4" />, text: 'Get personalized barber cards', locked: false },
             ].map((item) => (
               <div key={item.step} className="flex items-center gap-3">
                 <span className="text-[10px] font-bold text-gold w-5">{item.step}</span>
-                <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center text-gold">
-                  {item.icon}
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                  item.locked ? 'bg-orange-400/10 text-orange-400' : 'bg-background text-gold'
+                }`}>
+                  {item.locked ? <Lock className="w-4 h-4" /> : item.icon}
                 </div>
-                <p className="text-xs text-muted-foreground">{item.text}</p>
+                <div className="flex-1">
+                  <p className={`text-xs ${item.locked ? 'text-orange-400 font-medium' : 'text-muted-foreground'}`}>{item.text}</p>
+                </div>
+                {item.locked && !isPremium && !isTrial && (
+                  <button
+                    onClick={() => navigateTo('paywall')}
+                    className="text-[9px] font-bold text-gold hover:text-gold/80 transition-colors uppercase"
+                  >
+                    Unlock
+                  </button>
+                )}
               </div>
             ))}
           </div>
+          {!(isPremium || isTrial) && (
+            <div className="mt-3 pt-3 border-t border-orange-400/20">
+              <p className="text-[10px] text-orange-400 font-medium text-center">
+                ⚠️ Step 2 (AI analysis) requires Premium — free users skip photo analysis
+              </p>
+            </div>
+          )}
         </motion.div>
 
-        {/* Premium Upsell (for free users only) */}
+        {/* Premium Upsell — Prominent for free users */}
         {!isPremium && !isTrial && !isFirstTime && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-gold/5 border border-gold/30 rounded-xl p-4"
+            className="bg-gradient-to-br from-gold/15 to-gold/5 border-2 border-gold/40 rounded-xl p-5"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <Crown className="w-4 h-4 text-gold" />
-              <p className="text-sm font-medium text-foreground">
-                Unlock AI-Powered Analysis
-              </p>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                <Crown className="w-4 h-4 text-gold" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">
+                  Get Real AI Photo Analysis
+                </p>
+                <p className="text-[10px] text-gold font-medium">Your current results are questionnaire-only</p>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              10 real AI analyses/day · 30 chat messages/day · PDF export — all powered by GPT-4o Vision.
+            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+              Upgrade for <span className="font-bold text-foreground">GPT-4o Vision</span> to analyze your actual face shape, hair density, and texture from photos. Plus 30 AI chat messages/day and PDF export.
             </p>
             <button
               onClick={() => navigateTo('paywall')}
-              className="text-xs text-gold font-medium hover:text-gold/80 transition-colors"
+              className="flex items-center justify-center gap-1.5 w-full py-3 bg-gold text-gold-foreground font-bold text-xs rounded-xl hover:bg-gold/90 transition-colors"
             >
-              Start Free 30-Day Trial →
+              <Crown className="w-3.5 h-3.5" />
+              START FREE 30-DAY TRIAL
             </button>
           </motion.div>
         )}

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { track } from "@/lib/posthog"
-import { Star, Settings, ExternalLink } from "lucide-react"
+import { Star, Settings, ExternalLink, Crown, AlertTriangle } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
 
@@ -191,6 +191,9 @@ export function RecommendationsScreen() {
     )
   }
 
+  const { userSession } = state
+  const isFreeUser = userSession === 'guest' || userSession === 'authenticated'
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -208,7 +211,7 @@ export function RecommendationsScreen() {
 
       <div className="flex-1 px-4 pt-2 pb-4 flex flex-col">
         {/* Title */}
-        <div className="flex items-center justify-between mb-3 px-2">
+        <div className="flex items-center justify-between mb-2 px-2">
           <h2 className="text-lg font-semibold text-foreground">
             YOUR CURATED MATCHES
           </h2>
@@ -216,6 +219,26 @@ export function RecommendationsScreen() {
             {currentRecommendationIndex + 1} / {recommendations.length}
           </span>
         </div>
+
+        {/* Free user prominent banner */}
+        {isFreeUser && (
+          <div className="mb-3 mx-2 p-3 bg-gradient-to-r from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl">
+            <div className="flex items-center gap-2 mb-1.5">
+              <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+              <p className="text-[11px] font-bold text-orange-400 uppercase tracking-wide">Questionnaire-Based Results</p>
+            </div>
+            <p className="text-[10px] text-foreground leading-relaxed mb-2">
+              These recommendations are based on your <span className="font-bold">questionnaire answers only</span> — your photos were not analyzed by AI. Premium users get recommendations from real face shape, density, and texture analysis.
+            </p>
+            <button
+              onClick={() => navigateTo('paywall')}
+              className="flex items-center justify-center gap-1.5 w-full py-2 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              UPGRADE FOR AI-POWERED RESULTS
+            </button>
+          </div>
+        )}
 
         {/* Card Stack (Swipe View) */}
         <>

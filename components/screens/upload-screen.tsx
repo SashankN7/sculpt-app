@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { processUploadedImage } from "@/lib/image-utils"
 import { track } from "@/lib/posthog"
-import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, AlertTriangle } from "lucide-react"
+import { ChevronLeft, Camera, CheckCircle, Trash2, Lock, Sparkles, Settings, Sun, AlertTriangle, Crown } from "lucide-react"
 
 interface UploadCardProps {
   label: string
@@ -173,11 +173,33 @@ export function UploadScreen() {
           <h2 className="text-xl font-semibold text-foreground mb-2">
             UPLOAD YOUR PHOTOS
           </h2>
-          <p className="text-sm text-muted-foreground mb-6">
+          <p className="text-sm text-muted-foreground mb-2">
             {isPremium
               ? 'AI-powered analysis reads face geometry and density from your photos.'
-              : 'Our analysis reads face geometry and density from your photos.'}
+              : 'Upload your photos, then complete a questionnaire for personalized recommendations.'}
           </p>
+
+          {/* Free tier photo analysis limitation banner */}
+          {!isPremium && !isTrial && (
+            <div className="mb-5 p-3 bg-gradient-to-r from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl">
+              <div className="flex items-center gap-2 mb-1.5">
+                <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                <p className="text-[11px] font-bold text-orange-400 uppercase tracking-wide">Photos Won't Be Analyzed by AI</p>
+              </div>
+              <p className="text-[11px] text-foreground leading-relaxed mb-2">
+                On the free plan, your photos are <span className="font-bold">not processed by AI</span>. Recommendations are generated from your questionnaire answers only — no face shape, hair density, or texture detection.
+              </p>
+              <button
+                onClick={() => navigateTo('paywall')}
+                className="flex items-center justify-center gap-1.5 w-full py-2 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                UPGRADE FOR AI PHOTO ANALYSIS
+              </button>
+            </div>
+          )}
+
+          <div className="mb-6" />
 
           {/* Upload Cards */}
           <div className="space-y-3 mb-8">
@@ -288,9 +310,12 @@ export function UploadScreen() {
           )}
 
           {!isPremium && !isTrial && scansLeft > 0 && (
-            <p className="text-[10px] text-muted-foreground/50 text-center mt-4">
-              {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Free tier uses questionnaire-based recommendations only. Upgrade for AI photo analysis.
-            </p>
+            <div className="mt-4 p-3 bg-orange-400/10 border border-orange-400/30 rounded-xl text-center">
+              <p className="text-[11px] font-bold text-orange-400 mb-1">⚠️ Free Tier: Questionnaire-Based Only</p>
+              <p className="text-[10px] text-muted-foreground">
+                {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Your photos will NOT be analyzed by AI · Upgrade for real photo analysis.
+              </p>
+            </div>
           )}
 
           {(isPremium || isTrial) && (

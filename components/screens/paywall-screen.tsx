@@ -147,7 +147,7 @@ export function PaywallScreen() {
             UNLOCK SCULPT PREMIUM
           </h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-            Real AI analysis of your face shape, hair density, and texture — personalized to you.
+            Real GPT-4o Vision analysis of your face shape, hair density, and texture from your photos — not just questionnaire answers.
           </p>
 
           {/* Free vs Premium comparison */}
@@ -155,16 +155,17 @@ export function PaywallScreen() {
             {/* Free Tier */}
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold text-muted-foreground">FREE TIER</span>
+                <span className="text-xs font-semibold text-orange-400">FREE TIER</span>
+                <span className="text-[10px] text-orange-400/70">· very limited</span>
               </div>
               <ul className="space-y-1.5">
-                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                  Unlimited scans
+                <li className="flex items-center gap-2 text-[11px] text-orange-400">
+                  <span className="w-1 h-1 rounded-full bg-orange-400" />
+                  <span className="font-bold">NO AI photo analysis — photos are ignored</span>
                 </li>
-                <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                  1 scan/day with questionnaire-based suggestions only
+                <li className="flex items-center gap-2 text-[11px] text-orange-400">
+                  <span className="w-1 h-1 rounded-full bg-orange-400" />
+                  <span className="font-bold">Questionnaire answers only — no face/density/texture detection</span>
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
@@ -273,10 +274,35 @@ export function PaywallScreen() {
             </motion.div>
           </AnimatePresence>
 
+          {/* What you're missing banner */}
+          <div className="bg-orange-400/10 border-2 border-orange-400/30 rounded-xl p-4 mb-5 text-left">
+            <p className="text-sm font-bold text-orange-400 mb-2">
+              ⚠️ WHAT YOU'RE MISSING ON FREE:
+            </p>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2 text-[11px]">
+                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-foreground"><span className="font-bold">No face shape detection</span> from your photos</span>
+              </li>
+              <li className="flex items-start gap-2 text-[11px]">
+                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-foreground"><span className="font-bold">No hair density or texture analysis</span></span>
+              </li>
+              <li className="flex items-start gap-2 text-[11px]">
+                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-foreground"><span className="font-bold">Recommendations based on guesses</span>, not your actual face</span>
+              </li>
+              <li className="flex items-start gap-2 text-[11px]">
+                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-foreground">No AI chat, no PDF export</span>
+              </li>
+            </ul>
+          </div>
+
           {/* Features */}
-          <div className="bg-secondary border border-border rounded-xl p-4 mb-5 text-left">
-            <p className="text-sm font-medium text-foreground mb-3">
-              PREMIUM INCLUDES:
+          <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-5 text-left">
+            <p className="text-sm font-bold text-gold mb-3">
+              ✨ PREMIUM INCLUDES:
             </p>
             <ul className="space-y-2.5">
               {premiumFeatures.map((feature, index) => (

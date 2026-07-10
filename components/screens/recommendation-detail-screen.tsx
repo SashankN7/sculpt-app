@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
-import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Crown, Scissors, Eye, TrendingUp } from "lucide-react"
+import { Star, Check, Share2, FileText, X, ArrowRightFromLine, ArrowLeftFromLine, Home, Crown, Scissors, Eye, TrendingUp, Lock } from "lucide-react"
 import type { HairstyleRecommendation, TraitKey } from "@/lib/types"
 import { getTraitBgColor } from "@/lib/types"
 
@@ -47,10 +47,12 @@ function RecommendationCard({
   onSelect,
   onViewDetail,
   onViewBarberCard,
+  onUpgrade,
   onShare,
   onViewReferencePhoto,
   onMoveToRejected,
   onMoveToSaved,
+  isPremium,
   animDelay = 0,
 }: {
   recommendation: HairstyleRecommendation
@@ -60,10 +62,12 @@ function RecommendationCard({
   onSelect: () => void
   onViewDetail: () => void
   onViewBarberCard?: () => void
+  onUpgrade?: () => void
   onShare?: () => void
   onViewReferencePhoto?: () => void
   onMoveToRejected?: () => void
   onMoveToSaved?: () => void
+  isPremium: boolean
   animDelay?: number
 }) {
   return (
@@ -149,13 +153,23 @@ function RecommendationCard({
               <FileText className="w-3.5 h-3.5" />
               VIEW DETAILS
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onViewBarberCard?.() }}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-background border border-gold/40 text-gold text-xs font-semibold rounded-lg hover:bg-gold/5 transition-colors"
-            >
-              <Scissors className="w-3.5 h-3.5" />
-              VIEW BARBER CARD
-            </button>
+            {isPremium ? (
+              <button
+                onClick={(e) => { e.stopPropagation(); onViewBarberCard?.() }}
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-background border border-gold/40 text-gold text-xs font-semibold rounded-lg hover:bg-gold/5 transition-colors"
+              >
+                <Scissors className="w-3.5 h-3.5" />
+                VIEW BARBER CARD
+              </button>
+            ) : (
+              <button
+                onClick={(e) => { e.stopPropagation(); onUpgrade?.() }}
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gold/5 border border-gold/30 text-gold text-xs font-semibold rounded-lg hover:bg-gold/10 transition-colors"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                BARBER CARD — PREMIUM
+              </button>
+            )}
             <button
               onClick={(e) => { e.stopPropagation(); onViewReferencePhoto?.() }}
               className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-background border border-blue-400/40 text-blue-400 text-xs font-semibold rounded-lg hover:bg-blue-400/5 transition-colors"
@@ -419,9 +433,11 @@ Tap a style to expand options.
                     onSelect={() => handleSelectSaved(index)}
                     onViewDetail={() => handleViewDetail(rec)}
                     onViewBarberCard={() => { syncRecommendationIndex(rec.id ? recommendations.findIndex(r => r.id === rec.id) : -1); navigateTo('barber-card') }}
+                    onUpgrade={() => navigateTo('paywall')}
                     onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
                     onShare={() => handleShareCard(rec)}
                     onMoveToRejected={() => handleMoveToRejected(rec)}
+                    isPremium={isPremium}
                     animDelay={index * 0.05}
                   />
                 ))}
@@ -476,9 +492,11 @@ Tap a style to expand options.
                       onSelect={() => handleSelectRejected(index)}
                       onViewDetail={() => handleViewDetail(rec)}
                       onViewBarberCard={() => { syncRecommendationIndex(rec.id ? recommendations.findIndex(r => r.id === rec.id) : -1); navigateTo('barber-card') }}
+                    onUpgrade={() => navigateTo('paywall')}
                     onViewReferencePhoto={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(rec.name + " men haircut")}&tbm=isch`, "_blank")}
                       onShare={() => handleShareCard(rec)}
                     onMoveToSaved={() => handleMoveToSaved(rec)}
+                      isPremium={isPremium}
                       animDelay={index * 0.05}
                     />
                   )

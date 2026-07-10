@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { track } from "@/lib/posthog"
-import { Settings, Check, Loader2, AlertTriangle, LogIn } from "lucide-react"
+import { Settings, Check, Loader2, AlertTriangle, Crown, Sparkles } from "lucide-react"
 
 // Use a module-level flag to prevent double execution across strict mode remounts
 let processingStarted = false
@@ -130,12 +130,14 @@ export function ProcessingScreen() {
         setStepStatuses(['done', 'reading', 'waiting'])
 
         // Step 2: Call /api/recommend with analysis + questionnaire + trend settings
+        const isFreeUser = state.userSession === 'guest' || state.userSession === 'authenticated'
         const recommendRes = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             analysis,
             answers: state.questionnaireData,
+            count: isFreeUser ? 3 : 8,
             includeTrends: state.settings.aiPersonalization.includeTrends,
             history: {
               savedStyleNames: state.savedRecommendations.map(r => r.name),
@@ -266,26 +268,34 @@ export function ProcessingScreen() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        {/* Guest user login prompt */}
-        {state.userSession === 'guest' && (
+        {/* Free user prominent limitation banner */}
+        {(state.userSession === 'guest' || state.userSession === 'authenticated') && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-3 bg-blue-400/10 border border-blue-400/30 rounded-xl flex items-center gap-3"
+            className="mb-6"
           >
-            <div className="w-8 h-8 rounded-full bg-blue-400/20 flex items-center justify-center flex-shrink-0">
-              <LogIn className="w-4 h-4 text-blue-400" />
+            <div className="p-4 bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-full bg-orange-400/20 flex items-center justify-center">
+                  <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />
+                </div>
+                <p className="text-xs font-bold text-orange-400 uppercase tracking-wide">Free Tier — Questionnaire Only</p>
+              </div>
+              <p className="text-[11px] text-foreground leading-relaxed mb-1">
+                Your photos are <span className="font-bold text-orange-400">NOT being analyzed by AI</span>. Results are based purely on your questionnaire answers — no face shape, density, or texture detection from your photos.
+              </p>
+              <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">
+                Premium users get real GPT-4o Vision analysis of their actual face and hair from photos.
+              </p>
+              <button
+                onClick={() => navigateTo('paywall')}
+                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-gold text-gold-foreground text-[11px] font-bold rounded-lg hover:bg-gold/90 transition-colors"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                UPGRADE FOR AI PHOTO ANALYSIS
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-blue-400">Questionnaire-based recommendations</p>
-              <p className="text-[10px] text-muted-foreground">Free tier uses questionnaire responses only. Upgrade for AI photo analysis of your actual face & hair.</p>
-            </div>
-            <button
-              onClick={() => navigateTo('auth')}
-              className="flex-shrink-0 px-3 py-1.5 bg-blue-400 text-white text-[10px] font-semibold rounded-lg hover:bg-blue-400/90 transition-colors"
-            >
-              Create Account
-            </button>
           </motion.div>
         )}
 
@@ -293,10 +303,10 @@ export function ProcessingScreen() {
         {(state.userSession === 'guest' || state.userSession === 'authenticated') ? (
           <>
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              FINDING YOUR BEST STYLES
+              QUESTIONNAIRE-BASED MATCHING
             </h2>
             <p className="text-sm text-muted-foreground mb-10">
-              Matching your preferences to compatible haircuts...
+              Finding styles that match your preferences...
             </p>
           </>
         ) : (
@@ -305,7 +315,7 @@ export function ProcessingScreen() {
               SCULPT AI ENGINE ACTIVE
             </h2>
             <p className="text-sm text-muted-foreground mb-10">
-              Analyzing facial architecture & hair traits...
+              Analyzing facial architecture & hair traits from your photos...
             </p>
           </>
         )}
@@ -325,9 +335,16 @@ export function ProcessingScreen() {
           </div>
         </div>
 
-        {/* Steps */}
+        {/* Steps — different labels for free vs premium */}
         <div className="space-y-3 text-left">
-          {stepLabels.map((label, index) => (
+          {(state.userSession === 'guest' || state.userSession === 'authenticated'
+            ? [
+                'Reading your questionnaire responses...',
+                'Matching preferences to compatible styles...',
+                'Ranking your best-fit recommendations...',
+              ]
+            : stepLabels
+          ).map((label, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -10 }}
@@ -357,6 +374,17 @@ export function ProcessingScreen() {
             {personalizedTips[tipIndex]}
           </motion.p>
         </div>
+
+        {/* Free tier upsell at bottom */}
+        {(state.userSession === 'guest' || state.userSession === 'authenticated') && (
+          <div className="mt-4 p-3 bg-gold/5 border border-gold/20 rounded-xl">
+            <p className="text-[10px] text-gold font-medium text-center">
+              <Sparkles className="w-3 h-3 inline mr-1" />
+              Upgrade to Premium for AI photo analysis — your face shape, density & texture detected from your actual photos.
+            </p>
+          </div>
+        )}
+
         <p className="mt-4 text-xs text-muted-foreground">
           Please keep the app open. This takes ~5-15 seconds.
         </p>
