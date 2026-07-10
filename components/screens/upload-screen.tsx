@@ -310,11 +310,8 @@ export function UploadScreen() {
           )}
 
           {!isPremium && !isTrial && scansLeft > 0 && (
-            <div className="mt-4 p-3 bg-orange-400/10 border border-orange-400/30 rounded-xl text-center">
-              <p className="text-[11px] font-bold text-orange-400 mb-1">⚠️ Free Tier: Questionnaire-Based Only</p>
-              <p className="text-[10px] text-muted-foreground">
-                {scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today · Your photos will NOT be analyzed by AI · Upgrade for real photo analysis.
-              </p>
+            <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-xl text-center">
+              <p className="text-[11px] font-bold text-gold">{scansLeft} scan{scansLeft !== 1 ? 's' : ''} remaining today</p>
             </div>
           )}
 
