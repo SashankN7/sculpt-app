@@ -335,15 +335,15 @@ export function PaywallScreen() {
           <button
             onClick={handleSubscribe}
             disabled={isProcessing}
-            className="w-full py-3 px-6 border border-border text-sm font-medium rounded-xl hover:bg-secondary transition-colors mb-3 flex items-center justify-center gap-2 disabled:opacity-70"
+            className="w-full py-3 px-6 border-2 border-gold text-white text-sm font-semibold rounded-xl hover:bg-gold/10 transition-colors mb-3 flex items-center justify-center gap-2 disabled:opacity-70"
           >
             {isProcessing && processingAction === 'subscribe' ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-muted-foreground">Processing...</span>
+                <span className="text-white">Processing...</span>
               </>
             ) : (
-              <span className="text-muted-foreground">
+              <span className="text-white">
                 Subscribe without trial — {billingCycle === 'annual' ? PRICING.annual.label : PRICING.monthly.label}
               </span>
             )}
