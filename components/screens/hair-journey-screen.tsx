@@ -9,7 +9,7 @@ import type { ProgressPhoto, LoggedCut } from "@/lib/types"
 const GROWTH_STAGES = {
   fresh: { label: "Fresh Cut", color: "text-green-400", bg: "bg-green-400/10", border: "border-green-400/30", emoji: "✨" },
   growing: { label: "Growing Out", color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/30", emoji: "🌱" },
-  "needs-trim": { label: "Needs Trim", color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/30", emoji: "✂️" },
+  "needs-trim": { label: "Needs Trim", color: "text-gold", bg: "bg-gold/10", border: "border-gold/30", emoji: "✂️" },
   overgrown: { label: "Overgrown", color: "text-red-400", bg: "bg-red-400/10", border: "border-red-400/30", emoji: "🌿" },
 } as const
 
@@ -44,7 +44,7 @@ function CutCard({ cut, onDelete }: { cut: LoggedCut; onDelete: (id: string) => 
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-secondary border border-orange-400/20 rounded-xl overflow-hidden"
+      className="bg-secondary border border-gold/20 rounded-xl overflow-hidden"
     >
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left">
         <div className="flex items-start gap-3 p-3.5">
@@ -53,14 +53,14 @@ function CutCard({ cut, onDelete }: { cut: LoggedCut; onDelete: (id: string) => 
               <img src={cut.photoUrl} alt={cut.hairstyleName} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Scissors className="w-5 h-5 text-orange-400" />
+                <Scissors className="w-5 h-5 text-gold" />
               </div>
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <Scissors className="w-3 h-3 text-orange-400" />
-              <span className="text-[9px] font-medium text-orange-400 tracking-wider uppercase">LOGGED CUT</span>
+              <Scissors className="w-3 h-3 text-gold" />
+              <span className="text-[9px] font-medium text-gold tracking-wider uppercase">LOGGED CUT</span>
             </div>
             <p className="text-sm font-semibold text-foreground truncate">{cut.hairstyleName}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -292,7 +292,7 @@ export function HairJourneyScreen() {
             {totalEntries > 0 && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-3 gap-2 mb-6">
                 <div className="bg-secondary border border-border rounded-xl p-3 text-center">
-                  <p className="text-lg font-bold text-orange-400">{totalCuts}</p>
+                  <p className="text-lg font-bold text-gold">{totalCuts}</p>
                   <p className="text-[10px] text-muted-foreground">Cuts Logged</p>
                 </div>
                 <div className="bg-secondary border border-border rounded-xl p-3 text-center">
@@ -326,8 +326,8 @@ export function HairJourneyScreen() {
                 <p className="text-sm text-muted-foreground mb-2 max-w-xs mx-auto">
                   Track your grooming journey over time.
                 </p>
-                <div className="bg-orange-400/10 border border-orange-400/30 rounded-lg p-3 mb-6 max-w-xs mx-auto">
-                  <p className="text-[11px] text-orange-400 font-medium text-center">
+                <div className="bg-gold/10 border border-gold/30 rounded-lg p-3 mb-6 max-w-xs mx-auto">
+                  <p className="text-[11px] text-gold font-medium text-center">
                     ✂️ Log a Cut = you just got a fresh haircut
                   </p>
                   <p className="text-[10px] text-muted-foreground text-center mt-1">
@@ -335,7 +335,7 @@ export function HairJourneyScreen() {
                   </p>
                 </div>
                 <div className="flex gap-3 justify-center">
-                  <button onClick={() => navigateTo("log-cut")} className="px-5 py-3 bg-orange-400 text-white font-semibold rounded-xl text-sm">
+                  <button onClick={() => navigateTo("log-cut")} className="px-5 py-3 bg-gold text-white font-semibold rounded-xl text-sm">
                     Log a Fresh Cut
                   </button>
                   <button onClick={() => setShowUpload(true)} className="px-5 py-3 bg-gold text-gold-foreground font-semibold rounded-xl text-sm">

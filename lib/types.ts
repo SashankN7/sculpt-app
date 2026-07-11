@@ -27,6 +27,7 @@ export type Screen =
   | 'profile-setup'
   | 'log-cut'
   | 'daily-checkin'
+  | 'refer-friend'
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
@@ -333,6 +334,12 @@ export interface AppState {
   // Navigation helpers
   settingsScrollTo: string | null
   detailViewMode: 'full' | 'savedOnly'
+  // Referral system
+  referralCode: string | null
+  referredBy: string | null
+  referralsSent: number
+  referralsConverted: number
+  referralRewardsClaimed: string[]
 }
 
 export const defaultSettingsState: SettingsState = {
@@ -425,4 +432,9 @@ export const initialAppState: AppState = {
   },
   settingsScrollTo: null,
   detailViewMode: 'full',
+  referralCode: null,
+  referredBy: null,
+  referralsSent: 0,
+  referralsConverted: 0,
+  referralRewardsClaimed: [],
 }

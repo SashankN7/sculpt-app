@@ -181,10 +181,10 @@ export function UploadScreen() {
 
           {/* Free tier photo analysis limitation banner */}
           {!isPremium && !isTrial && (
-            <div className="mb-5 p-3 bg-gradient-to-r from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl">
+            <div className="mb-5 p-3 bg-gradient-to-r from-gold/15 to-gold/5 border-2 border-gold/40 rounded-xl">
               <div className="flex items-center gap-2 mb-1.5">
-                <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                <p className="text-[11px] font-bold text-orange-400 uppercase tracking-wide">Photos Won't Be Analyzed by AI</p>
+                <AlertTriangle className="w-4 h-4 text-gold flex-shrink-0" />
+                <p className="text-[11px] font-bold text-gold uppercase tracking-wide">Photos Won't Be Analyzed by AI</p>
               </div>
               <p className="text-[11px] text-foreground leading-relaxed mb-2">
                 On the free plan, your photos are <span className="font-bold">not processed by AI</span>. Recommendations are generated from your questionnaire answers only — no face shape, hair density, or texture detection.

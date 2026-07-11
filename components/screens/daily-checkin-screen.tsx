@@ -311,8 +311,8 @@ export function DailyCheckInScreen() {
                 onClick={() => navigateTo('gamification')}
                 className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
               >
-                <div className="w-9 h-9 rounded-lg bg-orange-400/10 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-orange-400" />
+                <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-gold" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium text-foreground">View Achievements</p>

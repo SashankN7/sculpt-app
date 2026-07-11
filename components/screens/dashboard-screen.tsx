@@ -6,7 +6,7 @@ import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
 import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/lib/seasonal"
 import { getEarnedBadges, getRecentBadges, hasCheckedInToday, getNextDailyReward, getWeeklyCheckInHistory } from "@/lib/gamification"
-import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Flame, Gift, Check } from "lucide-react"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Flame, Gift, Check, Users, Share2 } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
 import { DAILY_USAGE_LIMITS, SCAN_LIMITS } from "@/lib/types"
 import { getDailyTip, getUserTags } from "@/lib/daily-tips"
@@ -121,19 +121,19 @@ export function DashboardScreen() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl p-4"
+            className="bg-gradient-to-br from-gold/15 to-gold/5 border-2 border-gold/40 rounded-xl p-4"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-orange-400/20 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-4 h-4 text-orange-400" />
+              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4 text-gold" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-orange-400 uppercase tracking-wide">Free Tier — Questionnaire Only</p>
+                <p className="text-sm font-bold text-gold uppercase tracking-wide">Free Tier — Questionnaire Only</p>
                 <p className="text-[10px] text-muted-foreground">Your photos are not analyzed by AI</p>
               </div>
             </div>
             <p className="text-[11px] text-foreground leading-relaxed mb-3">
-              On the free plan, <span className="font-bold text-orange-400">no face shape, hair density, or texture detection</span> happens from your photos. Results come from questionnaire answers only. Premium users get real GPT-4o Vision analysis.
+              On the free plan, <span className="font-bold text-gold">no face shape, hair density, or texture detection</span> happens from your photos. Results come from questionnaire answers only. Premium users get real GPT-4o Vision analysis.
             </p>
             <button
               onClick={() => navigateTo('paywall')}
@@ -268,7 +268,7 @@ export function DashboardScreen() {
                   <span className="text-[11px] text-muted-foreground">Photo Analysis</span>
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  isPremium || isTrial ? 'text-gold' : 'text-orange-400'
+                  isPremium || isTrial ? 'text-gold' : 'text-gold'
                 }`}>
                   {isPremium || isTrial
                     ? featureConfig && !featureConfig.hasOpenAI
@@ -285,7 +285,7 @@ export function DashboardScreen() {
                   <span className="text-[11px] text-muted-foreground">AI Chat Assistant</span>
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  isPremium || isTrial ? 'text-gold' : 'text-orange-400'
+                  isPremium || isTrial ? 'text-gold' : 'text-gold'
                 }`}>
                   {isPremium || isTrial ? `${DAILY_USAGE_LIMITS.chatMessages}/day` : '⚠️ Not included'}
                 </span>
@@ -309,7 +309,7 @@ export function DashboardScreen() {
                 <p className="text-[10px] text-muted-foreground">Avg Score</p>
               </div>
               <div className="bg-secondary border border-border rounded-xl p-3 text-center">
-                <p className="text-lg font-bold text-orange-400">{gamification.currentStreak}</p>
+                <p className="text-lg font-bold text-gold">{gamification.currentStreak}</p>
                 <p className="text-[10px] text-muted-foreground">Streak</p>
               </div>
             </div>
@@ -402,8 +402,8 @@ export function DashboardScreen() {
               onClick={() => navigateTo('gamification')}
               className="w-full flex items-center gap-3 p-3.5 bg-secondary border border-border rounded-xl hover:bg-muted transition-colors"
             >
-              <div className="w-9 h-9 rounded-lg bg-orange-400/10 flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-orange-400" />
+              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-gold" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium text-foreground">Achievements</p>
@@ -548,15 +548,15 @@ export function DashboardScreen() {
               disabled={!haircutCooldown.allowed}
               className={`w-full flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
                 haircutCooldown.allowed
-                  ? 'bg-gradient-to-r from-orange-400/10 to-orange-400/5 border border-orange-400/30 hover:from-orange-400/15 hover:to-orange-400/10'
+                  ? 'bg-gradient-to-r from-gold/10 to-gold/5 border border-gold/30 hover:from-gold/15 hover:to-gold/10'
                   : 'bg-secondary border border-border opacity-60 cursor-not-allowed'
               }`}
             >
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                haircutCooldown.allowed ? 'bg-orange-400/20' : 'bg-muted-foreground/10'
+                haircutCooldown.allowed ? 'bg-gold/20' : 'bg-muted-foreground/10'
               }`}>
                 {haircutCooldown.allowed ? (
-                  <Scissors className="w-5 h-5 text-orange-400" />
+                  <Scissors className="w-5 h-5 text-gold" />
                 ) : (
                   <Lock className="w-5 h-5 text-muted-foreground" />
                 )}
@@ -583,12 +583,12 @@ export function DashboardScreen() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32 }}
-            className="bg-gradient-to-br from-orange-400/10 to-orange-400/5 border border-orange-400/30 rounded-xl p-4"
+            className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-orange-400/20 flex items-center justify-center">
-                  <span className="text-xl font-bold text-orange-400">{gamification.currentStreak}</span>
+                <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
+                  <span className="text-xl font-bold text-gold">{gamification.currentStreak}</span>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">Grooming Streak</p>
@@ -599,7 +599,7 @@ export function DashboardScreen() {
               </div>
               <button
                 onClick={() => navigateTo('progress-tracker')}
-                className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
+                className="text-[10px] text-gold hover:text-gold/80 transition-colors"
               >
                 View Cuts →
               </button>
@@ -643,22 +643,22 @@ export function DashboardScreen() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.33 }}
-          className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/30 rounded-xl p-4"
+          className="bg-gradient-to-br from-gold/15 to-gold/5 border-2 border-gold/30 rounded-xl p-4"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <p className="text-[10px] font-medium text-orange-400 tracking-wider uppercase">DAILY CHECK-IN</p>
+              <Flame className="w-4 h-4 text-gold" />
+              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">DAILY CHECK-IN</p>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold text-orange-400">{gamification.dailyCheckInStreak}</span>
+              <span className="text-lg font-bold text-gold">{gamification.dailyCheckInStreak}</span>
               <span className="text-[10px] text-muted-foreground">day streak</span>
             </div>
           </div>
           {!isCheckedInToday ? (
             <button
               onClick={() => navigateTo('daily-checkin')}
-              className="w-full py-2.5 bg-orange-400 text-white font-bold text-xs rounded-xl hover:bg-orange-500 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-gold text-white font-bold text-xs rounded-xl hover:bg-gold/90 transition-colors flex items-center justify-center gap-2"
             >
               <Flame className="w-4 h-4" />
               CHECK IN NOW
@@ -674,7 +674,7 @@ export function DashboardScreen() {
               {nextDailyReward.reward && (
                 <button
                   onClick={() => navigateTo('daily-checkin')}
-                  className="flex items-center gap-1 text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
+                  className="flex items-center gap-1 text-[10px] text-gold hover:text-gold/80 transition-colors"
                 >
                   <Gift className="w-3 h-3" />
                   {nextDailyReward.daysNeeded}d to next reward
@@ -683,7 +683,7 @@ export function DashboardScreen() {
             </div>
           )}
           {/* Weekly mini view */}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-orange-400/20">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gold/20">
             {(() => {
               const weeklyHistory = getWeeklyCheckInHistory(gamification.lastCheckInDate, gamification.dailyCheckInStreak)
               return ['S','M','T','W','T','F','S'].map((label, i) => {
@@ -694,7 +694,7 @@ export function DashboardScreen() {
                       {label}
                     </span>
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                      weeklyHistory[i] ? 'bg-orange-400 text-white' : isToday ? 'border border-orange-400/50' : 'bg-secondary'
+                      weeklyHistory[i] ? 'bg-gold text-white' : isToday ? 'border border-gold/50' : 'bg-secondary'
                     }`}>
                       {weeklyHistory[i] && <Check className="w-2.5 h-2.5" />}
                     </div>
@@ -703,6 +703,32 @@ export function DashboardScreen() {
               })
             })()}
           </div>
+        </motion.div>
+
+        {/* Refer a Friend Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.345 }}
+          className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-gold" />
+              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">REFER A FRIEND</p>
+            </div>
+            <span className="text-[9px] text-muted-foreground">Get rewards</span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+            Share Sculpt with friends and you both get <span className="font-bold text-gold">+1 free scan</span> for each referral!
+          </p>
+          <button
+            onClick={() => navigateTo('refer-friend')}
+            className="w-full py-2.5 bg-gold/10 border border-gold/30 text-gold font-bold text-xs rounded-xl hover:bg-gold/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            SHARE YOUR CODE
+          </button>
         </motion.div>
 
         {/* Personalized Daily Tip */}
@@ -731,14 +757,14 @@ export function DashboardScreen() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/40 rounded-xl p-4"
+            className="bg-gradient-to-br from-gold/15 to-gold/5 border-2 border-gold/40 rounded-xl p-4"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-orange-400/20 flex items-center justify-center flex-shrink-0">
-                <Scissors className="w-4 h-4 text-orange-400" />
+              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                <Scissors className="w-4 h-4 text-gold" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-orange-400">Going to the barber?</p>
+                <p className="text-sm font-bold text-gold">Going to the barber?</p>
                 <p className="text-[10px] text-muted-foreground">Get the exact specs to hand your stylist</p>
               </div>
             </div>
@@ -755,7 +781,7 @@ export function DashboardScreen() {
               </button>
               <button
                 onClick={() => { syncRecommendationIndex(0); navigateTo('barber-card') }}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-secondary border border-orange-400/30 text-orange-400 text-[11px] font-bold rounded-lg hover:bg-orange-400/10 transition-colors"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-secondary border border-gold/30 text-gold text-[11px] font-bold rounded-lg hover:bg-gold/10 transition-colors"
               >
                 Preview
               </button>
@@ -780,12 +806,12 @@ export function DashboardScreen() {
               <div key={item.step} className="flex items-center gap-3">
                 <span className="text-[10px] font-bold text-gold w-5">{item.step}</span>
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                  item.locked ? 'bg-orange-400/10 text-orange-400' : 'bg-background text-gold'
+                  item.locked ? 'bg-gold/10 text-gold' : 'bg-background text-gold'
                 }`}>
                   {item.locked ? <Lock className="w-4 h-4" /> : item.icon}
                 </div>
                 <div className="flex-1">
-                  <p className={`text-xs ${item.locked ? 'text-orange-400 font-medium' : 'text-muted-foreground'}`}>{item.text}</p>
+                  <p className={`text-xs ${item.locked ? 'text-gold font-medium' : 'text-muted-foreground'}`}>{item.text}</p>
                 </div>
                 {item.locked && !isPremium && !isTrial && (
                   <button
@@ -799,8 +825,8 @@ export function DashboardScreen() {
             ))}
           </div>
           {!(isPremium || isTrial) && (
-            <div className="mt-3 pt-3 border-t border-orange-400/20">
-              <p className="text-[10px] text-orange-400 font-medium text-center">
+            <div className="mt-3 pt-3 border-t border-gold/20">
+              <p className="text-[10px] text-gold font-medium text-center">
                 ⚠️ Step 2 (AI analysis) requires Premium — free users skip photo analysis
               </p>
             </div>

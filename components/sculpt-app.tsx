@@ -31,6 +31,7 @@ import { PrivacyLegalScreen } from "@/components/screens/privacy-legal-screen"
 import { ProfileSetupScreen } from "@/components/screens/profile-setup-screen"
 import { LogCutScreen } from "@/components/screens/log-cut-screen"
 import { DailyCheckInScreen } from "@/components/screens/daily-checkin-screen"
+import { ReferFriendScreen } from "@/components/screens/refer-friend-screen"
 import { motion, AnimatePresence } from "framer-motion"
 import { getDailyCheckInNotification, sendLocalNotification, requestNotificationPermission } from "@/lib/notifications"
 
@@ -140,6 +141,8 @@ export function SculptApp() {
         return <LogCutScreen />
       case 'daily-checkin':
         return <DailyCheckInScreen />
+      case 'refer-friend':
+        return <ReferFriendScreen />
       default:
         return <LandingScreen />
     }

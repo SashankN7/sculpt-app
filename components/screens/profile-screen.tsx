@@ -93,8 +93,8 @@ export function ProfileScreen() {
               <p className="text-[10px] text-muted-foreground">Progress Photos</p>
             </div>
             <div className="bg-secondary border border-border rounded-xl p-4 text-center">
-              <Trophy className="w-5 h-5 text-orange-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-orange-400">{gamification.badges.filter(b => b.earnedAt).length}</p>
+              <Trophy className="w-5 h-5 text-gold mx-auto mb-2" />
+              <p className="text-2xl font-bold text-gold">{gamification.badges.filter(b => b.earnedAt).length}</p>
               <p className="text-[10px] text-muted-foreground">Badges Earned</p>
             </div>
           </div>
@@ -161,8 +161,8 @@ export function ProfileScreen() {
               <p className="text-xs font-medium text-gold tracking-wider uppercase mb-3">Haircut History</p>
               <div className="bg-secondary border border-border rounded-xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-orange-400/10 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-orange-400" />
+                  <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-gold" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">Last Haircut</p>

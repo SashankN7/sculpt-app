@@ -9,7 +9,7 @@ import type { ProgressPhoto } from "@/lib/types"
 const GROWTH_STAGES = {
   fresh: { label: "Fresh Cut", color: "text-green-400", bg: "bg-green-400/10", border: "border-green-400/30", emoji: "✨" },
   growing: { label: "Growing Out", color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/30", emoji: "🌱" },
-  "needs-trim": { label: "Needs Trim", color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/30", emoji: "✂️" },
+  "needs-trim": { label: "Needs Trim", color: "text-gold", bg: "bg-gold/10", border: "border-gold/30", emoji: "✂️" },
   overgrown: { label: "Overgrown", color: "text-red-400", bg: "bg-red-400/10", border: "border-red-400/30", emoji: "🌿" },
 } as const
 

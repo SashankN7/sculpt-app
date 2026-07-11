@@ -155,16 +155,16 @@ export function PaywallScreen() {
             {/* Free Tier */}
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold text-orange-400">FREE TIER</span>
-                <span className="text-[10px] text-orange-400/70">· very limited</span>
+                <span className="text-xs font-semibold text-gold">FREE TIER</span>
+                <span className="text-[10px] text-gold/70">· very limited</span>
               </div>
               <ul className="space-y-1.5">
-                <li className="flex items-center gap-2 text-[11px] text-orange-400">
-                  <span className="w-1 h-1 rounded-full bg-orange-400" />
+                <li className="flex items-center gap-2 text-[11px] text-gold">
+                  <span className="w-1 h-1 rounded-full bg-gold" />
                   <span className="font-bold">NO AI photo analysis — photos are ignored</span>
                 </li>
-                <li className="flex items-center gap-2 text-[11px] text-orange-400">
-                  <span className="w-1 h-1 rounded-full bg-orange-400" />
+                <li className="flex items-center gap-2 text-[11px] text-gold">
+                  <span className="w-1 h-1 rounded-full bg-gold" />
                   <span className="font-bold">Questionnaire answers only — no face/density/texture detection</span>
                 </li>
                 <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -275,25 +275,25 @@ export function PaywallScreen() {
           </AnimatePresence>
 
           {/* What you're missing banner */}
-          <div className="bg-orange-400/10 border-2 border-orange-400/30 rounded-xl p-4 mb-5 text-left">
-            <p className="text-sm font-bold text-orange-400 mb-2">
+          <div className="bg-gold/10 border-2 border-gold/30 rounded-xl p-4 mb-5 text-left">
+            <p className="text-sm font-bold text-gold mb-2">
               ⚠️ WHAT YOU'RE MISSING ON FREE:
             </p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2 text-[11px]">
-                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-gold mt-0.5">✕</span>
                 <span className="text-foreground"><span className="font-bold">No face shape detection</span> from your photos</span>
               </li>
               <li className="flex items-start gap-2 text-[11px]">
-                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-gold mt-0.5">✕</span>
                 <span className="text-foreground"><span className="font-bold">No hair density or texture analysis</span></span>
               </li>
               <li className="flex items-start gap-2 text-[11px]">
-                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-gold mt-0.5">✕</span>
                 <span className="text-foreground"><span className="font-bold">Recommendations based on guesses</span>, not your actual face</span>
               </li>
               <li className="flex items-start gap-2 text-[11px]">
-                <span className="text-orange-400 mt-0.5">✕</span>
+                <span className="text-gold mt-0.5">✕</span>
                 <span className="text-foreground">No AI chat, no PDF export</span>
               </li>
             </ul>

@@ -8,7 +8,7 @@ import { ChevronLeft, Trophy, Flame, Scissors, Palette, Share2 } from "lucide-re
 import type { Badge } from "@/lib/types"
 
 const CATEGORY_CONFIG = {
-  streak: { label: "Streak Badges", icon: Flame, color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/30" },
+  streak: { label: "Streak Badges", icon: Flame, color: "text-gold", bg: "bg-gold/10", border: "border-gold/30" },
   milestone: { label: "Milestone Badges", icon: Scissors, color: "text-gold", bg: "bg-gold/10", border: "border-gold/30" },
   style: { label: "Style Badges", icon: Palette, color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/30" },
   social: { label: "Social Badges", icon: Share2, color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/30" },
@@ -121,7 +121,7 @@ export function GamificationScreen() {
               <p className="text-[10px] text-muted-foreground">Earned</p>
             </div>
             <div className="bg-secondary border border-border rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-orange-400">{gamification.longestStreak}</p>
+              <p className="text-lg font-bold text-gold">{gamification.longestStreak}</p>
               <p className="text-[10px] text-muted-foreground">Best Streak</p>
             </div>
             <div className="bg-secondary border border-border rounded-xl p-3 text-center">
@@ -135,11 +135,11 @@ export function GamificationScreen() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-orange-400/10 to-orange-400/5 border border-orange-400/30 rounded-xl p-4 mb-4"
+            className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4 mb-4"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <p className="text-[10px] font-medium text-orange-400 tracking-wider uppercase">GROOMING STREAK</p>
+              <Flame className="w-4 h-4 text-gold" />
+              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">GROOMING STREAK</p>
             </div>
             <div className="flex items-center justify-between mb-2">
               <div>

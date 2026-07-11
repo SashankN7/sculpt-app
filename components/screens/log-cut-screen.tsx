@@ -97,8 +97,8 @@ export function LogCutScreen() {
             <p className="text-sm text-muted-foreground mb-2">
               Just got a fresh haircut? Log it here to track your grooming journey.
             </p>
-            <div className="bg-orange-400/10 border border-orange-400/30 rounded-lg p-3 mb-6">
-              <p className="text-[11px] text-orange-400 font-medium">
+            <div className="bg-gold/10 border border-gold/30 rounded-lg p-3 mb-6">
+              <p className="text-[11px] text-gold font-medium">
                 ✂️ This is for logging cuts you&apos;ve already gotten — not for tracking growth between cuts.
               </p>
               <p className="text-[10px] text-muted-foreground mt-1">

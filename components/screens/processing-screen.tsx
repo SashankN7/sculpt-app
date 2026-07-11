@@ -275,10 +275,10 @@ export function ProcessingScreen() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="flex items-center gap-2.5 p-2.5 px-3 bg-orange-400/10 border border-orange-400/30 rounded-xl">
-              <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+            <div className="flex items-center gap-2.5 p-2.5 px-3 bg-gold/10 border border-gold/30 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-gold flex-shrink-0" />
               <p className="text-[11px] text-foreground leading-snug flex-1">
-                <span className="font-bold text-orange-400">Questionnaire only</span> — photos not analyzed.{' '}
+                <span className="font-bold text-gold">Questionnaire only</span> — photos not analyzed.{' '}
                 <button onClick={() => navigateTo('paywall')} className="text-gold font-bold hover:underline">
                   Upgrade for AI →
                 </button>
