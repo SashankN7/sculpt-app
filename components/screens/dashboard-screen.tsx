@@ -355,8 +355,8 @@ export function DashboardScreen() {
                   {isPremium || isTrial
                     ? `${DAILY_USAGE_LIMITS.analyses} AI analyses · ${DAILY_USAGE_LIMITS.chatMessages} chat messages/day`
                     : isFirstTime
-                    ? `${SCAN_LIMITS.guest} free scans/day · Upgrade for AI analysis`
-                    : `${SCAN_LIMITS.guest} scans/day · Upgrade for AI analysis`}
+                    ? `${SCAN_LIMITS.guest} free scan${SCAN_LIMITS.guest !== 1 ? 's' : ''}/day · Upgrade for AI analysis`
+                    : `${SCAN_LIMITS.guest} scan${SCAN_LIMITS.guest !== 1 ? 's' : ''}/day · Upgrade for AI analysis`}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
