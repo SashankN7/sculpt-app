@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { track } from "@/lib/posthog"
-import { Settings, Check, Loader2, AlertTriangle, Crown, Sparkles } from "lucide-react"
+import { Settings, Check, Loader2, AlertTriangle, Crown } from "lucide-react"
 
 // Use a module-level flag to prevent double execution across strict mode remounts
 let processingStarted = false
