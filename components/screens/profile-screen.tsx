@@ -169,8 +169,7 @@ export function ProfileScreen() {
                     <p className="text-xs text-muted-foreground">
                       {new Date(lastCutDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
-                  </div>
-                  <span className="text-sm font-medium text-orange-400">{gamification.currentStreak}🔥</span>
+                  </div>                   <span className="text-sm font-medium text-gold">{gamification.currentStreak}</span>
                 </div>
                 <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                   <span>Total cuts logged: {gamification.totalCutsLogged}</span>

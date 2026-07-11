@@ -283,19 +283,9 @@ export function HairJourneyScreen() {
         <div className="px-4 md:px-6 lg:px-8 max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             {/* Title */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-gold" />
-                <h2 className="text-xl font-semibold text-foreground">Hair Journey</h2>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => navigateTo("log-cut")} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-400/10 border border-orange-400/30 rounded-lg text-[11px] font-medium text-orange-400 hover:bg-orange-400/15 transition-colors">
-                  <Scissors className="w-3.5 h-3.5" /> Log a Fresh Cut
-                </button>
-                <button onClick={() => setShowUpload(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-lg text-[11px] font-medium text-gold hover:bg-gold/15 transition-colors">
-                  <Camera className="w-3.5 h-3.5" /> Add Photo
-                </button>
-              </div>
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="w-6 h-6 text-gold" />
+              <h2 className="text-xl font-semibold text-foreground">Hair Journey</h2>
             </div>
 
             {/* Stats */}

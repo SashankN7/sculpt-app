@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useApp } from "@/lib/app-context"
 import { hasCheckedInToday, getNextDailyReward, getAllDailyRewards, getWeeklyCheckInHistory } from "@/lib/gamification"
 import { getDailyTip, getUserTags } from "@/lib/daily-tips"
-import { ChevronLeft, Flame, Calendar, Gift, Trophy, Check, Camera, Sparkles, TrendingUp, ChevronRight } from "lucide-react"
+import { ChevronLeft, Calendar, Gift, Trophy, Check, Camera, Sparkles, TrendingUp, ChevronRight } from "lucide-react"
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"]
 
@@ -66,7 +66,7 @@ export function DailyCheckInScreen() {
           >
             {/* Title */}
             <div className="flex items-center gap-2 mb-6">
-              <Flame className="w-6 h-6 text-orange-400" />
+              <Calendar className="w-6 h-6 text-gold" />
               <h2 className="text-xl font-semibold text-foreground">Daily Check-In</h2>
             </div>
 
@@ -74,25 +74,8 @@ export function DailyCheckInScreen() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-orange-400/15 to-orange-400/5 border-2 border-orange-400/30 rounded-2xl p-6 mb-6 text-center relative overflow-hidden"
+              className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-2xl p-6 mb-6 text-center relative overflow-hidden"
             >
-              {/* Background fire emojis */}
-              {gamification.dailyCheckInStreak >= 7 && (
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  {[...Array(6)].map((_, i) => (
-                    <motion.span
-                      key={i}
-                      className="absolute text-lg opacity-20"
-                      initial={{ y: 100, x: `${15 + i * 15}%` }}
-                      animate={{ y: -20, opacity: [0.2, 0.4, 0.2] }}
-                      transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.4 }}
-                    >
-                      🔥
-                    </motion.span>
-                  ))}
-                </div>
-              )}
-
               <div className="relative z-10">
                 {/* Streak count */}
                 <motion.div
@@ -101,7 +84,7 @@ export function DailyCheckInScreen() {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
                 >
-                  <p className="text-5xl font-bold text-orange-400 mb-1">{gamification.dailyCheckInStreak}</p>
+                  <p className="text-5xl font-bold text-gold mb-1">{gamification.dailyCheckInStreak}</p>
                   <p className="text-sm text-muted-foreground mb-4">day streak</p>
                 </motion.div>
 
@@ -111,10 +94,9 @@ export function DailyCheckInScreen() {
                     onClick={handleCheckIn}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="px-8 py-3 bg-orange-400 text-white font-bold rounded-xl hover:bg-orange-500 transition-colors shadow-lg shadow-orange-400/25"
+                    className="px-8 py-3 bg-gold text-gold-foreground font-bold rounded-xl hover:bg-gold/90 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <Flame className="w-5 h-5" />
                       CHECK IN TODAY
                     </div>
                   </motion.button>
@@ -134,14 +116,14 @@ export function DailyCheckInScreen() {
                       exit={{ opacity: 0, y: -20 }}
                       className="absolute inset-0 flex items-center justify-center pointer-events-none"
                     >
-                      <motion.span
-                        className="text-6xl"
+                      <motion.div
+                        className="w-16 h-16 rounded-full bg-green-400/20 flex items-center justify-center"
                         initial={{ scale: 0 }}
-                        animate={{ scale: [0, 1.5, 1] }}
+                        animate={{ scale: [0, 1.2, 1] }}
                         transition={{ duration: 0.6 }}
                       >
-                        🔥
-                      </motion.span>
+                        <Check className="w-8 h-8 text-green-400" />
+                      </motion.div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -171,9 +153,9 @@ export function DailyCheckInScreen() {
                       <motion.div
                         className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
                           isChecked
-                            ? 'bg-orange-400 border-orange-400 text-white'
+                            ? 'bg-gold border-gold text-gold-foreground'
                             : isToday
-                            ? 'border-orange-400/50 bg-orange-400/10'
+                            ? 'border-gold/50 bg-gold/10'
                             : 'border-border bg-secondary'
                         }`}
                         animate={isChecked ? { scale: [1, 1.2, 1] } : {}}
@@ -182,7 +164,7 @@ export function DailyCheckInScreen() {
                         {isChecked ? (
                           <Check className="w-3.5 h-3.5" />
                         ) : isToday ? (
-                          <Flame className="w-3.5 h-3.5 text-orange-400/50" />
+                          <span className="w-2 h-2 rounded-full bg-gold/50" />
                         ) : (
                           <span className="w-2 h-2 rounded-full bg-border" />
                         )}
@@ -348,7 +330,7 @@ export function DailyCheckInScreen() {
               className="grid grid-cols-3 gap-2 mb-4"
             >
               <div className="bg-secondary border border-border rounded-xl p-3 text-center">
-                <p className="text-lg font-bold text-orange-400">{gamification.totalCheckIns}</p>
+                <p className="text-lg font-bold text-gold">{gamification.totalCheckIns}</p>
                 <p className="text-[10px] text-muted-foreground">Total Check-ins</p>
               </div>
               <div className="bg-secondary border border-border rounded-xl p-3 text-center">

@@ -572,7 +572,7 @@ export function DashboardScreen() {
                   }
                 </p>
               </div>
-              <span className="text-lg">{haircutCooldown.allowed ? '🔥' : '⏳'}</span>
+              <span className="text-lg">{haircutCooldown.allowed ? '✂️' : '⏳'}</span>
             </button>
           </motion.div>
         )}
