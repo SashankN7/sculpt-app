@@ -280,7 +280,7 @@ export function HairJourneyScreen() {
       </div>
 
       <div className="flex-1 pt-2 pb-6 overflow-y-auto w-full">
-        <div className="px-4 md:px-6 lg:px-8 max-w-2xl mx-auto">
+        <div className="px-4 md:px-6 lg:px-8 max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             {/* Title */}
             <div className="flex items-center justify-between mb-6">
@@ -290,7 +290,7 @@ export function HairJourneyScreen() {
               </div>
               <div className="flex gap-2">
                 <button onClick={() => navigateTo("log-cut")} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-400/10 border border-orange-400/30 rounded-lg text-[11px] font-medium text-orange-400 hover:bg-orange-400/15 transition-colors">
-                  <Scissors className="w-3.5 h-3.5" /> Log Cut
+                  <Scissors className="w-3.5 h-3.5" /> Log a Fresh Cut
                 </button>
                 <button onClick={() => setShowUpload(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-lg text-[11px] font-medium text-gold hover:bg-gold/15 transition-colors">
                   <Camera className="w-3.5 h-3.5" /> Add Photo
@@ -333,12 +333,20 @@ export function HairJourneyScreen() {
                   <TrendingUp className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <h3 className="text-lg font-medium text-foreground mb-2">Start Your Hair Journey</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-                  Log your haircuts and take progress photos to track your grooming journey over time.
+                <p className="text-sm text-muted-foreground mb-2 max-w-xs mx-auto">
+                  Track your grooming journey over time.
                 </p>
+                <div className="bg-orange-400/10 border border-orange-400/30 rounded-lg p-3 mb-6 max-w-xs mx-auto">
+                  <p className="text-[11px] text-orange-400 font-medium text-center">
+                    ✂️ Log a Cut = you just got a fresh haircut
+                  </p>
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">
+                    📸 Add Photo = track growth between cuts
+                  </p>
+                </div>
                 <div className="flex gap-3 justify-center">
                   <button onClick={() => navigateTo("log-cut")} className="px-5 py-3 bg-orange-400 text-white font-semibold rounded-xl text-sm">
-                    Log a Cut
+                    Log a Fresh Cut
                   </button>
                   <button onClick={() => setShowUpload(true)} className="px-5 py-3 bg-gold text-gold-foreground font-semibold rounded-xl text-sm">
                     Add Photo

@@ -19,6 +19,7 @@ export type NotificationType =
   | 'streak-reminder'         // "Don't break your streak! Log your cut"
   | 'growth-check'            // "Time to check your progress photos"
   | 'seasonal-alert'          // "Summer styles are here"
+  | 'daily-checkin'           // "Don't forget to check in today!"
 
 // ── Request Notification Permission ──
 export async function requestNotificationPermission(): Promise<'granted' | 'denied' | 'default'> {
@@ -110,6 +111,22 @@ export function generateStreakReminder(currentStreak: number): NotificationPaylo
   }
 }
 
+export function generateDailyCheckInReminder(currentStreak: number): NotificationPayload {
+  if (currentStreak === 0) {
+    return {
+      title: '🔥 Start Your Streak!',
+      body: 'Check in today to start building your daily grooming streak and unlock rewards!',
+      tag: 'daily-checkin',
+    }
+  }
+
+  return {
+    title: `🔥 ${currentStreak}-Day Streak Going!`,
+    body: `Don't forget to check in today! Keep your ${currentStreak}-day streak alive and unlock more rewards.`,
+    tag: 'daily-checkin',
+  }
+}
+
 export function generateTrendAlert(): NotificationPayload {
   return {
     title: '🌟 New Trending Styles',
@@ -185,6 +202,23 @@ export function getSmartNotifications(userState: {
   }
 
   return notifications.slice(0, 1) // Max 1 notification at a time
+}
+
+// ── Smart Daily Check-In Scheduler ──
+export function getDailyCheckInNotification(
+  lastCheckInDate: string | null,
+  dailyCheckInStreak: number
+): NotificationPayload | null {
+  const today = new Date().toISOString().split('T')[0]
+
+  // Already checked in today — no notification needed
+  if (lastCheckInDate === today) return null
+
+  // Check if it's after 6 PM and user hasn't checked in
+  const hour = new Date().getHours()
+  if (hour < 18) return null
+
+  return generateDailyCheckInReminder(dailyCheckInStreak)
 }
 
 // ── Service Worker Registration (for push notifications) ──

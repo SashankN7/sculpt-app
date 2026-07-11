@@ -84,7 +84,7 @@ export function LogCutScreen() {
       </div>
 
       <div className="flex-1 pt-4 overflow-y-auto">
-        <div className="px-6 md:px-8 mx-auto w-full max-w-lg">
+        <div className="px-6 md:px-8 mx-auto w-full max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,9 +94,17 @@ export function LogCutScreen() {
             <h2 className="text-xl font-semibold text-foreground mb-1">
               LOG YOUR CUT
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              Capture your fresh cut to track your grooming journey.
+            <p className="text-sm text-muted-foreground mb-2">
+              Just got a fresh haircut? Log it here to track your grooming journey.
             </p>
+            <div className="bg-orange-400/10 border border-orange-400/30 rounded-lg p-3 mb-6">
+              <p className="text-[11px] text-orange-400 font-medium">
+                ✂️ This is for logging cuts you&apos;ve already gotten — not for tracking growth between cuts.
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Use &quot;Progress Photos&quot; to track how your hair grows out between visits.
+              </p>
+            </div>
 
             {/* Photo Capture */}
             <input

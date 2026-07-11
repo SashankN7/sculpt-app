@@ -563,11 +563,11 @@ export function DashboardScreen() {
               </div>
               <div className="flex-1 text-left">
                 <p className={`text-sm font-medium ${haircutCooldown.allowed ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  {haircutCooldown.allowed ? 'Log Haircut' : `Available in ${haircutCooldown.daysUntilAvailable} days`}
+                  {haircutCooldown.allowed ? 'Log a Fresh Cut' : `Available in ${haircutCooldown.daysUntilAvailable} days`}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {haircutCooldown.allowed
-                    ? 'Track your latest cut to build your streak'
+                    ? 'Just got a haircut? Log it here to build your streak'
                     : `${HAIRCUT_COOLDOWN_DAYS}-day cooldown between logs`
                   }
                 </p>

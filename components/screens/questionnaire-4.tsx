@@ -41,7 +41,7 @@ export function QuestionnaireFinal() {
           <span className="text-sm text-muted-foreground">Final Step</span>
         </div>
 
-        <div className="flex-1 px-6 md:px-8 pt-4 pb-6 flex flex-col overflow-y-auto mx-auto w-full max-w-2xl">
+        <div className="flex-1 px-6 md:px-8 pt-4 pb-6 flex flex-col overflow-y-auto mx-auto w-full max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

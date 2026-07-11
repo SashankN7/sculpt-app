@@ -32,6 +32,7 @@ import { ProfileSetupScreen } from "@/components/screens/profile-setup-screen"
 import { LogCutScreen } from "@/components/screens/log-cut-screen"
 import { DailyCheckInScreen } from "@/components/screens/daily-checkin-screen"
 import { motion, AnimatePresence } from "framer-motion"
+import { getDailyCheckInNotification, sendLocalNotification, requestNotificationPermission } from "@/lib/notifications"
 
 export function SculptApp() {
   const { state } = useApp()
@@ -41,6 +42,22 @@ export function SculptApp() {
   useEffect(() => {
     const timer = setTimeout(() => setIsBooting(false), 800)
     return () => clearTimeout(timer)
+  }, [])
+
+  // Daily check-in notification — send reminder after 6 PM if not checked in
+  useEffect(() => {
+    if (state.userSession === 'guest') return
+    // Check notification permission on first load
+    requestNotificationPermission()
+    // Send check-in reminder if applicable
+    const notif = getDailyCheckInNotification(
+      state.gamification.lastCheckInDate,
+      state.gamification.dailyCheckInStreak
+    )
+    if (notif) {
+      sendLocalNotification(notif)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Branded splash screen while app boots
