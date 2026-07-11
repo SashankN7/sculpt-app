@@ -8,7 +8,7 @@ import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/l
 import { getEarnedBadges, getRecentBadges } from "@/lib/gamification"
 import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
-import { DAILY_USAGE_LIMITS } from "@/lib/types"
+import { DAILY_USAGE_LIMITS, SCAN_LIMITS } from "@/lib/types"
 
 const GROOMING_TIPS = [
   { title: 'Less Product is More', content: 'Start with a dime-sized amount of product. You can always add more, but overloading makes hair look greasy and flat.' },
@@ -355,8 +355,8 @@ export function DashboardScreen() {
                   {isPremium || isTrial
                     ? `${DAILY_USAGE_LIMITS.analyses} AI analyses · ${DAILY_USAGE_LIMITS.chatMessages} chat messages/day`
                     : isFirstTime
-                    ? '10 free scans/day · AI-powered analysis'
-                    : '10 scans/day · Upgrade for AI analysis'}
+                    ? `${SCAN_LIMITS.guest} free scans/day · Upgrade for AI analysis`
+                    : `${SCAN_LIMITS.guest} scans/day · Upgrade for AI analysis`}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
