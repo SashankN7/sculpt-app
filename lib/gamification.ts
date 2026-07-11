@@ -1,4 +1,5 @@
 import type { Badge, GamificationState } from '@/lib/types'
+import { DAILY_REWARD_TIERS } from '@/lib/types'
 
 // ── Badge Definitions ──
 export const BADGE_DEFINITIONS: Omit<Badge, 'earnedAt'>[] = [
@@ -38,6 +39,11 @@ export function initGamification(): GamificationState {
     longestStreak: 0,
     styleVariety: 0,
     lastCutLoggedDate: null,
+    dailyCheckInStreak: 0,
+    longestDailyCheckInStreak: 0,
+    lastCheckInDate: null,
+    totalCheckIns: 0,
+    unlockedRewards: [],
   }
 }
 
@@ -216,4 +222,112 @@ export function getProgressToNextBadge(
     target: next.requirement,
     percentage: Math.min(100, Math.round((current / next.requirement) * 100)),
   }
+}
+
+// ── Daily Check-In System ──
+
+/** Check if user has already checked in today */
+export function hasCheckedInToday(lastCheckInDate: string | null): boolean {
+  if (!lastCheckInDate) return false
+  const today = new Date().toISOString().split('T')[0]
+  return lastCheckInDate === today
+}
+
+/** Get the next daily reward the user can earn */
+export function getNextDailyReward(gamification: GamificationState): { reward: typeof DAILY_REWARD_TIERS[0] | null; daysNeeded: number; percentage: number } {
+  const unclaimed = DAILY_REWARD_TIERS.filter(r => !gamification.unlockedRewards.includes(r.id))
+  if (unclaimed.length === 0) return { reward: null, daysNeeded: 0, percentage: 100 }
+
+  const next = unclaimed[0]
+  const daysNeeded = Math.max(0, next.streakRequired - gamification.dailyCheckInStreak)
+  const percentage = Math.min(100, Math.round((gamification.dailyCheckInStreak / next.streakRequired) * 100))
+  return { reward: next, daysNeeded, percentage }
+}
+
+/** Get all daily rewards with their claim status */
+export function getAllDailyRewards(gamification: GamificationState) {
+  return DAILY_REWARD_TIERS.map(r => ({
+    ...r,
+    claimed: gamification.unlockedRewards.includes(r.id),
+    reached: gamification.dailyCheckInStreak >= r.streakRequired,
+  }))
+}
+
+/** Check in for today — updates streak and checks for reward unlocks */
+export function checkInToday(
+  gamification: GamificationState
+): { gamification: GamificationState; newReward: typeof DAILY_REWARD_TIERS[0] | null } {
+  const today = new Date().toISOString().split('T')[0]
+
+  // Already checked in today — no-op
+  if (gamification.lastCheckInDate === today) {
+    return { gamification, newReward: null }
+  }
+
+  const lastDate = gamification.lastCheckInDate
+  let newStreak = 1
+
+  if (lastDate) {
+    const last = new Date(lastDate)
+    const now = new Date()
+    const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 1) {
+      // Consecutive day — increment streak
+      newStreak = gamification.dailyCheckInStreak + 1
+    }
+    // diffDays > 1 or diffDays === 0 (already handled above) — reset to 1
+  }
+
+  const newLongest = Math.max(newStreak, gamification.longestDailyCheckInStreak)
+  const totalCheckIns = gamification.totalCheckIns + 1
+
+  // Check for reward unlocks
+  let newReward: typeof DAILY_REWARD_TIERS[0] | null = null
+  const newUnlocked = [...gamification.unlockedRewards]
+
+  for (const tier of DAILY_REWARD_TIERS) {
+    if (!newUnlocked.includes(tier.id) && newStreak >= tier.streakRequired) {
+      newUnlocked.push(tier.id)
+      newReward = tier // Return the latest unlock
+    }
+  }
+
+  return {
+    gamification: {
+      ...gamification,
+      dailyCheckInStreak: newStreak,
+      longestDailyCheckInStreak: newLongest,
+      lastCheckInDate: today,
+      totalCheckIns,
+      unlockedRewards: newUnlocked,
+    },
+    newReward,
+  }
+}
+
+/** Get a weekly view of check-in history (last 7 days) */
+export function getWeeklyCheckInHistory(lastCheckInDate: string | null, dailyCheckInStreak: number): boolean[] {
+  // Returns an array of 7 booleans (Mon-Sun) showing which days were checked in
+  // This is a simplified version — in production you'd store daily history
+  const history: boolean[] = [false, false, false, false, false, false, false]
+  if (!lastCheckInDate) return history
+
+  const today = new Date()
+  const todayDayOfWeek = today.getDay() // 0=Sun, 1=Mon, ...
+  const lastCheckIn = new Date(lastCheckInDate)
+  const diffDays = Math.floor((today.getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24))
+
+  // Mark checked-in days working backwards from today
+  for (let i = 0; i <= Math.min(diffDays, 6); i++) {
+    const dayIndex = (todayDayOfWeek - i + 7) % 7
+    if (i <= dailyCheckInStreak) {
+      history[dayIndex] = true
+    }
+  }
+
+  // Today is always included
+  history[todayDayOfWeek] = true
+
+  return history
 }

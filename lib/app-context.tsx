@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useCallback, useMemo, useRef, useE
 import { type AppState, type Screen, initialAppState, type HairstyleRecommendation, type PhotoRetentionOption, type FeedbackData, type ProgressPhoto, type ScanHistoryEntry, type LoggedCut, defaultSettingsState, SCAN_LIMITS, PRICING } from "@/lib/types"
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
-import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut } from "@/lib/gamification"
+import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut, checkInToday as checkInTodayUtil } from "@/lib/gamification"
 import { identify, resetIdentity } from "@/lib/posthog"
 
 interface FeatureConfig {
@@ -58,6 +58,7 @@ interface AppContextType {
   clearSettingsScrollTo: () => void
   setDetailViewMode: (mode: 'full' | 'savedOnly') => void
   logHaircut: (hairstyleName: string) => boolean
+  checkInToday: () => string | null
   addLoggedCut: (cut: LoggedCut) => void
   removeLoggedCut: (id: string) => void
   addProgressPhoto: (photo: ProgressPhoto) => void
@@ -611,6 +612,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     screenHistoryRef.current = []
   }, [])
 
+  // ── Daily Check-In ──
+  const checkInTodayAction = useCallback(() => {
+    const { gamification: newGam, newReward } = checkInTodayUtil(state.gamification)
+    setState(prev => ({ ...prev, gamification: newGam }))
+    return newReward?.id ?? null
+  }, [state.gamification])
+
   // ── Gamification ──
   const logHaircut = useCallback((hairstyleName: string) => {
     // Check cooldown — only allow logging every 2 weeks
@@ -795,6 +803,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     clearSettingsScrollTo,
     setDetailViewMode,
     logHaircut,
+    checkInToday: checkInTodayAction,
     addLoggedCut,
     removeLoggedCut,
     addProgressPhoto,

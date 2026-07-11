@@ -26,6 +26,7 @@ export type Screen =
   | 'privacy-legal'
   | 'profile-setup'
   | 'log-cut'
+  | 'daily-checkin'
 
 export type UserSession = 'guest' | 'authenticated' | 'trial' | 'premium'
 
@@ -222,7 +223,33 @@ export interface GamificationState {
   longestStreak: number
   styleVariety: number // unique styles tried
   lastCutLoggedDate: string | null
+  // Daily check-in system
+  dailyCheckInStreak: number
+  longestDailyCheckInStreak: number
+  lastCheckInDate: string | null
+  totalCheckIns: number
+  unlockedRewards: string[] // IDs of earned daily rewards
 }
+
+// ── Daily Check-In Reward Tiers ──
+export interface DailyReward {
+  id: string
+  name: string
+  description: string
+  icon: string // emoji
+  streakRequired: number
+  type: 'bonus-scan' | 'bonus-chat' | 'feature-preview' | 'premium-day' | 'exclusive-style'
+  claimed: boolean
+}
+
+export const DAILY_REWARD_TIERS: Omit<DailyReward, 'claimed'>[] = [
+  { id: 'reward-3', name: 'Streak Starter', description: '3-day streak unlocked! Enjoy a bonus chat message.', icon: '🎯', streakRequired: 3, type: 'bonus-chat' },
+  { id: 'reward-7', name: 'Week Warrior', description: '7 days straight! Heres a bonus scan on us.', icon: '⚡', streakRequired: 7, type: 'bonus-scan' },
+  { id: 'reward-14', name: 'Dedicated Groomer', description: '14 days! Unlock a premium feature preview.', icon: '💎', streakRequired: 14, type: 'feature-preview' },
+  { id: 'reward-30', name: 'Monthly Master', description: '30-day streak! You earned a free premium day.', icon: '👑', streakRequired: 30, type: 'premium-day' },
+  { id: 'reward-60', name: 'Grooming Legend', description: '60 days! Access an exclusive hairstyle.', icon: '🏆', streakRequired: 60, type: 'exclusive-style' },
+  { id: 'reward-90', name: 'Sculpt Champion', description: '90-day streak! Youre a true Sculpt champion.', icon: '🔥', streakRequired: 90, type: 'premium-day' },
+]
 
 // ── Hair Growth Tracker ──
 export interface ProgressPhoto {
@@ -377,6 +404,11 @@ export const initialAppState: AppState = {
     longestStreak: 0,
     styleVariety: 0,
     lastCutLoggedDate: null,
+    dailyCheckInStreak: 0,
+    longestDailyCheckInStreak: 0,
+    lastCheckInDate: null,
+    totalCheckIns: 0,
+    unlockedRewards: [],
   },
   progressPhotos: [],
   pushPermission: 'default',
