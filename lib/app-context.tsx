@@ -5,7 +5,6 @@ import { type AppState, type Screen, initialAppState, type HairstyleRecommendati
 import { saveStateToStorage, loadStateFromStorage } from "@/lib/persistence"
 import { createClient, clearRememberedEmail } from "@/lib/supabase"
 import { logHaircut as logHaircutUtil, awardBadge, initGamification, canLogHaircut, checkInToday as checkInTodayUtil } from "@/lib/gamification"
-import { generateReferralCode, getReferralCodeFromUrl } from "@/lib/referrals"
 import { identify, resetIdentity } from "@/lib/posthog"
 
 interface FeatureConfig {
@@ -67,9 +66,7 @@ interface AppContextType {
   setPushPermission: (permission: 'default' | 'granted' | 'denied') => void
   setProfile: (profile: Partial<AppState['profile']>) => void
   migrateGuestData: () => Promise<boolean>
-  shareReferral: () => Promise<void>
-  claimReferralReward: (rewardId: string) => void
-  initReferral: (email: string) => void
+
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -676,43 +673,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
-  // ── Referral System ──
-  const initReferral = useCallback((email: string) => {
-    if (state.referralCode) return // Already initialized
-    const code = generateReferralCode(email)
-    // Check for referral code in URL
-    const referredBy = getReferralCodeFromUrl()
-    setState(prev => ({
-      ...prev,
-      referralCode: code,
-      referredBy: referredBy || prev.referredBy,
-    }))
-  }, [state.referralCode])
 
-  const shareReferral = useCallback(async () => {
-    const code = state.referralCode
-    if (!code) return
-    const { getReferralUrl, getReferralShareText } = await import('@/lib/referrals')
-    const url = getReferralUrl(code)
-    const text = getReferralShareText(code)
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Sculpt — AI Haircuts', text, url })
-        setState(prev => ({ ...prev, referralsSent: prev.referralsSent + 1 }))
-      } catch { /* user cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(text)
-      setState(prev => ({ ...prev, referralsSent: prev.referralsSent + 1 }))
-    }
-  }, [state.referralCode])
-
-  const claimReferralReward = useCallback((rewardId: string) => {
-    setState(prev => ({
-      ...prev,
-      referralRewardsClaimed: [...prev.referralRewardsClaimed, rewardId],
-    }))
-  }, [])
 
   // Migrate guest localStorage data to Supabase after account creation
   const migrateGuestData = useCallback(async (): Promise<boolean> => {
@@ -853,9 +814,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPushPermission,
     setProfile,
     migrateGuestData,
-    shareReferral,
-    claimReferralReward,
-    initReferral,
+
   }), [
     state,
     featureConfig,
@@ -905,9 +864,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPushPermission,
     setProfile,
     migrateGuestData,
-    shareReferral,
-    claimReferralReward,
-    initReferral,
+
   ])
 
   return (

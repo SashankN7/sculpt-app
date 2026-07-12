@@ -6,7 +6,7 @@ import { useApp } from "@/lib/app-context"
 import { getMaintenanceReminder } from "@/lib/history"
 import { getTopSeasonalPicks, getCurrentSeason, getSeasonDisplayName } from "@/lib/seasonal"
 import { getEarnedBadges, getRecentBadges, hasCheckedInToday, getNextDailyReward, getWeeklyCheckInHistory } from "@/lib/gamification"
-import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Flame, Gift, Check, Users, Share2 } from "lucide-react"
+import { Settings, FileText, ChevronRight, Plus, Sparkles, User, Clock, TrendingUp, Scissors, Camera, Crown, AlertTriangle, Timer, BookOpen, Trophy, Lock, MessageSquare, Flame, Gift, Check } from "lucide-react"
 import { canLogHaircut, HAIRCUT_COOLDOWN_DAYS } from "@/lib/gamification"
 import { DAILY_USAGE_LIMITS, SCAN_LIMITS } from "@/lib/types"
 import { getDailyTip, getUserTags } from "@/lib/daily-tips"
@@ -705,31 +705,7 @@ export function DashboardScreen() {
           </div>
         </motion.div>
 
-        {/* Refer a Friend Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.345 }}
-          className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/30 rounded-xl p-4"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gold" />
-              <p className="text-[10px] font-medium text-gold tracking-wider uppercase">REFER A FRIEND</p>
-            </div>
-            <span className="text-[9px] text-muted-foreground">Get rewards</span>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
-            Share Sculpt with friends and you both get <span className="font-bold text-gold">+1 free scan</span> for each referral!
-          </p>
-          <button
-            onClick={() => navigateTo('refer-friend')}
-            className="w-full py-2.5 bg-gold/10 border border-gold/30 text-gold font-bold text-xs rounded-xl hover:bg-gold/20 transition-colors flex items-center justify-center gap-2"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            SHARE YOUR CODE
-          </button>
-        </motion.div>
+
 
         {/* Personalized Daily Tip */}
         <motion.div
